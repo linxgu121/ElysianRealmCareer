@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<npcsets>
+  <npcset identifier="ElysianRealmNpc">
+    <npc identifier="Elysia" job="realme" tags="outpostmanager" spawnpointtags="admin" behavior="StayInHull" preferredoutpostmoduletypes="admin,adminmodule">
+      <Character name="爱莉希雅" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" aimspeed="3.0" aimaccuracy="1.0" faceattachmentindex="3" healthmultiplier="5" personality="Fearful">
+        <job name="爱莉希雅" identifier="realme">
+          <skill identifier="electrical" level="65" />
+          <skill identifier="mechanical" level="40" />
+          <skill identifier="weapons" level="100" />
+          <skill identifier="medical" level="100" />
+          <skill identifier="helm" level="81" />
+        </job>
+      </Character>
+      <ItemSet commonness="1">
+        <Item identifier="Elysiagear" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+        <Item identifier="harpoongun" equip="false">
+          <Item identifier="lovespears" amount="4" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="Kevin" job="securityofficer" tags="securitynpc" spawnpointtags="security" healthmultiplier="2" behavior="Patrol">
+      <ItemSet>
+        <Item identifier="Kevingear" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
+        <Item identifier="stunbaton">
+          <Item identifier="batterycell" />
+        </Item>
+        <Item identifier="batterycell" amount="8" />
+        <Item identifier="handcuffs" />
+        <Item identifier="smg">
+          <Item identifier="smgmagazine" />
+        </Item>
+        <Item identifier="smgmagazine" />
+        <Item identifier="smgmagazine" />
+        <Item identifier="divingknife" />
+        <Item identifier="bodyarmor" equip="true" />
+        <Item identifier="ballistichelmet1" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+      <ItemSet>
+        <Item identifier="Kevingear" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
+        <Item identifier="stungun">
+          <Item identifier="stungundart" />
+        </Item>
+        <Item identifier="stunbaton">
+          <Item identifier="batterycell" />
+        </Item>
+        <Item identifier="batterycell" amount="8" />
+        <Item identifier="stungundart" />
+        <Item identifier="stungundart" />
+        <Item identifier="divingknife" />
+        <Item identifier="handcuffs" />
+        <Item identifier="antibleeding1" />
+        <Item identifier="bodyarmor" equip="true" />
+        <Item identifier="ballistichelmet3" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+      <ItemSet>
+        <Item identifier="Kevingear" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
+        <Item identifier="stunbaton">
+          <Item identifier="batterycell" />
+        </Item>
+        <Item identifier="batterycell" amount="8" />
+        <Item identifier="handcuffs" />
+        <Item identifier="revolver" equip="false">
+          <Item identifier="revolverround" amount="6" />
+        </Item>
+        <Item identifier="divingknife" />
+        <Item identifier="antibleeding1" />
+        <Item identifier="bodyarmor" equip="true" />
+        <Item identifier="ballistichelmet2" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="Aponia" job="securityofficer" tags="securitynpc" spawnpointtags="security" healthmultiplier="2" behavior="Patrol">
+      <ItemSet>
+        <Item identifier="Aponiagear" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
+        <Item identifier="stunbaton">
+          <Item identifier="batterycell" />
+        </Item>
+        <Item identifier="batterycell" amount="8" />
+        <Item identifier="handcuffs" />
+        <Item identifier="smg">
+          <Item identifier="smgmagazine" />
+        </Item>
+        <Item identifier="smgmagazine" />
+        <Item identifier="smgmagazine" />
+        <Item identifier="divingknife" />
+        <Item identifier="bodyarmor" equip="true" />
+        <Item identifier="ballistichelmet1" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+      <ItemSet>
+        <Item identifier="Aponiagear" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
+        <Item identifier="stungun">
+          <Item identifier="stungundart" />
+        </Item>
+        <Item identifier="stunbaton">
+          <Item identifier="batterycell" />
+        </Item>
+        <Item identifier="batterycell" amount="8" />
+        <Item identifier="stungundart" />
+        <Item identifier="stungundart" />
+        <Item identifier="divingknife" />
+        <Item identifier="handcuffs" />
+        <Item identifier="antibleeding1" />
+        <Item identifier="bodyarmor" equip="true" />
+        <Item identifier="ballistichelmet3" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+      <ItemSet>
+        <Item identifier="Aponiagear" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
+        <Item identifier="stunbaton">
+          <Item identifier="batterycell" />
+        </Item>
+        <Item identifier="batterycell" amount="8" />
+        <Item identifier="handcuffs" />
+        <Item identifier="revolver" equip="false">
+          <Item identifier="revolverround" amount="6" />
+        </Item>
+        <Item identifier="divingknife" />
+        <Item identifier="antibleeding1" />
+        <Item identifier="bodyarmor" equip="true" />
+        <Item identifier="ballistichelmet2" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="Eden" job="watchman" spawnpointtags="hr" healthmultiplier="3" campaigninteractiontype="Crew" behavior="StayInHull">
+      <ItemSet commonness="1">
+        <Item identifier="Edengear" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="wrench" equip="true" />
+        <Item identifier="screwdriver" equip="true" />
+        <Item identifier="revolver" equip="false">
+          <Item identifier="revolverround" amount="6" />
+        </Item>
+        <Item identifier="weldingtool" equip="false">
+          <Item identifier="weldingfueltank" />
+        </Item>
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="Vill-V" job="watchman" spawnpointtags="armory" healthmultiplier="3" campaigninteractiontype="Store" behavior="StayInHull">
+      <ItemSet commonness="1">
+        <Item identifier="V2Vgear" equip="true" />
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="revolver">
+          <Item identifier="revolverround" amount="6" />
+        </Item>
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="hireableElysia" job="realme" skillmultiplier="1.5" experiencepoints="2000">
+      <ItemSet>
+        <Item identifier="Elysiagear" equip="true" />
+        <Item identifier="headset" equip="true" />
+        <Item identifier="idcard" equip="true" tags="id_Elysia" />
+        <Item identifier="batterycell" />
+        <Item identifier="revolver" equip="false">
+          <Item identifier="revolverround" amount="6" />
+        </Item>
+        <Item identifier="antibleeding1" />
+      </ItemSet>
+    </npc>
+    <npc identifier="jianzhang" job="captain" skillmultiplier="1.5" experiencepoints="2000">
+      <Character name="舰伥" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" aimspeed="3.0" aimaccuracy="1.0" faceattachmentindex="3" healthmultiplier="5" personality="Fearful">
+        <ItemSet>
+          <Item identifier="captainscap1" equip="true" />
+          <Item identifier="headset" equip="true" />
+          <Item identifier="idcard" equip="true" tags="id_Elysia" />
+          <Item identifier="batterycell" />
+          <Item identifier="revolver" equip="false">
+            <Item identifier="revolverround" amount="6" />
+          </Item>
+          <Item identifier="antibleeding1" />
+        </ItemSet>
+      </Character>
+    </npc>
+  </npcset>
+</npcsets>

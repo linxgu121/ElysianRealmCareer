@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Randomevents>
+  <EventSprites>
+    <!--以后再说吧-->
+  </EventSprites>
+  <!--任务事件-->
+  <EventPrefabs>
+    <ScriptedEvent identifier="missionevent_bh3" commonness="30">
+      <SpawnAction npcsetidentifier="ElysianRealmNpc" npcidentifier="jianzhang" targettag="jianzhang" spawnlocation="Outpost" targetmoduletags="adminmodule" />
+      <ConversationAction text="EventText.missionevent_Elysia.c1" speakertag="jianzhang" endeventifinterrupted="false" dialogtype="Small" />
+      <MissionAction missiontag="bh3" />
+      <NPCWaitAction npctag="jianzhang" wait="true" />
+    </ScriptedEvent>
+  </EventPrefabs>
+</Randomevents>

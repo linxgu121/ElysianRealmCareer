@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Conversations identifier="vanillaconversations" Language="Simplified Chinese" nowhitespace="True">
+  <Conversation line="嗨。感觉如何？" speaker="0" flags="OutpostNPC" allowedjobs="realme">
+    <Conversation line="还好，没什么异常，就像现实中一样。" speaker="1">
+      <Conversation line="嗯，那就好。之前有些来访者，在进入「往世乐土」的瞬间就站不住了。" speaker="0">
+        <Conversation line="就像是溺水一样······被记忆淹没的的感觉并不好受，对吗？" speaker="0">
+          <Conversation line="······" speaker="1">
+            <Conversation line="但似乎，这份担心对你是多余的。" speaker="0" />
+          </Conversation>
+        </Conversation>
+      </Conversation>
+    </Conversation>
+    <Conversation line="很奇妙的景像······这是第一文明纪元的建筑吗？是做什么用的？" speaker="1">
+      <Conversation line="怎么样，对你来说应该很前卫吧？不过在我的时代，这只是一栋再普通不过的住宅，路边随处可见。" speaker="0">
+        <Conversation line="这种时代断层的错位感也是探索「往世乐土」的乐趣之一。在遇到更难以置信的景象之前，就好好期待一些吧~" speaker="0" />
+      </Conversation>
+    </Conversation>
+  </Conversation>
+  <Conversation line="我会赠与你我的祝福，而你的灵魂也将绽放更夺目的光辉。" speaker="0" allowedjobs="realme">
+    <Conversation line="往世乐土大冒险，就此开幕。" speaker="0" />
+  </Conversation>
+  <Conversation line="还记得我是谁吗?" speaker="0" allowedjobs="realme">
+    <Conversation line="······" speaker="1">
+      <Conversation line="怎么了，突然一声不吭，是还没缓过来吗？" speaker="0">
+        <Conversation line="还是说忘记了？" speaker="0">
+          <Conversation line="哎呀，我还以为你会好好记住人家的名字的，有点难过。" speaker="0">
+            <Conversation line="······" speaker="1">
+              <Conversation line="开玩笑的。真是的，总觉得你好沉闷呀。" speaker="0" />
+            </Conversation>
+          </Conversation>
+        </Conversation>
+      </Conversation>
+    </Conversation>
+    <Conversation line="你是······世界蛇干部，羽兔。" speaker="1">
+      <Conversation line="······" speaker="0">
+        <Conversation line="羽兔是谁？" speaker="0">
+          <Conversation line="······对，你不是她。抱歉，当我没说过吧。" speaker="1">
+            <Conversation line="唉，你好像把我和奇怪的人联系在一起了，这不好哦。" speaker="0" />
+          </Conversation>
+        </Conversation>
+      </Conversation>
+    </Conversation>
+    <Conversation line="如果我没记错的话，你应该是······粉色妖精小姐？" speaker="1">
+      <Conversation line="才不是呢！" speaker="0">
+        <Conversation line="那是什么，给我起的昵称？原来你是这么轻浮的人吗？" speaker="0">
+          <Conversation line="······抱歉，的确不是。不知为何，脑海中有个声音让我这么说。" speaker="1">
+            <Conversation line="很危险哦，那说不定是你的心声呢。" speaker="0">
+              <Conversation line="虽然我不讨厌坏坏的女孩子，但这个玩笑太突然啦，下次要看场合哦。" speaker="0" />
+            </Conversation>
+          </Conversation>
+        </Conversation>
+      </Conversation>
+    </Conversation>
+  </Conversation>
+  <Conversation line="我再做一次自我介绍吧。" speaker="0" allowedjobs="realme">
+    <Conversation line="这次可要好好记住哦？再忘掉的话，我会有小情绪的。" speaker="0">
+      <Conversation line="我的名字是爱莉希雅，如你所见，是一位人如其名的美丽少女。" speaker="0">
+        <Conversation line="在穆的通用语言中，爱莉希雅有「乐园、乐土」的含义。" speaker="0">
+          <Conversation line="朋友们会叫我爱莉，念着很可爱，像我。" speaker="0">
+            <Conversation line="至于身份嘛······用你们的话说，应该是「前文明纪元的融合战士」吧？也就是那位英雄凯文曾经的同伴哦。" speaker="0" />
+          </Conversation>
+        </Conversation>
+      </Conversation>
+    </Conversation>
+  </Conversation>
+  <Conversation line="这个给你，你可以能会需要这本书。" speaker="0" allowedjobs="realme">
+    <Conversation line="······《千劫面具一百问：从入门到精通》？······作者，爱莉希雅？" speaker="1">
+      <Conversation line="从零基础开始，教会你该如何与千劫友好相处的指导书。简单易懂，谁都能立即上手。" speaker="0">
+        <Conversation line="在逐火之蛾，这可是和求生指南一样的必读书目哦。" speaker="0">
+          <Conversation line="有了它，你就可以放心大胆的向他搭话啦。" speaker="0">
+            <Conversation line="真的吗？如果失败了呢？" speaker="1">
+              <Conversation line="放心，我也会提供「售后服务」的。" speaker="0" />
+            </Conversation>
+          </Conversation>
+        </Conversation>
+      </Conversation>
+    </Conversation>
+  </Conversation>
+  <Conversation line="这里有好多和我一样漂亮的女孩子呀，是天堂吗？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="白天的我也很可爱，晚上的我也很可爱，你更喜欢哪个我呢？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="别动，借你的眼睛照照镜子，好了，我看起来怎么样。" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="说起粉色头发的可爱女孩，你第一个会想到谁？321回答！" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="有空多来陪陪我好吗，你一定不忍心让可爱的我孤独寂寞吧？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="这身衣服是伊甸做的哦，喜欢吗？还是说，喜欢的是我呢？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="嗨，早上好！一天的好心情，从见到你开始。" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="我还有好多好多话想对你说，就这样一直继续下去，好吗？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="你已知晓了我的过去，作为交换，我想见证你的未来。" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="故事总有结局，但它留下的记忆和感情会一直延续，不是吗？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="哦？你刚刚一直在盯着我看，对不对？" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+  <Conversation line="来分享一下彼此的缺点吧，从我开始，答案是：完全没有！" speaker="0" allowedjobs="realme" maxintensity="0.2" />
+</Conversations>

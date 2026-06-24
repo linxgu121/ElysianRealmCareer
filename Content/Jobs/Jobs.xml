@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Jobs>
+  <!-- BALANCE: initial skill ranges and vitality modifier are documented in Config/BalanceGuide.md. -->
+  <Job identifier="realme" allowalways="true" minkarma="30" initialcount="1" uicolor="1,0.34,0.85" vitalitymodifier="15" pricemultiplier="1" idlebehavior="StayInHull">
+    <Jobicon>
+      <sprite texture="%ModDir%/Assets/UI/真我1.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    </Jobicon>
+    <JobiconSmall>
+      <sprite texture="%ModDir%/Assets/UI/爱莉头像.png" sourcerect="0,0,91,73" origin="0.5,0.5" />
+    </JobiconSmall>
+    <Skills>
+      <Skill identifier="weapons" level="5,15" primary="true" />
+      <Skill identifier="mechanical" level="15,45" primary="false" />
+      <Skill identifier="electrical" level="10,55" primary="false" />
+      <Skill identifier="medical" level="1,25" primary="true" />
+      <Skill identifier="helm" level="5,15" primary="true" />
+    </Skills>
+    <ItemSet>
+      <Item identifier="idcard" equip="true" showpreview="false" />
+      <Item identifier="Elysiagear" equip="true" outfit="true" />
+      <Item identifier="headset" equip="true" showpreview="false" />
+      <Item identifier="revolver" equip="false">
+        <Item identifier="revolverround" />
+        <Item identifier="revolverround" />
+        <Item identifier="revolverround" />
+        <Item identifier="revolverround" />
+        <Item identifier="revolverround" />
+        <Item identifier="revolverround" />
+      </Item>
+      <PreviewSprites dims="120,109">
+        <sprite texture="Content/Items/Jobgear/Security/securityofficer_torso_[GENDER]_1.png" sourcerect="2,38,120,109" offset="0,0" />
+        <sprite texture="Content/Items/Jobgear/Security/securityofficer_torso_[GENDER]_1.png" sourcerect="121,0,76,80" offset="-20,15" />
+      </PreviewSprites>
+    </ItemSet>
+    <PortraitClothing>
+      <sprite name="Portrait Clothing Assistant" texture="Content/Items/Jobgear/PortraitClothing.png" sheetindex="0,2" />
+    </PortraitClothing>
+    <AutonomousObjectives>
+      <Order identifier="fightintruders" prioritymodifier="1.2" />
+      <Order identifier="rescue" prioritymodifier="1" />
+      <Order identifier="extinguishfires" prioritymodifier="1" />
+      <Order identifier="operatereactor" option="powerup" prioritymodifier="1" />
+      <Order identifier="fixleaks" prioritymodifier="1" />
+    </AutonomousObjectives>
+    <AppropriateOrders>
+      <Order identifier="fixleaks" />
+      <Order identifier="pumpwater" />
+      <Order identifier="repairmechanical" />
+      <Order identifier="reportbrokendevices" />
+    </AppropriateOrders>
+  </Job>
+</Jobs>

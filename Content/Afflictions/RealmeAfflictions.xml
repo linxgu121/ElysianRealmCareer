@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Afflictions>
+  <!--
+  BALANCE:
+  Most persistent buff values are intentionally kept in this file.
+  For player-facing tuning notes, see Config/BalanceGuide.md.
+  -->
+  <!--粉色妖精小姐♪（misspinkelf）-->
+  <Affliction identifier="misspinkelf" type="talentbuff" isbuff="true" limbspecific="false" showiconthreshold="1" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,255,255">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1"></Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000" strengthchange="-1">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/粉色妖精小姐♪.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="%ModDir%/Assets/UI/粉色妖精小姐♪.png" sheetindex="0,0" sheetelementsize="120,120" origin="0,0" />
+  </Affliction>
+  <!--真我 · 人之律者（herrscherofhumanego）-->
+  <Affliction identifier="herrscherofhumanego" type="talentbuff" isbuff="true" limbspecific="false" showiconthreshold="1" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,255,255">
+    <Effect minstrength="0" maxstrength="10" maxvitalitydecrease="0"></Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000" strengthchange="-1">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/真我 · 人之律者.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="%ModDir%/Assets/UI/真我 · 人之律者.png" sheetindex="0,0" sheetelementsize="120,120" origin="0,0" />
+  </Affliction>
+  <!--来自人律的祝福-->
+  <Affliction identifier="ablessingfromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" showiconthreshold="1" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+      <StatValue stattype="RepairSpeed" value="0.3" />
+      <StatValue stattype="RepairToolStructureRepairMultiplier" value="0.5" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--人律的本源-->
+  <Affliction identifier="asourcefromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+      <StatValue stattype="RepairSpeed" value="0.6" />
+      <StatValue stattype="RepairToolStructureRepairMultiplier" value="1.2" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--致以无瑕之人-->
+  <Affliction identifier="totheflawless" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="1" treatmentthreshold="1000" duration="1" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="1000">
+      <AbilityFlag flagtype="CanNotDieToAfflictions" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="6,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--来自始源的祝福-->
+  <Affliction identifier="ablessingfromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1" maxstrength="10" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+      <StatValue stattype="MaximumHealthMultiplier" value="0.25" />
+      <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
+      <StatValue stattype="BuffItemApplyingMultiplier" value="1" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--始源的本源-->
+  <Affliction identifier="asourcefromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1" maxstrength="10" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+      <StatValue stattype="MaximumHealthMultiplier" value="0.5" />
+      <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
+      <StatValue stattype="BuffItemApplyingMultiplier" value="2" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--似乎得认真点啦哪-->
+  <Affliction identifier="itseemstohavetobeserious" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="60" treatmentthreshold="1000" duration="60" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="60">
+      <StatValue stattype="AttackMultiplier" value="0.5" />
+      <AbilityFlag flagtype="AlwaysStayConscious" />
+    </Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/人之律者-似乎得认真点了呢。.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons3.png" sheetindex="0,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--以我为始，以我为终-->
+  <Affliction identifier="startwithmeandendwithme" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1" maxstrength="1" duration="60" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="1">
+      <StatValue stattype="RepairToolStructureRepairMultiplier" value="1.2" />
+      <StatValue stattype="SwimmingSpeed" value="0.5" />
+    </Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/人之律者-以我为始，以我为终。.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--梦幻的共演哦~-->
+  <Affliction identifier="adreamycoperformance" type="talentbuff" isbuff="true" limbspecific="false" maxstrength="2" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="2" strengthchange="-1">
+      <StatValue stattype="AttackMultiplier" value="0.50" />
+    </Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/人之律者-梦幻的共演哦。.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons3.png" sheetindex="2,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--送你一点惊喜-->
+  <Affliction identifier="sendyoualittlesurprise" type="talentbuff" isbuff="true" limbspecific="false" maxstrength="1" duration="30" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="1">
+      <StatValue stattype="RepairSpeed" value="0.5" />
+      <StatValue stattype="RepairToolStructureRepairMultiplier" value="0.5" />
+      <StatValue stattype="MeleeAttackSpeed" value="0.5" />
+    </Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="5,7" sheetelementsize="128,128" color="255,86,217" origin="0,0" />
+  </Affliction>
+  <!--逃不掉哦~-->
+  <Affliction identifier="youcannotescape" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="10" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+      <StatValue stattype="AttackMultiplier" value="0.5" />
+    </Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-逃不掉哦~.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons3.png" sheetindex="1,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--打不着哦~-->
+  <Affliction identifier="cannotfight" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="10" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+      <StatValue stattype="MovementSpeed" value="0.4" />
+    </Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="5" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-打不着哦~.ogg" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons3.png" sheetindex="1,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+</Afflictions>

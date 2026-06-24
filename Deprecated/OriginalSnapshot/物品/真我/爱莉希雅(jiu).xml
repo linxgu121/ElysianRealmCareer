@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Items>
+  <!--爱矛-->
+  <Item name="" identifier="lovespears" category="Weapon" maxstacksize="4" interactthroughwalls="true" cargocontaineridentifier="metalcrate" tags="mediumitem,harpoonammo,demolitionsexpert" Scale="0.5" impactsoundtag="impact_metal_light">
+    <!--分解-->
+    <Deconstruct time="5">
+      <Item identifier="physicorium" amount="1" />
+      <Item identifier="molochbone" amount="1" />
+    </Deconstruct>
+    <!--合成-->
+    <Fabricate suitablefabricators="fabricator" requiredtime="10" requiresrecipe="true">
+      <RequiredSkill identifier="mechanical" level="50" />
+      <RequiredSkill identifier="electrical" level="50" />
+      <Item identifier="titaniumaluminiumalloy" amount="1" />
+      <Item identifier="physicorium" amount="2" />
+      <Item identifier="molochbone" amount="1" />
+      <Item identifier="ic4block" amount="1" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/物品/爱矛缩略.png" sourcerect="0,0,55,55" origin="0.5,0.5" />
+    <Sprite texture="Content/Items/Weapons/weapons_new.png" sourcerect="85,381,168,15" depth="0.55" origin="0.5,0.5" />
+    <Body width="160" height="10" density="30" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <Projectile characterusable="false" launchimpulse="10.0" severlimbsprobability="0.1">
+      <Attack structuredamage="100" targetforce="10" penetration="0.5">
+        <Affliction identifier="explosiondamage" strength="300" />
+      </Attack>
+      <StatusEffect type="OnImpact" target="This" Condition="-100.0" disabledeltatime="true">
+        <Explosion range="200.0" ballastfloradamage="100" structuredamage="100" levelwalldamage="50" itemdamage="250" force="5" severlimbsprobability="0.25">
+          <Affliction identifier="burn" strength="150" />
+          <Affliction identifier="stun" strength="1.5" />
+        </Explosion>
+        <sound file="%ModDir%/音乐及配音/爱莉希雅-送你一朵花~.ogg" range="6000" />
+        <sound file="Content/Items/Weapons/ExplosionSmall2.ogg" range="3000" />
+        <sound file="Content/Items/Weapons/ExplosionSmall3.ogg" range="3000" />
+        <Remove />
+      </StatusEffect>
+    </Projectile>
+    <Upgrade gameversion="0.10.0.0" scale="0.5" />
+  </Item>
+</Items>

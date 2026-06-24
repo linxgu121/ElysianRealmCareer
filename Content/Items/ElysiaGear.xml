@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Items>
+  <!-- BALANCE: price, recipe, armor, and skill bonuses are documented in Config/BalanceGuide.md. -->
+  <Item name="" identifier="Elysiagear" category="Equipment" cargocontaineridentifier="metalcrate" tags="smallitem,clothing" scale="0.5" impactsoundtag="impact_soft">
+    <PreferredContainer primary="crewcab" />
+    <Price baseprice="1111">
+      <Price storeidentifier="merchantoutpost" minavailable="1" maxavailable="1" sold="true" />
+      <Price storeidentifier="merchantcity" minavailable="1" maxavailable="1" sold="true" />
+      <Price storeidentifier="merchantresearch" minavailable="1" maxavailable="1" sold="true" />
+      <Price storeidentifier="merchantmilitary" minavailable="1" maxavailable="1" sold="true" />
+      <Price storeidentifier="merchantmine" minavailable="1" maxavailable="1" sold="true" />
+    </Price>
+    <Fabricate suitablefabricators="fabricator" requiredtime="10">
+      <Item identifier="aluminium" amount="2" />
+    </Fabricate>
+    <Deconstruct time="10" />
+    <InventoryIcon name="" texture="%ModDir%/Assets/Items/Elysia/Icon.png" sourcerect="0,0,244,212" origin="0.5,0.5" />
+    <Sprite name="Elysia" texture="%ModDir%/Assets/Items/Elysia/Elysia.png" sourcerect="0,0,125,70" depth="0.6" origin="0.5,0.5" />
+    <Body width="100" height="50" density="20" friction="0.8" restitution="0.01" />
+    <Wearable slots="Any,InnerClothes" msg="ItemMsgPickUpSelect">
+      <sprite name="Head" texture="%ModDir%/Assets/Items/Elysia/Head.png" limb="Head" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.79,0.18" sourcerect="0,0,205,473" />
+      <sprite name="Torso" texture="%ModDir%/Assets/Items/Elysia/Body.png" limb="Torso" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.71,0.21" sourcerect="0,0,108,254" />
+      <sprite name="Waist" texture="%ModDir%/Assets/Items/Elysia/Waist.png" limb="Waist" hidelimb="true" hideotherwearables="false" inherittexturescale="true" inheritorigin="true" inheritsourcerect="true" />
+      <sprite name="RHand" texture="%ModDir%/Assets/Items/Elysia/Rhand.png" limb="RightHand" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.35,0.4" sourcerect="0,0,25,33" />
+      <sprite name="LHand" texture="%ModDir%/Assets/Items/Elysia/Lhand.png" limb="LeftHand" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.35,0.4" sourcerect="0,0,25,33" />
+      <sprite name="RArm1" texture="%ModDir%/Assets/Items/Elysia/Rarm1.png" limb="RightArm" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.52,0.48" sourcerect="0,0,38,74" />
+      <sprite name="LArm1" texture="%ModDir%/Assets/Items/Elysia/Larm1.png" limb="LeftArm" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.52,0.52" sourcerect="0,0,38,74" />
+      <sprite name="RArm2" texture="%ModDir%/Assets/Items/Elysia/Rarm2.png" limb="RightForearm" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.45,0.5" sourcerect="0,0,38,62" />
+      <sprite name="LArm2" texture="%ModDir%/Assets/Items/Elysia/Larm2.png" limb="LeftForearm" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.5,0.5" sourcerect="0,0,38,62" />
+      <sprite name="RLeg1" texture="%ModDir%/Assets/Items/Elysia/Rleg1.png" limb="RightThigh" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.5,0.5" sourcerect="0,0,40,99" />
+      <sprite name="LLeg1" texture="%ModDir%/Assets/Items/Elysia/Lleg1.png" limb="LeftThigh" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.5,0.5" sourcerect="0,0,40,99" />
+      <sprite name="RLeg2" texture="%ModDir%/Assets/Items/Elysia/Rleg2.png" limb="RightLeg" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.5,0.5" sourcerect="0,0,41,90" />
+      <sprite name="LLeg2" texture="%ModDir%/Assets/Items/Elysia/Lleg2.png" limb="LeftLeg" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.5,0.5" sourcerect="0,0,41,90" />
+      <sprite name="RFoot" texture="%ModDir%/Assets/Items/Elysia/Rfoot.png" limb="RightFoot" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.7,0.5" sourcerect="0,0,41,31" />
+      <sprite name="LFoot" texture="%ModDir%/Assets/Items/Elysia/Lfoot.png" limb="LeftFoot" hidelimb="true" hideotherwearables="false" inherittexturescale="true" origin="0.7,0.5" sourcerect="0,0,41,31" />
+      <damagemodifier armorsector="0.0,360.0" afflictionidentifiers="acidburn,concussion,reaperstax,hallucinating,nausea,explosiondamage,organdamage,paralysis,radiationsickness,bitewounds,lacerations,blunttrauma,gunshotwound,psychosis,huskinfection,burn,internaldamage" damagemultiplier="0.8" />
+      <SkillModifier skillidentifier="electrical" skillvalue="+11" />
+      <SkillModifier skillidentifier="helm" skillvalue="+11" />
+      <SkillModifier skillidentifier="mechanical" skillvalue="+11" />
+      <SkillModifier skillidentifier="medical" skillvalue="+11" />
+      <SkillModifier skillidentifier="weapons" skillvalue="+11" />
+    </Wearable>
+  </Item>
+</Items>

@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<infotexts language="Simplified Chinese" nowhitespace="true" translatedname="中文（简体）">
+  <!--  职业名字  -->
+  <jobname.realme>「真我」</jobname.realme>
+  <jobdescription.realme>来自崩坏三，逐火英桀第二位，「真我」之铭的爱莉希雅，这位深爱着所有「人」的少女……</jobdescription.realme>
+  <!--  职业树  -->
+  <talenttree.Realmename>「真我」之铭</talenttree.Realmename>
+  <talenttree.Himissmeyet>嗨 想我了吗？</talenttree.Himissmeyet>
+  <talenttree.TruE>TruE</talenttree.TruE>
+  <!--  技能名字  -->
+  <talentname.Elysia>爱莉希雅</talentname.Elysia>
+  <talentname.AnOdetoLoveandCompassion>爱与伶之诗</talentname.AnOdetoLoveandCompassion>
+  <talentname.WanderingDream>如梦初醒，无瑕一生</talentname.WanderingDream>
+  <talentname.BlessingofPurity>「至纯」的祝福</talentname.BlessingofPurity>
+  <talentname.BlessingofFirstEncounter>「初见」的祝福</talentname.BlessingofFirstEncounter>
+  <talentname.DormantSeeds>沉睡的种</talentname.DormantSeeds>
+  <talentname.CrystallineSeed>水晶之种</talentname.CrystallineSeed>
+  <talentname.BlessingofZenith>「至高」的祝福</talentname.BlessingofZenith>
+  <talentname.BlessingofFirstBloom>「初绽」的祝福</talentname.BlessingofFirstBloom>
+  <talentname.BlessingofLove>「至爱」的祝福</talentname.BlessingofLove>
+  <talentname.BlessingofFirstAwakening>「初醒」的祝福</talentname.BlessingofFirstAwakening>
+  <talentname.BlessingofBenevolence>「至善」的祝福</talentname.BlessingofBenevolence>
+  <talentname.BlessingofFirstJourney>「初程」的祝福</talentname.BlessingofFirstJourney>
+  <talentname.BlessingofBeauty>「至美」的祝福</talentname.BlessingofBeauty>
+  <talentname.BlessingofFirstYearning>「初念」的祝福</talentname.BlessingofFirstYearning>
+  <talentname.ASagaofOriginsandEndings>始与终之史</talentname.ASagaofOriginsandEndings>
+  <talentname.EnlightenedSalvation>天眷始终，爱佑世人</talentname.EnlightenedSalvation>
+  <talentname.AnOathtoWindandMoon>风与月之誓</talentname.AnOathtoWindandMoon>
+  <talentname.InfiniteHelix>因果螺旋，蛰转无限</talentname.InfiniteHelix>
+  <talentname.ABlessingfromHeavenandEarth>天与地之施</talentname.ABlessingfromHeavenandEarth>
+  <talentname.RisingStarbeams>光折斗转，明映星芒</talentname.RisingStarbeams>
+  <talentname.AnArrowforFlowerandFowl>花与鸟之矢</talentname.AnArrowforFlowerandFowl>
+  <talentname.ShatteredTransience>落花刹那，光翳明灭</talentname.ShatteredTransience>
+  <talentname.TheBeginningofYouandI>你与我之始</talentname.TheBeginningofYouandI>
+  <talentname.RadiantDestiny>命定此身，璀璨永恒</talentname.RadiantDestiny>
+  <talentname.BitingArrows>如弓矢般凛冽</talentname.BitingArrows>
+  <talentname.WishforSea>愿海洋辽阔</talentname.WishforSea>
+  <talentname.ElvenAgility>如精灵般灵动</talentname.ElvenAgility>
+  <talentname.WishforEarth>愿大地丰饶</talentname.WishforEarth>
+  <talentname.FloralSplendor>如飞花般绚丽</talentname.FloralSplendor>
+  <talentname.WishforStars>愿群星闪耀</talentname.WishforStars>
+  <!--  buff名字  -->
+  <afflictionname.ablessingfromherrscherofhuman>来自人律的祝福</afflictionname.ablessingfromherrscherofhuman>
+  <afflictionname.asourcefromherrscherofhuman>人律的本源</afflictionname.asourcefromherrscherofhuman>
+  <afflictionname.ablessingfromherrscheroforigin>来自始源的祝福</afflictionname.ablessingfromherrscheroforigin>
+  <afflictionname.asourcefromherrscheroforigin>始源的本源</afflictionname.asourcefromherrscheroforigin>
+  <afflictionname.totheflawless>致以无瑕之人</afflictionname.totheflawless>
+  <!--<afflictionname.startwithmeandendwithme>以我为始，以我为终</afflictionname.startwithmeandendwithme>-->
+  <afflictionname.brilliantlightshiningontheearth>璀璨光芒，照耀大地</afflictionname.brilliantlightshiningontheearth>
+  <afflictionname.adreamycoperformance>梦幻的共演哦</afflictionname.adreamycoperformance>
+  <afflictionname.itseemstohavetobeserious>似乎得认真点啦哪</afflictionname.itseemstohavetobeserious>
+  <!--爱莉希雅-->
+  <talentdescription.Elysia>这是名为‖color:255,86,217,255‖爱莉希雅‖end‖的核心技能
+‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！“如果选错分支，可是无法后悔的哦‖color:255,86,217,255‖♪‖end‖”</talentdescription.Elysia>
+  <!--爱与伶之诗-->
+  <talentdescription.AnOdetoLoveandCompassion>‖color:255,86,217,255‖粉色妖精小姐♪‖end‖
+让我重新做一次自我介绍吧，逐火英桀第二位，「真我」之铭的‖color:255,86,217,255‖爱莉希雅‖end‖
+获得常驻天赋：‖color:255,86,217,255‖来自人律的祝福‖end‖
+天赋效果：‖color:gui.green‖+10%‖end‖ ‖color:gui.orange‖修复速度‖end‖，
+                ‖color:gui.green‖+10%‖end‖ ‖color:gui.orange‖船体修复速度‖end‖。
+获得常驻天赋：‖color:255,86,217,255‖致以无瑕之人‖end‖
+天赋效果：附近‖color:gui.green‖10‖end‖米内的同伴不会因为痛苦而死去。</talentdescription.AnOdetoLoveandCompassion>
+  <!--如梦初醒，无瑕一生-->
+  <talentdescription.WanderingDream>‖color:255,86,217,255‖真我 · 人之律者‖end‖
+你已知晓我的过去，作为交接，我想见证你的未来。
+获得常驻天赋：‖color:255,86,217,255‖来自始源的祝福‖end‖
+天赋效果：对你使用医疗物资效果‖color:gui.green‖+25%‖end‖，
+                来源于你的增益持续时间‖color:gui.green‖+50%‖end‖，
+                增加‖color:gui.green‖+25%‖end‖最大生命值。</talentdescription.WanderingDream>
+  <!--「至纯」的祝福-->
+  <talentdescription.BlessingofPurity>来自乐土‖color:255,86,217,255‖「真我」‖end‖的刻印力量
+使你可以全速拉着队友逃跑。</talentdescription.BlessingofPurity>
+  <!--「初见」的祝福-->
+  <talentdescription.BlessingofFirstEncounter>来自乐土‖color:255,86,217,255‖「真我」‖end‖的刻印力量
+居然是全套的心肺复苏教程，真是不可思议。
+“心肺复苏效果增强”</talentdescription.BlessingofFirstEncounter>
+  <!--沉睡的种-->
+  <talentdescription.DormantSeeds>‖color:255,0,255,255‖往世的飞花 · 爱之诗‖end‖
+在武器的帮助下，你的精准度‖color:gui.green‖+30%‖end‖</talentdescription.DormantSeeds>
+  <!--水晶之种-->
+  <talentdescription.CrystallineSeed>‖color:255,0,255,255‖真我之境 · 无瑕回归‖end‖
+在武器的帮助下，你的机修修复速度‖color:gui.green‖+20%‖end‖</talentdescription.CrystallineSeed>
+  <!--「至高」的祝福-->
+  <talentdescription.BlessingofZenith>‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！
+道路千万条，安全第一条。开船不规范，亲人两行泪。
+“引擎效率提高300%”</talentdescription.BlessingofZenith>
+  <!--「初绽」的祝福-->
+  <talentdescription.BlessingofFirstBloom>‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！
+在开阔海域中误伤队友，是很痛的。
+“在开阔海域中，鱼叉的伤害‖color:gui.green‖+150%‖end‖”</talentdescription.BlessingofFirstBloom>
+  <!--「至爱」的祝福-->
+  <talentdescription.BlessingofLove>‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！
+如果这里被破坏了，我可是会心疼的。
+当你的船进水超过50%
+移动速度增加‖color:gui.green‖+50%‖end‖，
+修复速度增加‖color:gui.green‖+120%‖end‖，
+持续60秒</talentdescription.BlessingofLove>
+  <!--「初醒」的祝福-->
+  <talentdescription.BlessingofFirstAwakening>‖color:255,86,217,255‖真是的，我会哭的哦♪‖end‖
+‖color:255,86,217,255‖爱莉希雅‖end‖不会因为一次生命值低于0而眩晕
+‖color:255,86,217,255‖似乎得认真点啦哪♪‖end‖攻击力提高‖color:gui.green‖+50‖end‖
+“持续60秒，每巡回一次”</talentdescription.BlessingofFirstAwakening>
+  <!--「至善」的祝福-->
+  <talentdescription.BlessingofBenevolence>‖color:255,86,217,255‖可爱的美少女是无所不能的‖end‖
+技能获取速度‖color:gui.green‖+25%‖end‖</talentdescription.BlessingofBenevolence>
+  <!--「初程」的祝福-->
+  <talentdescription.BlessingofFirstJourney>‖color:255,86,217,255‖梦幻的共演哦~‖end‖
+‖color:255,86,217,255‖爱莉希雅‖end‖操作炮台时，你她最近的盟友和‖color:255,86,217,255‖爱莉希雅‖end‖都会获得
+伤害加成‖color:gui.green‖+50%‖end‖</talentdescription.BlessingofFirstJourney>
+  <!--「至美」的祝福-->
+  <talentdescription.BlessingofBeauty>‖color:255,86,217,255‖你看，他们曾如此骄傲的活过，‖end‖
+‖color:255,86,217,255‖贯彻始终，以生命奏响了文明的颂歌，‖end‖
+‖color:255,86,217,255‖这是被称作英桀们的故事，‖end‖
+‖color:255,86,217,255‖是十三位逐火者未尽的旅途，‖end‖
+‖color:255,86,217,255‖但来访者你们的道路仍将延续，‖end‖
+‖color:255,86,217,255‖不是吗♪‖end‖
+‖color:255,86,217,255‖那就听凭心意前进吧！‖end‖
+常驻天赋‖color:255,86,217,255‖来自人律的祝福‖end‖替换为：‖color:255,86,217,255‖人律的本源‖end‖
+“修复速度‖color:gui.green‖+60%‖end‖”“船体修复速度‖color:gui.green‖+100%‖end‖”
+‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！‖color:255,0,0‖请确认你的前置天赋，不然会失效哦‖end‖</talentdescription.BlessingofBeauty>
+  <!--「初念」的祝福-->
+  <talentdescription.BlessingofFirstYearning>‖color:255,86,217,255‖她很清楚，为了让其他人免于哀悼，‖end‖
+‖color:255,86,217,255‖当他们去世时，应该带上所有的东西，‖end‖
+‖color:255,86,217,255‖但她留下的太多了。。‖end‖
+‖color:255,86,217,255‖无处不在且永恒‖end‖
+常驻天赋‖color:255,86,217,255‖来自始源的祝福‖end‖替换为：‖color:255,86,217,255‖始源的本源‖end‖
+对你使用医疗物资效果‖color:gui.green‖+50%‖end‖，
+来源于你的增益持续时间‖color:gui.green‖+100%‖end‖，
+增加‖color:gui.green‖+60%‖end‖最大生命值。
+‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！‖color:255,0,0‖请确认你的前置天赋，不然会失效哦‖end‖</talentdescription.BlessingofFirstYearning>
+  <!--始与终之史-->
+  <talentdescription.ASagaofOriginsandEndings>‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！
+开船在外要小心危险哦
+‖color:255,86,217,255‖送你一点惊喜！‖end‖每当船受到攻击时
+“修复速度‖color:gui.green‖+50%‖end‖”
+“船体修复速度‖color:gui.green‖+50%‖end‖”
+“近战斗攻击速度‖color:gui.green‖+50%‖end‖”</talentdescription.ASagaofOriginsandEndings>
+  <!--天眷始终，爱佑世人-->
+  <talentdescription.EnlightenedSalvation>‖color:255,86,217,255‖身为可爱的美少女，晕过去可不好哦‖end‖
+击晕抗性提升‖color:gui.green‖+50%‖end‖</talentdescription.EnlightenedSalvation>
+  <!--风与月之誓-->
+  <talentdescription.AnOathtoWindandMoon>‖color:255,86,217,255‖这束鲜花，要心怀感激的收下哦。‖end‖
+手枪伤害‖color:gui.green‖+110%‖end‖，近战伤害‖color:gui.green‖+50%‖end‖</talentdescription.AnOathtoWindandMoon>
+  <!--因果螺旋，蛰转无限-->
+  <talentdescription.InfiniteHelix>‖color:255,86,217,255‖可爱的少女心，可是无所不能的哦‖end‖
+解锁物品：‖color:255,86,217,255‖爱矛‖end‖
+技能点上限提高至200</talentdescription.InfiniteHelix>
+  <!--天与地之施-->
+  <talentdescription.ABlessingfromHeavenandEarth>‖color:255,86,217,255‖似乎得认真点了呢‖end‖
+受到攻击后：远程伤害增加‖color:gui.green‖+50%‖end‖，持续10s</talentdescription.ABlessingfromHeavenandEarth>
+  <!--光折斗转，明映星芒-->
+  <talentdescription.RisingStarbeams>‖color:255,86,217,255‖打不着哦~‖end‖
+在水中收到伤害‖color:gui.green‖-20%‖end‖
+受到攻击后：移动速度增加‖color:gui.green‖+40%‖end‖，持续10s</talentdescription.RisingStarbeams>
+  <!--花与鸟之矢-->
+  <talentdescription.AnArrowforFlowerandFowl>‖color:255,86,217,255‖绚丽，如繁花初绽‖end‖
+驾驶水平‖color:gui.green‖+30‖end‖，医疗水平‖color:gui.green‖+30‖end‖</talentdescription.AnArrowforFlowerandFowl>
+  <!--落花刹那，光翳明灭-->
+  <talentdescription.ShatteredTransience>‖color:255,86,217,255‖希翼，如星火熠熠‖end‖
+武器操作‖color:gui.green‖+30‖end‖，医疗水平‖color:gui.green‖+30‖end‖</talentdescription.ShatteredTransience>
+  <!--你与我之始-->
+  <talentdescription.TheBeginningofYouandI>这条天赋树暂未想好要做什么</talentdescription.TheBeginningofYouandI>
+  <!--命定此身，璀璨永恒-->
+  <talentdescription.RadiantDestiny>如果有好想法可以留言给我</talentdescription.RadiantDestiny>
+  <!--如弓矢般凛冽-->
+  <talentdescription.BitingArrows>目前暂定为和之后的英桀联动线</talentdescription.BitingArrows>
+  <!--愿海洋辽阔-->
+  <talentdescription.WishforSea>暂无</talentdescription.WishforSea>
+  <!--如精灵般灵动-->
+  <talentdescription.ElvenAgility>暂无</talentdescription.ElvenAgility>
+  <!--愿大地丰饶-->
+  <talentdescription.WishforEarth>暂无</talentdescription.WishforEarth>
+  <!--如飞花般绚丽-->
+  <talentdescription.FloralSplendor>暂无</talentdescription.FloralSplendor>
+  <!--愿群星闪耀-->
+  <talentdescription.WishforStars>暂无</talentdescription.WishforStars>
+  <!--物品-->
+  <entityname.Elysiagear>‖color:255,86,217,255‖粉色妖精小姐♪‖end‖</entityname.Elysiagear>
+  <entitydescription.Elysiagear>无论何时何地，爱莉希雅就在这里，回应你的期待♪。</entitydescription.Elysiagear>
+  <entityname.lovespears>‖color:255,86,217,255‖爱矛‖end‖</entityname.lovespears>
+  <entitydescription.lovespears>‖color:255,86,217,255‖这束鲜花，要心怀感激的收下哦。‖end‖
+使用鱼叉发射</entitydescription.lovespears>
+  <!--  招募相关  -->
+  <locationname.ElysianRealm>往世乐土哨站</locationname.ElysianRealm>
+  <faction.ElysianRealm>逐火之蛾</faction.ElysianRealm>
+  <faction.ElysianRealm.description>前文明纪元人类联合国为了对抗崩坏建立的组织，是人类最大的抗崩坏组织。</faction.ElysianRealm.description>
+  <faction.ElysianRealm.shortdescription>一个来自“崩坏三”的组织，如今他来到了潜渊症带来了全新职业。</faction.ElysianRealm.shortdescription>
+  <!--eventtext-->
+  <EventText.missionevent_Elysia.c1>嗨！想我了吗，哈哈哈我这边有一个任务交给你了。</EventText.missionevent_Elysia.c1>
+</infotexts>

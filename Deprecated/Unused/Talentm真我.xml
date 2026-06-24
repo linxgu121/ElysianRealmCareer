@@ -1,0 +1,430 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Talents>
+  <!-- 爱莉希雅-->
+  <Talent identifier="Elysia" coloroverride="1,0.34,0.85">
+    <Icon texture="%ModDir%/UI/水晶蔷薇.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.Elysia" />
+  </Talent>
+  <!--爱与伶之诗-->
+  <Talent identifier="AnOdetoLoveandCompassion" coloroverride="1,0.34,0.85">
+    <Icon texture="%ModDir%/UI/爱与伶之诗.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    <Description tag="talentdescription.AnOdetoLoveandCompassion"></Description>
+    <AbilityGroupInterval interval="0.9">
+      <Conditions>
+        <AbilityConditionHasTalent identifier="BlessingofBeauty" truthywhen="HasTalent" />
+        <AbilityConditionNoCrewDied />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityApplyStatusEffectsToAllies allowself="true" requiresalive="true" allowclientsimulation="false">
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
+              <Affliction identifier="asourcefromherrscherofhuman" amount="10.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffectsToAllies>
+      </Abilities>
+      <FallbackAbilities>
+        <CharacterAbilityApplyStatusEffectsToAllies allowself="true" requiresalive="true" allowclientsimulation="false">
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
+              <Affliction identifier="ablessingfromherrscherofhuman" amount="10.0" />
+              <ReduceAffliction identifier="asourcefromherrscherofhuman" strength="10.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffectsToAllies>
+      </FallbackAbilities>
+    </AbilityGroupInterval>
+    <AbilityGroupInterval interval="0.9">
+      <Abilities>
+        <CharacterAbilityApplyStatusEffectsToAllies maxdistance="1000" allowself="false">
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
+              <Affliction identifier="totheflawless" amount="1.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffectsToAllies>
+      </Abilities>
+    </AbilityGroupInterval>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveResistance resistanceid="totheflawless" multiplier="0" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--如梦初醒，无瑕一生-->
+  <Talent identifier="WanderingDream" coloroverride="1,0.34,0.85">
+    <Icon texture="%ModDir%/UI/如梦初醒，无瑕一生.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    <Description tag="talentdescription.WanderingDream"></Description>
+    <AbilityGroupInterval interval="0.9">
+      <Conditions>
+        <AbilityConditionHasTalent identifier="BlessingofFirstYearning" truthywhen="HasTalent" />
+        <AbilityConditionNoCrewDied />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
+              <Affliction identifier="asourcefromherrscheroforigin" amount="10.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </Abilities>
+      <FallbackAbilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
+              <Affliction identifier="ablessingfromherrscheroforigin" amount="10.0" />
+              <ReduceAffliction identifier="asourcefromherrscheroforigin" strength="10.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </FallbackAbilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--「至纯」的祝福-->
+  <Talent identifier="BlessingofPurity">
+    <Icon texture="%ModDir%/UI/真我刻印.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofPurity"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveFlag flagtype="MoveNormallyWhileDragging" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--「初见」的祝福-->
+  <Talent identifier="BlessingofFirstEncounter">
+    <Icon texture="%ModDir%/UI/真我刻印1.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofFirstEncounter"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveStat stattype="CPRBoost" value="1" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--沉睡的种-->
+  <Talent identifier="DormantSeeds">
+    <Icon texture="%ModDir%/UI/沉睡的种.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.DormantSeeds"></Description>
+    <AbilityGroupInterval>
+      <Abilities>
+        <CharacterAbilityModifyStat stattype="RangedSpreadReduction" value="0.30" />
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--水晶之种-->
+  <Talent identifier="CrystallineSeed">
+    <Icon texture="%ModDir%/UI/水晶之种.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.CrystallineSeed"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveStat stattype="MechanicalRepairSpeed" value="0.10" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--【{「真我」之名}】-->
+  <!--「至高」的祝福-->
+  <Talent identifier="BlessingofZenith">
+    <Icon texture="%ModDir%/UI/真我刻印2.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofZenith"></Description>
+    <AbilityGroupInterval interval="60">
+      <Abilities>
+        <CharacterAbilityGiveItemStatToTags tags="engine" stattype="EngineSpeed" value="1.1" />
+      </Abilities>
+    </AbilityGroupInterval>
+    <AbilityGroupEffect>
+      <Abilities>
+        <CharacterAbilityGiveItemStatToTags tags="engine" stattype="EngineSpeed" value="2.9" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--「初绽」的祝福-->
+  <Talent identifier="BlessingofFirstBloom">
+    <Icon texture="%ModDir%/UI/真我刻印3.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofFirstBloom"></Description>
+    <AbilityGroupEffect abilityeffecttype="OnAttack">
+      <Conditions>
+        <AbilityConditionAttackData tags="harpoonammo" />
+        <AbilityConditionInHull invert="true" />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityModifyAttackData addeddamagemultiplier="1.5" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--「至爱」的祝福-->
+  <Talent identifier="BlessingofLove">
+    <Icon texture="%ModDir%/UI/真我刻印4.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofLove">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+    <AbilityGroupInterval interval="1">
+      <Conditions>
+        <AbilityConditionShipFlooded floodpercentage="0.5" />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" disabledeltatime="true" multiplyafflictionsbymaxvitality="true">
+              <Affliction identifier="startwithmeandendwithme" amount="60.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--「初醒」的祝福-->
+  <Talent identifier="BlessingofFirstAwakening">
+    <Icon texture="%ModDir%/UI/真我刻印5.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofFirstAwakening"></Description>
+    <AbilityGroupInterval maxtriggercount="1">
+      <Conditions>
+        <AbilityConditionAboveVitality invert="true" vitalitypercentage="0" />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" multiplyafflictionsbymaxvitality="true" disabledeltatime="true">
+              <Affliction identifier="itseemstohavetobeserious" amount="60.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--「至善」的祝福-->
+  <Talent identifier="BlessingofBenevolence">
+    <Icon texture="%ModDir%/UI/真我刻印6.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofBenevolence">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+    <AbilityGroupInterval>
+      <Abilities>
+        <CharacterAbilityModifyStat stattype="SkillGainSpeed" value="0.25" />
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--「初程」的祝福-->
+  <Talent identifier="BlessingofFirstJourney">
+    <Icon texture="%ModDir%/UI/真我刻印7.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofFirstJourney"></Description>
+    <AbilityGroupInterval interval="0.1">
+      <Abilities>
+        <CharacterAbilityTandemFire tag="periscope">
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="Character" multiplyafflictionsbymaxvitality="true">
+              <Affliction identifier="adreamycoperformance" amount="10" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityTandemFire>
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--「至美」的祝福-->
+  <Talent identifier="BlessingofBeauty">
+    <Icon texture="%ModDir%/UI/真我刻印8.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofBeauty"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Conditions>
+        <AbilityConditionHasPermanentStat statidentifier="BlessingofBeauty" min="1" invert="true" />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityGiveTalentPointsToAllies amount="1" />
+        <CharacterAbilityGivePermanentStat statidentifier="BlessingofBeauty" value="1" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--「初念」的祝福-->
+  <Talent identifier="BlessingofFirstYearning">
+    <Icon texture="%ModDir%/UI/真我刻印9.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BlessingofFirstYearning"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Conditions>
+        <AbilityConditionHasPermanentStat statidentifier="BlessingofFirstYearning" min="1" invert="true" />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityGiveTalentPointsToAllies amount="1" />
+        <CharacterAbilityGivePermanentStat statidentifier="BlessingofFirstYearning" value="1" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--【{嗨 想我了吗？}】-->
+  <!--始与终之史-->
+  <Talent identifier="ASagaofOriginsandEndings">
+    <Icon texture="%ModDir%/UI/始与终之史.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.ASagaofOriginsandEndings"></Description>
+    <AbilityGroupEffect abilityeffecttype="AfterSubmarineAttacked">
+      <Conditions>
+        <AbilityConditionEvasiveManeuvers />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="This" multiplyafflictionsbymaxvitality="true" disabledeltatime="true">
+              <Affliction identifier="sendyoualittlesurprise" amount="1.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--天眷始终，爱佑世人-->
+  <Talent identifier="EnlightenedSalvation">
+    <Icon texture="%ModDir%/UI/天眷始终，爱佑世人.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.EnlightenedSalvation"></Description>
+    <AbilityGroupInterval>
+      <Abilities>
+        <CharacterAbilityModifyResistance resistanceid="stun" multiplier="0.5" />
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--风与月之誓-->
+  <Talent identifier="AnOathtoWindandMoon">
+    <Icon texture="%ModDir%/UI/风与月之誓.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.AnOathtoWindandMoon"></Description>
+    <AbilityGroupEffect abilityeffecttype="OnAttack">
+      <Conditions>
+        <AbilityConditionAttackData tags="pistolammoitem" />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityModifyAttackData addeddamagemultiplier="1.1" />
+      </Abilities>
+    </AbilityGroupEffect>
+    <AbilityGroupEffect abilityeffecttype="OnAttack">
+      <Abilities>
+        <CharacterAbilityModifyAttackData addeddamagemultiplier="0.5" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--因果螺旋，蛰转无限-->
+  <Talent identifier="InfiniteHelix">
+    <Icon texture="%ModDir%/UI/因果螺旋，蛰转无限.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.InfiniteHelix">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveFlag flagtype="GainSkillPastMaximum" />
+      </Abilities>
+    </AbilityGroupEffect>
+    <AddedRecipe itemidentifier="lovespears" />
+  </Talent>
+  <!--天与地之施-->
+  <Talent identifier="ABlessingfromHeavenandEarth">
+    <Icon texture="%ModDir%/UI/天与地之施.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.ABlessingfromHeavenandEarth"></Description>
+    <AbilityGroupEffect abilityeffecttype="OnAttackedResult">
+      <Abilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="This" multiplyafflictionsbymaxvitality="true">
+              <Affliction identifier="youcannotescape" amount="10.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--光折斗转，明映星芒-->
+  <Talent identifier="RisingStarbeams">
+    <Icon texture="%ModDir%/UI/光折斗转，明映星芒.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.RisingStarbeams"></Description>
+    <AbilityGroupEffect abilityeffecttype="OnAttackedResult">
+      <Abilities>
+        <CharacterAbilityApplyStatusEffects>
+          <StatusEffects>
+            <StatusEffect type="OnAbility" target="This" multiplyafflictionsbymaxvitality="true">
+              <Affliction identifier="cannotfight" amount="10.0" />
+            </StatusEffect>
+          </StatusEffects>
+        </CharacterAbilityApplyStatusEffects>
+      </Abilities>
+    </AbilityGroupEffect>
+    <AbilityGroupInterval>
+      <Conditions>
+        <AbilityConditionInWater />
+      </Conditions>
+      <Abilities>
+        <CharacterAbilityModifyResistance resistanceid="damage" multiplier="0.8" />
+      </Abilities>
+    </AbilityGroupInterval>
+  </Talent>
+  <!--花与鸟之矢-->
+  <Talent identifier="AnArrowforFlowerandFowl">
+    <Icon texture="%ModDir%/UI/花与鸟之矢.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.AnArrowforFlowerandFowl"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveStat stattype="HelmSkillBonus" value="+30" />
+        <CharacterAbilityGiveStat stattype="MedicalSkillBonus" value="+30" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--落花刹那，光翳明灭-->
+  <Talent identifier="ShatteredTransience">
+    <Icon texture="%ModDir%/UI/落花刹那，光翳明灭.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.ShatteredTransience"></Description>
+    <AbilityGroupEffect abilityeffecttype="None">
+      <Abilities>
+        <CharacterAbilityGiveStat stattype="MedicalSkillBonus" value="+30" />
+        <CharacterAbilityGiveStat stattype="WeaponsSkillBonus" value="+30" />
+      </Abilities>
+    </AbilityGroupEffect>
+  </Talent>
+  <!--【{如飞花般}】-->
+  <!--你与我之始-->
+  <Talent identifier="TheBeginningofYouandI">
+    <Icon texture="%ModDir%/UI/你与我之始.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.TheBeginningofYouandI">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--命定此身，璀璨永恒-->
+  <Talent identifier="RadiantDestiny">
+    <Icon texture="%ModDir%/UI/命定此身，璀璨永恒.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.RadiantDestiny">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--如弓矢般凛冽-->
+  <Talent identifier="BitingArrows">
+    <Icon texture="%ModDir%/UI/如弓矢般凛冽.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.BitingArrows">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--愿海洋辽阔-->
+  <Talent identifier="WishforSea">
+    <Icon texture="%ModDir%/UI/愿海洋辽阔.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.WishforSea">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--如精灵般灵动-->
+  <Talent identifier="ElvenAgility">
+    <Icon texture="%ModDir%/UI/如精灵般灵动.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.ElvenAgility">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--愿大地丰饶-->
+  <Talent identifier="WishforEarth">
+    <Icon texture="%ModDir%/UI/愿大地丰饶.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.WishforEarth">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--如飞花般绚丽-->
+  <Talent identifier="FloralSplendor">
+    <Icon texture="%ModDir%/UI/如飞花般绚丽.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.FloralSplendor">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+  <!--愿群星闪耀-->
+  <Talent identifier="WishforStars">
+    <Icon texture="%ModDir%/UI/愿群星闪耀.png" sheetindex="0,0" sheetelementsize="128,128" />
+    <Description tag="talentdescription.WishforStars">
+      <Replace tag="[amount]" value="80" color="gui.green" />
+    </Description>
+  </Talent>
+</Talents>

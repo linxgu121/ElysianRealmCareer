@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TalentTrees>
+  <TalentTree jobidentifier="realme">
+    <SubTree identifier="Realme_primary" nameidentifier="talenttree.primary" type="primary">
+      <!--「真我」-->
+      <TalentOptions requiredtalents="1" maxchosentalents="1">
+        <ShowCaseTalent identifier="Elysia">
+          <!--爱莉希雅-->
+          <TalentOption identifier="AnOdetoLoveandCompassion" />
+          <!--爱与伶之诗-->
+          <TalentOption identifier="WanderingDream" />
+          <!--如梦初醒，无瑕一生-->
+        </ShowCaseTalent>
+      </TalentOptions>
+      <TalentOptions requiredtalents="2" maxchosentalents="4">
+        <TalentOption identifier="BlessingofPurity" />
+        <!--「至纯」的祝福-->
+        <TalentOption identifier="BlessingofFirstEncounter" />
+        <!--「初见」的祝福-->
+        <TalentOption identifier="DormantSeeds" />
+        <!--沉睡的种-->
+        <TalentOption identifier="CrystallineSeed" />
+        <!--水晶之种-->
+      </TalentOptions>
+    </SubTree>
+    <SubTree identifier="Realmename" type="specialization" requires="Realme_primary" blocks="TruE">
+      <!--「真我」之名-->
+      <TalentOptions>
+        <TalentOption identifier="BlessingofZenith" />
+        <!--「至高」的祝福-->
+        <TalentOption identifier="BlessingofFirstBloom" />
+        <!--「初绽」的祝福-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="BlessingofLove" />
+        <!--「至爱」的祝福-->
+        <TalentOption identifier="BlessingofFirstAwakening" />
+        <!--「初醒」的祝福-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="BlessingofBenevolence" />
+        <!--「至善」的祝福-->
+        <TalentOption identifier="BlessingofFirstJourney" />
+        <!--「初程」的祝福-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="BlessingofBeauty" />
+        <!--「至美」的祝福-->
+        <TalentOption identifier="BlessingofFirstYearning" />
+        <!--「初念」的祝福-->
+      </TalentOptions>
+    </SubTree>
+    <SubTree identifier="Himissmeyet" type="specialization" requires="Realme_primary" blocks="TruE">
+      <!--嗨 想我了吗？-->
+      <TalentOptions>
+        <TalentOption identifier="ASagaofOriginsandEndings" />
+        <!--始与终之史-->
+        <TalentOption identifier="EnlightenedSalvation" />
+        <!--天眷始终，爱佑世人-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="AnOathtoWindandMoon" />
+        <!--风与月之誓-->
+        <TalentOption identifier="InfiniteHelix" />
+        <!--因果螺旋，蛰转无限-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="ABlessingfromHeavenandEarth" />
+        <!--天与地之施-->
+        <TalentOption identifier="RisingStarbeams" />
+        <!--光折斗转，明映星芒-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="AnArrowforFlowerandFowl" />
+        <!--花与鸟之矢-->
+        <TalentOption identifier="ShatteredTransience" />
+        <!--落花刹那，光翳明灭-->
+      </TalentOptions>
+    </SubTree>
+    <SubTree identifier="TruE" type="specialization" requires="Himissmeyet">
+      <!--TruE-->
+      <TalentOptions>
+        <TalentOption identifier="TheBeginningofYouandI" />
+        <!--你与我之始-->
+        <TalentOption identifier="RadiantDestiny" />
+        <!--命定此身，璀璨永恒-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="BitingArrows" />
+        <!--如弓矢般凛冽-->
+        <TalentOption identifier="WishforSea" />
+        <!--愿海洋辽阔-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="ElvenAgility" />
+        <!--如精灵般灵动-->
+        <TalentOption identifier="WishforEarth" />
+        <!--愿大地丰饶-->
+      </TalentOptions>
+      <TalentOptions>
+        <TalentOption identifier="FloralSplendor" />
+        <!--如飞花般绚丽-->
+        <TalentOption identifier="WishforStars" />
+        <!--愿群星闪耀-->
+      </TalentOptions>
+    </SubTree>
+  </TalentTree>
+</TalentTrees>
