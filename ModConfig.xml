@@ -4,7 +4,7 @@
   <Assembly
     Name="ElysianRealm.ClientPortrait"
     FriendlyName="Elysian Realm Client Portrait"
-    File="%ModDir%/OptionalLuaCs/CSharp/ElysianRealm.ClientPortrait/ElysianPortraitPlugin.cs"
+    File="%ModDir%/CSharp/Client/ElysianPortraitPlugin.cs"
     IsScript="true"
     Target="Client"
     Platform="Any"

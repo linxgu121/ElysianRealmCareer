@@ -88,8 +88,12 @@ Get-ChildItem -Path (Join-Path $rootPath "Content") -Filter *.xml -Recurse | For
     }
 }
 
-$luaCsPath = Join-Path $rootPath "OptionalLuaCs"
-if (Test-Path -LiteralPath $luaCsPath) {
+$luaCsPaths = @(
+    (Join-Path $rootPath "CSharp"),
+    (Join-Path $rootPath "OptionalLuaCs")
+)
+foreach ($luaCsPath in $luaCsPaths) {
+    if (-not (Test-Path -LiteralPath $luaCsPath)) { continue }
     Get-ChildItem -Path $luaCsPath -Filter *.cs -Recurse | ForEach-Object {
         $relative = $_.FullName.Substring($rootPath.Length + 1)
         $text = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
