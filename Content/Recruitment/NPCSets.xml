@@ -22,7 +22,9 @@
         </Item>
       </ItemSet>
     </npc>
+
     <npc identifier="Kevin" job="securityofficer" tags="securitynpc" spawnpointtags="security" healthmultiplier="2" behavior="Patrol">
+      <Character name="凯文" speciesname="human" gender="male" race="White" headspriteid="0" hairindex="0" beardindex="0" moustacheindex="0" healthmultiplier="2" />
       <ItemSet>
         <Item identifier="securityofficerclothes" equip="true" />
         <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
@@ -43,7 +45,33 @@
         </Item>
       </ItemSet>
     </npc>
-    <npc identifier="Aponia" job="medicaldoctor" tags="medicaldoctor" spawnpointtags="medical" healthmultiplier="2" behavior="StayInHull">
+
+    <npc identifier="hrmanager" job="assistant" spawnpointtags="hr" healthmultiplier="2" campaigninteractiontype="Crew" behavior="StayInHull">
+      <Character name="伊甸" speciesname="human" gender="female" race="White" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+
+    <npc identifier="reactoroperator" job="engineer" spawnpointtags="engineering" healthmultiplier="2" behavior="StayInHull">
+      <Character name="维尔薇" speciesname="human" gender="female" race="White" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="mechanicclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="wrench" />
+        <Item identifier="screwdriver" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+
+    <npc identifier="outpostdoctor" job="medicaldoctor" tags="medicaldoctor" spawnpointtags="medical" healthmultiplier="2" campaigninteractiontype="MedicalClinic" behavior="StayInHull">
+      <Character name="阿波尼亚" speciesname="human" gender="female" race="White" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
       <ItemSet>
         <Item identifier="medicaldoctorclothes" equip="true" />
         <Item identifier="idcard" equip="true" />
@@ -56,9 +84,11 @@
         </Item>
       </ItemSet>
     </npc>
-    <npc identifier="Eden" job="watchman" spawnpointtags="hr" healthmultiplier="2" campaigninteractiontype="Crew" behavior="StayInHull">
+
+    <npc identifier="subupgradenpc" job="engineer" spawnpointtags="engineering" healthmultiplier="2" campaigninteractiontype="Upgrade" behavior="StayInHull">
+      <Character name="梅" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
       <ItemSet commonness="1">
-        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="mechanicclothes" equip="true" />
         <Item identifier="idcard" equip="true" />
         <Item identifier="wrench" />
         <Item identifier="screwdriver" />
@@ -67,18 +97,112 @@
         </Item>
       </ItemSet>
     </npc>
-    <npc identifier="Vill-V" job="mechanic" spawnpointtags="armory" healthmultiplier="2" campaigninteractiontype="Store" behavior="StayInHull">
+
+    <npc identifier="merchantoutpost" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
       <ItemSet commonness="1">
-        <Item identifier="mechanicclothes" equip="true" />
+        <Item identifier="crewchiefclothes" equip="true" />
         <Item identifier="idcard" equip="true" />
-        <Item identifier="revolver">
-          <Item identifier="revolverround" amount="6" />
-        </Item>
         <Item identifier="divingmask">
           <Item identifier="oxygentank" />
         </Item>
       </ItemSet>
     </npc>
+    <npc identifier="merchantmine" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="merchantresearch" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="merchantmilitary" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="merchantcity" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="merchantarmory" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="merchantmedical" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+    <npc identifier="merchantengineering" job="assistant" spawnpointtags="merchant" campaigninteractiontype="Store" behavior="StayInHull">
+      <Character name="帕朵菲利斯" speciesname="human" gender="female" race="Asian" headspriteid="8" hairindex="12" beardindex="0" moustacheindex="0" />
+      <ItemSet commonness="1">
+        <Item identifier="crewchiefclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="divingmask">
+          <Item identifier="oxygentank" />
+        </Item>
+      </ItemSet>
+    </npc>
+
+    <npc identifier="FireMothEngineer" job="engineer" spawnpointtags="engineering" healthmultiplier="1.2" behavior="StayInHull">
+      <ItemSet>
+        <Item identifier="mechanicclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="wrench" />
+        <Item identifier="screwdriver" />
+      </ItemSet>
+    </npc>
+    <npc identifier="FireMothMechanic" job="mechanic" spawnpointtags="engineering" healthmultiplier="1.2" behavior="StayInHull">
+      <ItemSet>
+        <Item identifier="mechanicclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="wrench" />
+        <Item identifier="screwdriver" />
+      </ItemSet>
+    </npc>
+    <npc identifier="FireMothMedic" job="medicaldoctor" spawnpointtags="medical" healthmultiplier="1.2" behavior="StayInHull">
+      <ItemSet>
+        <Item identifier="medicaldoctorclothes" equip="true" />
+        <Item identifier="idcard" equip="true" />
+        <Item identifier="medicalscanner" />
+      </ItemSet>
+    </npc>
+
     <npc identifier="hireableElysia" job="realme" skillmultiplier="1.5" experiencepoints="2000">
       <ItemSet>
         <Item identifier="Elysiagear" equip="true" />

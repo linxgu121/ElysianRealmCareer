@@ -18,7 +18,7 @@
         <npc from="outpostnpcs1" identifier="securitynpcseparatists" faction="separatists" />
         <npc from="ElysianRealmNpc" identifier="Elysia" faction="ElysianRealm" />
         <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Aponia" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
         <npc from="outpostnpcs1" identifier="hrmanager" />
         <npc from="outpostnpcs1" identifier="subupgradenpc" />
         <npc from="outpostnpcs1" identifier="subsalesnpc" />
@@ -57,7 +57,7 @@
         <npc from="outpostnpcs1" identifier="securitynpcseparatists" faction="separatists" />
         <npc from="ElysianRealmNpc" identifier="Elysia" faction="ElysianRealm" />
         <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Aponia" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
         <npc from="outpostnpcs1" identifier="hrmanager" />
         <npc from="outpostnpcs1" identifier="subupgradenpc" />
         <npc from="outpostnpcs1" identifier="subsalesnpc" />
@@ -98,7 +98,7 @@
         <npc from="outpostnpcs1" identifier="securitynpcseparatists" faction="separatists" />
         <npc from="ElysianRealmNpc" identifier="Elysia" faction="ElysianRealm" />
         <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Aponia" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
         <npc from="outpostnpcs1" identifier="hrmanager" />
         <npc from="outpostnpcs1" identifier="subupgradenpc" />
         <npc from="outpostnpcs1" identifier="subsalesnpc" />
@@ -141,7 +141,7 @@
         <npc from="outpostnpcs1" identifier="securitynpcseparatists" faction="separatists" />
         <npc from="ElysianRealmNpc" identifier="Elysia" faction="ElysianRealm" />
         <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Aponia" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
         <npc from="outpostnpcs1" identifier="hrmanager" />
         <npc from="outpostnpcs1" identifier="subupgradenpc" />
         <npc from="outpostnpcs1" identifier="subsalesnpc" />
@@ -190,7 +190,7 @@
         <npc from="outpostnpcs1" identifier="securitynpcseparatists" faction="separatists" />
         <npc from="ElysianRealmNpc" identifier="Elysia" faction="ElysianRealm" />
         <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Aponia" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
         <npc from="outpostnpcs1" identifier="hrmanager" />
         <npc from="outpostnpcs1" identifier="subupgradenpc" />
         <npc from="outpostnpcs1" identifier="subsalesnpc" />
@@ -230,22 +230,21 @@
       <npcs>
         <npc from="ElysianRealmNpc" identifier="Elysia" faction="ElysianRealm" />
         <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Aponia" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Eden" faction="ElysianRealm" />
-        <npc from="ElysianRealmNpc" identifier="Vill-V" faction="ElysianRealm" />
-        <npc from="outpostnpcs1" identifier="subupgradenpc" />
-        <npc from="outpostnpcs1" identifier="subsalesnpc" />
-        <npc from="outpostnpcs1" identifier="reactoroperator" />
-        <npc from="outpostnpcs1" identifier="merchantcity" />
-        <npc from="outpostnpcs1" identifier="merchantarmory" />
-        <npc from="outpostnpcs1" identifier="merchantmedical" />
-        <npc from="outpostnpcs1" identifier="merchantengineering" />
-        <npc from="outpostnpcs1" identifier="outpostdoctor" />
-        <npc from="outpostnpcs1" identifier="commoner" />
-        <npc from="outpostnpcs1" identifier="commoner" />
-        <npc from="outpostnpcs1" identifier="commoner" />
-        <npc from="outpostnpcs1" identifier="researcher" />
-        <npc from="outpostnpcs1" identifier="researcher" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="Kevin" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="hrmanager" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="subupgradenpc" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="reactoroperator" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="merchantcity" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="merchantarmory" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="merchantmedical" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="merchantengineering" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="outpostdoctor" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="hireableElysia" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="FireMothEngineer" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="FireMothMechanic" faction="ElysianRealm" />
+        <npc from="ElysianRealmNpc" identifier="FireMothMedic" faction="ElysianRealm" />
       </npcs>
     </OutpostConfig>
   </Override>

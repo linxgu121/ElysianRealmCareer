@@ -45,6 +45,18 @@
 - 哨站命名来自 `Content/Recruitment/ElysianRealmLocationNames.txt`。
 - 旧的 Kevin/Aponia/Eden/Vill-V 专属装备没有迁移，当前 NPC 先使用原版装备，避免废弃资源泄漏进活动内容。
 
+## 逐火之蛾专属哨站 NPC 规则
+
+- 哨站长/任务 NPC：爱莉希雅，使用 `Elysiagear`。
+- 保安：凯文，可重复生成；当前沿用原版保安装备，等待 `Kevingear` 物品定义补齐后再替换衣服。
+- 人员管理：伊甸，使用 `campaigninteractiontype="Crew"`。
+- 商人：帕朵菲利斯，保留 `merchantcity`、`merchantarmory`、`merchantmedical`、`merchantengineering` 等原版商店 identifier，确保库存仍走默认商店配置。
+- 工程师：维尔薇。
+- 医生：阿波尼亚，使用 `campaigninteractiontype="MedicalClinic"`。
+- 潜艇升级工程师：梅，使用 `campaigninteractiontype="Upgrade"`。
+- 英桀招募位：当前只放入 1 个 `realme` 可招募位；其余站内补位使用逐火之蛾势力下的原版职业。
+- 专属 `ElysianRealm` 哨站不生成小丑教派/画皮教派等附属势力模块和 NPC。
+
 ## 本地验证
 
 把整个 `ElysianRealmCareer` 文件夹复制到 Barotrauma 的 `LocalMods` 后，在游戏 Mod 菜单启用。优先检查：

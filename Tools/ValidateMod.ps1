@@ -25,7 +25,7 @@ $xmlFiles += Get-ChildItem -Path (Join-Path $rootPath "Content"), (Join-Path $ro
 foreach ($file in $xmlFiles) {
     $relative = $file.FullName.Substring($rootPath.Length + 1)
     try {
-        [xml](Get-Content -LiteralPath $file.FullName -Raw) | Out-Null
+        [xml](Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8) | Out-Null
         ReportOk "xml $relative"
     } catch {
         ReportError "xml $relative :: $($_.Exception.Message)"
@@ -34,7 +34,7 @@ foreach ($file in $xmlFiles) {
 
 foreach ($file in $xmlFiles) {
     $relative = $file.FullName.Substring($rootPath.Length + 1)
-    $text = Get-Content -LiteralPath $file.FullName -Raw
+    $text = Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8
     [regex]::Matches($text, "%ModDir%/[^`"'<>]+") | ForEach-Object {
         $relativePath = $_.Value.Replace("%ModDir%/", "").Replace("/", "\")
         $target = Join-Path $rootPath $relativePath
@@ -44,7 +44,7 @@ foreach ($file in $xmlFiles) {
     }
 }
 
-$filelist = Get-Content -LiteralPath (Join-Path $rootPath "filelist.xml") -Raw
+$filelist = Get-Content -LiteralPath (Join-Path $rootPath "filelist.xml") -Raw -Encoding UTF8
 $disabledContentTypes = @("Missions", "RandomEvents")
 foreach ($type in $disabledContentTypes) {
     if ($filelist -match "<$type\b") {
@@ -53,7 +53,7 @@ foreach ($type in $disabledContentTypes) {
 }
 
 $activeText = Get-ChildItem -Path (Join-Path $rootPath "Content"), (Join-Path $rootPath "Localization") -Filter *.xml -Recurse |
-    ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }
+    ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8 }
 
 $archivedOnlyIdentifiers = @("Kevingear", "Aponiagear", "Edengear", "V2Vgear", "Flawlesscrystal")
 foreach ($identifier in $archivedOnlyIdentifiers) {
@@ -62,11 +62,37 @@ foreach ($identifier in $archivedOnlyIdentifiers) {
     }
 }
 
+$npcSets = @{}
+Get-ChildItem -Path (Join-Path $rootPath "Content") -Filter *.xml -Recurse | ForEach-Object {
+    [xml]$doc = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+    $doc.SelectNodes("//npcset") | ForEach-Object {
+        $setIdentifier = $_.identifier
+        if (-not [string]::IsNullOrWhiteSpace($setIdentifier)) {
+            $npcSets[$setIdentifier] = @{}
+            $_.SelectNodes("./npc") | ForEach-Object {
+                if (-not [string]::IsNullOrWhiteSpace($_.identifier)) {
+                    $npcSets[$setIdentifier][$_.identifier] = $true
+                }
+            }
+        }
+    }
+}
+
+Get-ChildItem -Path (Join-Path $rootPath "Content") -Filter *.xml -Recurse | ForEach-Object {
+    $relative = $_.FullName.Substring($rootPath.Length + 1)
+    [xml]$doc = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
+    $doc.SelectNodes("//npc[@from='ElysianRealmNpc']") | ForEach-Object {
+        if (-not $npcSets.ContainsKey($_.from) -or -not $npcSets[$_.from].ContainsKey($_.identifier)) {
+            ReportError "missing ElysianRealmNpc reference $relative :: $($_.identifier)"
+        }
+    }
+}
+
 $luaCsPath = Join-Path $rootPath "OptionalLuaCs"
 if (Test-Path -LiteralPath $luaCsPath) {
     Get-ChildItem -Path $luaCsPath -Filter *.cs -Recurse | ForEach-Object {
         $relative = $_.FullName.Substring($rootPath.Length + 1)
-        $text = Get-Content -LiteralPath $_.FullName -Raw
+        $text = Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8
         if ($text -match "[^\x00-\x7F]") {
             ReportError "LuaCs C# script should stay ASCII because LuaCs script compilation uses the local default encoding: $relative"
         }
