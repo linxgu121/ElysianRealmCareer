@@ -26,6 +26,7 @@ namespace Barotrauma.ElysianRealm
         private static string portraitFullPath;
         private static bool portraitLoadFailed;
         private static bool loggedFirstTarget;
+        private static bool loggedFirstOverlay;
         private static bool loggedArgumentFailure;
 
         public void PreInitPatching()
@@ -48,8 +49,8 @@ namespace Barotrauma.ElysianRealm
             LuaCsSetup.Instance.EventService.HookMethod(
                 PatchIdentifier,
                 drawIcon,
-                DrawIconPrefix,
-                ILuaCsHook.HookMethodType.Before,
+                DrawIconPostfix,
+                ILuaCsHook.HookMethodType.After,
                 owner: this);
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
@@ -75,10 +76,11 @@ namespace Barotrauma.ElysianRealm
             portraitLoadFailed = false;
             ownerPackage = null;
             loggedFirstTarget = false;
+            loggedFirstOverlay = false;
             loggedArgumentFailure = false;
         }
 
-        private static object DrawIconPrefix(object self, Dictionary<string, object> args)
+        private static object DrawIconPostfix(object self, Dictionary<string, object> args)
         {
             CharacterInfo info = self as CharacterInfo;
             if (info == null || info.Job == null || info.Job.Prefab == null)
@@ -150,7 +152,13 @@ namespace Barotrauma.ElysianRealm
                 spriteEffects,
                 0.001f);
 
-            return true;
+            if (!loggedFirstOverlay)
+            {
+                loggedFirstOverlay = true;
+                LuaCsLogger.LogMessage("[ElysianRealm] Realme portrait overlay drawn.");
+            }
+
+            return null;
         }
 
         private static void LogArgumentFailureOnce()

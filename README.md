@@ -63,7 +63,7 @@
 
 - 已安装并启用 Client-Side LuaCs。
 - LuaCs 已启用 C# 执行，并能读取 Mod 根目录的 `ModConfig.xml`。
-- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered` 和 `[ElysianRealm] Portrait loaded`。
+- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
 - Mod 是否能被识别并启用。
 - 新职业“真我”是否出现在职业列表。
 - 新战役地图中是否能生成“往世乐土”系列哨站。
