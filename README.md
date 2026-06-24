@@ -14,17 +14,17 @@
 - `Content/Recruitment/NPCSets.xml`: 逐火之蛾哨站 NPC 与可招募 `hireableElysia`。
 - `Content/Recruitment/OutpostGeneration.xml`: 按原版大城市站风格生成逐火之蛾哨站。
 
-## 可选 LuaCs 客户端增强
+## 必需 LuaCs 客户端前置
 
-- `ModConfig.xml`: LuaCs 专用配置，原版 Barotrauma 不会通过 `filelist.xml` 加载它。
-- `OptionalLuaCs/CSharp/ElysianRealm.ClientPortrait/ElysianPortraitPlugin.cs`: 客户端 C# 脚本插件，拦截 `CharacterInfo.DrawIcon(...)`，将 `realme` 职业的生成头像替换为指定图片。
+- `ModConfig.xml`: LuaCs 专用配置，已作为 `Other` 文件随包发布；LuaCs 会读取它加载客户端脚本。
+- `OptionalLuaCs/CSharp/ElysianRealm.ClientPortrait/ElysianPortraitPlugin.cs`: 客户端 C# 脚本插件，已作为 `Other` 文件随包发布；它会拦截 `CharacterInfo.DrawIcon(...)`，将 `realme` 职业的生成头像替换为指定图片。
 - 默认头像图片是 `Assets/UI/elysia_portrait.png`。要改成其他图片，修改脚本里的 `PortraitRelativePath`。
 
-使用条件：
+安装前置：
 
 - 客户端安装并启用 Client-Side LuaCs。
 - LuaCs 中启用 C# 执行。
-- 只影响客户端头像绘制，不改变 XML 主体内容。
+- 未安装 LuaCs 时，原版 Barotrauma 可能仍会读取 XML 内容，但不属于本 Mod 的支持安装方式。
 
 ## 仍然下线内容
 
@@ -61,6 +61,8 @@
 
 把整个 `ElysianRealmCareer` 文件夹复制到 Barotrauma 的 `LocalMods` 后，在游戏 Mod 菜单启用。优先检查：
 
+- 已安装并启用 Client-Side LuaCs。
+- LuaCs 已启用 C# 执行，并能读取 Mod 根目录的 `ModConfig.xml`。
 - Mod 是否能被识别并启用。
 - 新职业“真我”是否出现在职业列表。
 - 新战役地图中是否能生成“往世乐土”系列哨站。

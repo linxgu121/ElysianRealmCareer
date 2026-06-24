@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModConfig>
-  <!-- LuaCs only: vanilla Barotrauma ignores this file because filelist.xml does not load it. -->
+  <!-- Required LuaCs config: vanilla Barotrauma ignores this file, but this mod's supported install requires Client-Side LuaCs to load it. -->
   <Assembly
     Name="ElysianRealm.ClientPortrait"
     FriendlyName="Elysian Realm Client Portrait"

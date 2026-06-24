@@ -1,6 +1,6 @@
 # LuaCs Client Portrait Patch
 
-This folder contains optional LuaCs/C# client-side code for Elysian Realm Career.
+This folder contains required LuaCs/C# client-side code for Elysian Realm Career.
 
 ## What it does
 
@@ -18,9 +18,9 @@ Change `PortraitRelativePath` in `OptionalLuaCs/CSharp/ElysianRealm.ClientPortra
 
 - Client-Side LuaCs installed and enabled.
 - C# execution enabled in LuaCs.
-- The mod root must contain `ModConfig.xml`. This repository already includes it.
+- The mod root must contain `ModConfig.xml`. This repository already includes it, and `filelist.xml` publishes both `ModConfig.xml` and the C# script as `Other` files.
 
-Vanilla Barotrauma ignores `ModConfig.xml` because it is not referenced by `filelist.xml`, so the XML-only version of the mod remains usable.
+Vanilla Barotrauma ignores `ModConfig.xml` because it is not referenced by `filelist.xml`, so Client-Side LuaCs is required for the supported install path.
 
 ## Loading format
 
