@@ -1,45 +1,62 @@
 # Elysian Realm Career Core / 乐土刻印职业核心
 
-这是从旧 Workshop 包 `2960303865` 迁移出的核心职业框架。
-
 ## 当前加载内容
 
-- `Localization/SimplifiedChinese.xml`：简体中文文本。
-- `Content/Jobs/Jobs.xml`：`realme` 职业。
-- `Content/Talents/TalentTrees.xml`：只保留 `realme` 天赋树，不再覆盖原版职业树。
-- `Content/Talents/RealmeTalents.xml`：真我天赋效果。
-- `Content/Afflictions/RealmeAfflictions.xml`：天赋 buff 和数值效果。
-- `Content/Items/ElysiaGear.xml`：`Elysiagear` 真我职业服装。
-- `Content/Items/LoveSpear.xml`：`lovespears` 爱矛物品。
+- `Localization/SimplifiedChinese.xml`: 简体中文文本。
+- `Content/Jobs/Jobs.xml`: `realme` 真我职业。
+- `Content/Talents/TalentTrees.xml`: `realme` 天赋树，不覆盖原版职业树。
+- `Content/Talents/RealmeTalents.xml`: 真我天赋效果。
+- `Content/Afflictions/RealmeAfflictions.xml`: 天赋 buff 和数值效果。
+- `Content/Items/ElysiaGear.xml`: `Elysiagear` 真我职业服装。
+- `Content/Items/LoveSpear.xml`: `lovespears` 爱矛物品。
+- `Content/Recruitment/Factions.xml`: `ElysianRealm` / 逐火之蛾势力。
+- `Content/Recruitment/LocationTypes.xml`: 往世乐土哨站地点类型，固定归属逐火之蛾，并复用原版 `City` 哨站模块池。
+- `Content/Recruitment/NPCSets.xml`: 逐火之蛾哨站 NPC 与可招募 `hireableElysia`。
+- `Content/Recruitment/OutpostGeneration.xml`: 按原版大城市站风格生成逐火之蛾哨站。
 
-## 暂时下线内容
+## 可选 LuaCs 客户端增强
 
-招募、派系、哨站、任务、随机事件暂时不加载，已归档到：
+- `ModConfig.xml`: LuaCs 专用配置，原版 Barotrauma 不会通过 `filelist.xml` 加载它。
+- `OptionalLuaCs/CSharp/ElysianRealm.ClientPortrait/ElysianPortraitPlugin.cs`: 客户端 C# 脚本插件，拦截 `CharacterInfo.DrawIcon(...)`，将 `realme` 职业的生成头像替换为指定图片。
+- 默认头像图片是 `Assets/UI/elysia_portrait.png`。要改成其他图片，修改脚本里的 `PortraitRelativePath`。
+
+使用条件：
+
+- 客户端安装并启用 Client-Side LuaCs。
+- LuaCs 中启用 C# 执行。
+- 只影响客户端头像绘制，不改变 XML 主体内容。
+
+## 仍然下线内容
+
+任务、随机事件，以及旧包里未迁移的专属装备仍然不加载，归档位置：
 
 - `Deprecated/Recruitment`
 - `Deprecated/OriginalSnapshot`
 
-这部分旧包强依赖旧版地图/任务/NPC 配置，后续应作为独立模块重新适配。
+这部分旧包强依赖旧版地图、任务和 NPC 配置，后续应继续作为独立模块重构。
 
 ## 迁移决策
 
-- 移除了 `filelist.xml` 中的 `LocationTypes`、`Factions`、`NPCSets`、`Missions`、`OutpostConfig`、`RandomEvents`。
-- 移除了旧 `TalentTrees.xml` 对原版职业天赋树的整包覆盖，只保留 `realme`。
-- 将资源路径整理到 `Assets/UI`、`Assets/Audio`、`Assets/Items`。
-- `realme` 起始装备已改回 `Elysiagear`，服装贴图来自 `Assets/Items/Elysia`。
-- `filelist.xml` 的 `gameversion` 暂保留旧包值；确认本机 Barotrauma 版本后再更新，避免手填错误版本。
+- 已恢复 `Factions`、`LocationTypes`、`NPCSets`、`OutpostConfig` 四类招募基础内容。
+- 仍然不加载 `Missions`、`RandomEvents`。
+- 逐火之蛾作为主势力加入，`controlledoutpostpercentage="10"`，和木卫二联盟/分裂组织一样参与主势力前哨站控制权逻辑。
+- 新地点 `ElysianRealm` 通过 `UseOutpostModulesOfLocationType="City"` 复用原版最大城市哨站模块池。
+- `OutpostGeneration.xml` 只覆盖主前哨站类型，给 `outpost`、`miningoutpost`、`researchoutpost`、`militaryoutpost`、`city` 增补逐火之蛾管理/安保 NPC，避免随机归属逐火之蛾的原版站点缺少对应 NPC。
+- 哨站命名来自 `Content/Recruitment/ElysianRealmLocationNames.txt`。
+- 旧的 Kevin/Aponia/Eden/Vill-V 专属装备没有迁移，当前 NPC 先使用原版装备，避免废弃资源泄漏进活动内容。
 
-## 下一步验证
+## 本地验证
 
 把整个 `ElysianRealmCareer` 文件夹复制到 Barotrauma 的 `LocalMods` 后，在游戏 Mod 菜单启用。优先检查：
 
 - Mod 是否能被识别并启用。
-- 新职业「真我」是否出现在职业列表。
-- 天赋树 UI 是否显示图标和中文描述。
-- `InfiniteHelix` 是否能解锁 `lovespears` 配方。
-- 游戏日志是否报告旧版 `CharacterAbility`、`StatValue` 或 `AbilityCondition` 名称变更。
+- 新职业“真我”是否出现在职业列表。
+- 新战役地图中是否能生成“往世乐土”系列哨站。
+- 逐火之蛾势力是否出现在势力界面。
+- 逐火之蛾哨站内是否能看到爱莉希雅，以及能否招募 `realme` 船员。
+- 游戏日志是否报告旧版 `CharacterAbility`、`StatValue`、`AbilityCondition`、NPC 物品或哨站模块标识符错误。
 
-本地离线检查可以运行：
+本地离线检查：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\ValidateMod.ps1

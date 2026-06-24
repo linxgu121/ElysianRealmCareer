@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModConfig>
+  <!-- LuaCs only: vanilla Barotrauma ignores this file because filelist.xml does not load it. -->
+  <Assembly
+    Name="ElysianRealm.ClientPortrait"
+    FriendlyName="Elysian Realm Client Portrait"
+    File="%ModDir%/OptionalLuaCs/CSharp/ElysianRealm.ClientPortrait/ElysianPortraitPlugin.cs"
+    IsScript="true"
+    Target="Client"
+    Platform="Any"
+    LoadPriority="0"
+    UseInternalAccessName="true" />
+</ModConfig>

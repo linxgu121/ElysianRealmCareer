@@ -56,8 +56,8 @@
   <talentdescription.AnOdetoLoveandCompassion>‖color:255,86,217,255‖粉色妖精小姐♪‖end‖
 让我重新做一次自我介绍吧，逐火英桀第二位，「真我」之铭的‖color:255,86,217,255‖爱莉希雅‖end‖
 获得常驻天赋：‖color:255,86,217,255‖来自人律的祝福‖end‖
-天赋效果：‖color:gui.green‖+10%‖end‖ ‖color:gui.orange‖修复速度‖end‖，
-                ‖color:gui.green‖+10%‖end‖ ‖color:gui.orange‖船体修复速度‖end‖。
+天赋效果：‖color:gui.green‖+30%‖end‖ ‖color:gui.orange‖修复速度‖end‖，
+                ‖color:gui.green‖+50%‖end‖ ‖color:gui.orange‖船体修复速度‖end‖。
 获得常驻天赋：‖color:255,86,217,255‖致以无瑕之人‖end‖
 天赋效果：附近‖color:gui.green‖10‖end‖米内的同伴不会因为痛苦而死去。</talentdescription.AnOdetoLoveandCompassion>
   <!--如梦初醒，无瑕一生-->
@@ -116,7 +116,7 @@
 ‖color:255,86,217,255‖不是吗♪‖end‖
 ‖color:255,86,217,255‖那就听凭心意前进吧！‖end‖
 常驻天赋‖color:255,86,217,255‖来自人律的祝福‖end‖替换为：‖color:255,86,217,255‖人律的本源‖end‖
-“修复速度‖color:gui.green‖+60%‖end‖”“船体修复速度‖color:gui.green‖+100%‖end‖”
+“修复速度‖color:gui.green‖+60%‖end‖”“船体修复速度‖color:gui.green‖+120%‖end‖”
 ‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！‖color:255,0,0‖请确认你的前置天赋，不然会失效哦‖end‖</talentdescription.BlessingofBeauty>
   <!--「初念」的祝福-->
   <talentdescription.BlessingofFirstYearning>‖color:255,86,217,255‖她很清楚，为了让其他人免于哀悼，‖end‖

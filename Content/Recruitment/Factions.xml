@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Factions>
+  <Faction identifier="ElysianRealm"
+           initialreputation="0"
+           minreputation="-100"
+           maxreputation="100"
+           menuorder="2"
+           controlledoutpostpercentage="10"
+           secondarycontrolledoutpostpercentage="0">
+    <Icon name="ElysianRealm" texture="%ModDir%/Assets/Recruitment/FireMothInsignia.png" sourcerect="0,0,256,256" />
+    <IconSmall name="ElysianRealmSmall" texture="%ModDir%/Assets/Recruitment/FireMothInsignia.png" sourcerect="0,0,256,256" />
+    <Portrait name="TheMOTHInsignia" texture="%ModDir%/Assets/Recruitment/ElysianRealmPortrait.png" sourcerect="0,0,852,340" />
+    <Hireable npcsetidentifier="ElysianRealmNpc" npcidentifier="hireableElysia" minreputation="0" />
+  </Faction>
+</Factions>

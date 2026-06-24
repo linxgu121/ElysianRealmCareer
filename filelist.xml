@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <contentpackage name="Elysian Realm Career Core / 乐土刻印职业核心" modversion="0.1.0" gameversion="1.0.21.0" corepackage="false">
-  <!-- Core-only migration. Recruitment/outpost/faction content is archived under Deprecated/Recruitment and intentionally not loaded. -->
+  <!-- Core migration with recruitment baseline restored. Deprecated missions/random events remain archived under Deprecated/Recruitment. -->
   <Text file="%ModDir%/Localization/SimplifiedChinese.xml" />
   <Jobs file="%ModDir%/Content/Jobs/Jobs.xml" />
   <TalentTrees file="%ModDir%/Content/Talents/TalentTrees.xml" />
@@ -8,6 +8,11 @@
   <Afflictions file="%ModDir%/Content/Afflictions/RealmeAfflictions.xml" />
   <Item file="%ModDir%/Content/Items/ElysiaGear.xml" />
   <Item file="%ModDir%/Content/Items/LoveSpear.xml" />
+  <Factions file="%ModDir%/Content/Recruitment/Factions.xml" />
+  <LocationTypes file="%ModDir%/Content/Recruitment/LocationTypes.xml" />
+  <NPCSets file="%ModDir%/Content/Recruitment/NPCSets.xml" />
+  <OutpostConfig file="%ModDir%/Content/Recruitment/OutpostGeneration.xml" />
+  <Other file="%ModDir%/Content/Recruitment/ElysianRealmLocationNames.txt" />
   <Other file="%ModDir%/Assets/Audio/爱莉希雅-打不着哦~.ogg" />
   <Other file="%ModDir%/Assets/Audio/爱莉希雅-是一群可爱的小家伙呢。.ogg" />
   <Other file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" />
@@ -38,9 +43,17 @@
   <Other file="%ModDir%/Assets/Items/Exotic_Amor_suit.png" />
   <Other file="%ModDir%/Assets/Items/OutfitIcons.png" />
   <Other file="%ModDir%/Assets/Items/爱矛缩略.png" />
+  <Other file="%ModDir%/Assets/Recruitment/ElysianLoading1.png" />
+  <Other file="%ModDir%/Assets/Recruitment/ElysianLoading2.png" />
+  <Other file="%ModDir%/Assets/Recruitment/ElysianLoading3.png" />
+  <Other file="%ModDir%/Assets/Recruitment/ElysianLoading4.png" />
+  <Other file="%ModDir%/Assets/Recruitment/ElysianRealmPortrait.png" />
+  <Other file="%ModDir%/Assets/Recruitment/FireMothInsignia.png" />
+  <Other file="%ModDir%/Assets/Recruitment/OutpostIcon.png" />
   <Other file="%ModDir%/Assets/UI/爱莉头像.png" />
   <Other file="%ModDir%/Assets/UI/爱与伶之诗.png" />
   <Other file="%ModDir%/Assets/UI/沉睡的种.png" />
+  <Other file="%ModDir%/Assets/UI/elysia_portrait.png" />
   <Other file="%ModDir%/Assets/UI/粉色妖精小姐♪.png" />
   <Other file="%ModDir%/Assets/UI/风与月之誓.png" />
   <Other file="%ModDir%/Assets/UI/光折斗转，明映星芒.png" />

@@ -16,6 +16,10 @@ function ReportOk([string]$Message) {
 }
 
 $xmlFiles = @(Get-Item -LiteralPath (Join-Path $rootPath "filelist.xml"))
+$modConfigPath = Join-Path $rootPath "ModConfig.xml"
+if (Test-Path -LiteralPath $modConfigPath) {
+    $xmlFiles += Get-Item -LiteralPath $modConfigPath
+}
 $xmlFiles += Get-ChildItem -Path (Join-Path $rootPath "Content"), (Join-Path $rootPath "Localization") -Filter *.xml -Recurse
 
 foreach ($file in $xmlFiles) {
@@ -41,7 +45,7 @@ foreach ($file in $xmlFiles) {
 }
 
 $filelist = Get-Content -LiteralPath (Join-Path $rootPath "filelist.xml") -Raw
-$disabledContentTypes = @("LocationTypes", "Factions", "NPCSets", "Missions", "OutpostConfig", "RandomEvents")
+$disabledContentTypes = @("Missions", "RandomEvents")
 foreach ($type in $disabledContentTypes) {
     if ($filelist -match "<$type\b") {
         ReportError "disabled recruitment content is still loaded: $type"
@@ -55,6 +59,17 @@ $archivedOnlyIdentifiers = @("Kevingear", "Aponiagear", "Edengear", "V2Vgear", "
 foreach ($identifier in $archivedOnlyIdentifiers) {
     if (($activeText -join "`n") -match [regex]::Escape($identifier)) {
         ReportError "archived identifier leaked into active content: $identifier"
+    }
+}
+
+$luaCsPath = Join-Path $rootPath "OptionalLuaCs"
+if (Test-Path -LiteralPath $luaCsPath) {
+    Get-ChildItem -Path $luaCsPath -Filter *.cs -Recurse | ForEach-Object {
+        $relative = $_.FullName.Substring($rootPath.Length + 1)
+        $text = Get-Content -LiteralPath $_.FullName -Raw
+        if ($text -match "[^\x00-\x7F]") {
+            ReportError "LuaCs C# script should stay ASCII because LuaCs script compilation uses the local default encoding: $relative"
+        }
     }
 }
 

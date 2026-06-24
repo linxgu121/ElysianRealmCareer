@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<locationtypes>
+  <ElysianRealm identifier="ElysianRealm"
+                hasoutpost="true"
+                faction="ElysianRealm"
+                secondaryfaction="None"
+                outpostteam="FriendlyNPC"
+                replaceinradiation="Abandoned"
+                namefile="%ModDir%/Content/Recruitment/ElysianRealmLocationNames.txt"
+                commonnessperzone="1: 0, 2: 0.5, 3: 0.5, 4: 0.5, 5: 0.35"
+                EventLocationType="City"
+                BackgroundMusicLocationType="City"
+                UseOutpostModulesOfLocationType="City"
+                UsePortraitInRandomLoadingScreens="true">
+    <Symbol texture="%ModDir%/Assets/Recruitment/FireMothInsignia.png" sourcerect="0,0,256,256" />
+    <RadiationSymbol texture="%ModDir%/Assets/Recruitment/OutpostIcon.png" sourcerect="896,512,128,128" />
+    <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading1.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
+    <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading2.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
+    <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading3.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
+    <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading4.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
+    <Hireable identifier="realme" commonness="3" AlwaysAvailableIfMissingFromCrew="true" />
+    <Hireable identifier="mechanic" commonness="1" />
+    <Hireable identifier="engineer" commonness="1" />
+    <Hireable identifier="securityofficer" commonness="1" />
+    <Hireable identifier="medicaldoctor" commonness="1" />
+    <Store maxreputationmodifier="0.1"
+           minreputationmodifier="1.0"
+           sellpricemodifier="0.3"
+           buypricemodifier="1.0"
+           dailyspecialpricemodifier="0.5"
+           requestgoodpricemodifier="2"
+           requestgoodbuypricemodifier="5"
+           initialbalance="500000"
+           pricemodifierrange="5"
+           dailyspecialscount="5"
+           requestedgoodscount="5" />
+  </ElysianRealm>
+</locationtypes>
