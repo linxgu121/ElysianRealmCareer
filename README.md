@@ -54,7 +54,7 @@
 - 工程师：维尔薇。
 - 医生：阿波尼亚，使用 `campaigninteractiontype="MedicalClinic"`。
 - 潜艇升级工程师：梅，使用 `campaigninteractiontype="Upgrade"`。
-- 英桀招募位：当前只放入 1 个 `realme` 可招募位；其余站内补位使用逐火之蛾势力下的原版职业。
+- 英桀招募位：当前只放入 1 个 `realme` 可招募位；招募需要逐火之蛾声望达到 20，其余站内补位使用逐火之蛾势力下的原版职业。
 - 专属 `ElysianRealm` 哨站不生成小丑教派/画皮教派等附属势力模块和 NPC。
 
 ## 本地验证

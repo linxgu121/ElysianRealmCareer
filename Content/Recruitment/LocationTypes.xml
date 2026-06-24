@@ -18,7 +18,6 @@
     <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading2.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
     <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading3.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
     <Portrait texture="%ModDir%/Assets/Recruitment/ElysianLoading4.png" sourcerect="0,0,1000,357" premultiplyalpha="false" />
-    <Hireable identifier="realme" commonness="3" AlwaysAvailableIfMissingFromCrew="true" />
     <Hireable identifier="mechanic" commonness="1" />
     <Hireable identifier="engineer" commonness="1" />
     <Hireable identifier="securityofficer" commonness="1" />

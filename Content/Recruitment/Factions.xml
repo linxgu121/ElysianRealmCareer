@@ -10,6 +10,6 @@
     <Icon name="ElysianRealm" texture="%ModDir%/Assets/Recruitment/FireMothInsignia.png" sourcerect="0,0,256,256" />
     <IconSmall name="ElysianRealmSmall" texture="%ModDir%/Assets/Recruitment/FireMothInsignia.png" sourcerect="0,0,256,256" />
     <Portrait name="TheMOTHInsignia" texture="%ModDir%/Assets/Recruitment/ElysianRealmPortrait.png" sourcerect="0,0,852,340" />
-    <Hireable npcsetidentifier="ElysianRealmNpc" npcidentifier="hireableElysia" minreputation="0" />
+    <Hireable npcsetidentifier="ElysianRealmNpc" npcidentifier="hireableElysia" minreputation="20" />
   </Faction>
 </Factions>
