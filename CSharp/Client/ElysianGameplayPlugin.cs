@@ -358,13 +358,7 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
-            object spriteBatchValue;
-            if (args == null || !args.TryGetValue("spriteBatch", out spriteBatchValue))
-            {
-                return null;
-            }
-
-            SpriteBatch spriteBatch = spriteBatchValue as SpriteBatch;
+            SpriteBatch spriteBatch = GetArgByType<SpriteBatch>(args, "spriteBatch");
             if (spriteBatch == null || GUI.WhiteTexture == null)
             {
                 return null;
@@ -376,7 +370,8 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
-            DrawBowChargeBar(spriteBatch, state.ChargeSeconds);
+            LogOnce("bow_charge_visuals", "[ElysianRealm] Pastflower charge visuals are drawing.");
+            DrawBowChargeVisuals(spriteBatch, bow, character, state.ChargeSeconds);
             return null;
         }
 
@@ -465,7 +460,7 @@ namespace Barotrauma.ElysianRealm
             LuaCsLogger.LogMessage("[ElysianRealm] Horn used. buffed=" + buffed + ", taunted=" + taunted);
         }
 
-        private static void DrawBowChargeBar(SpriteBatch spriteBatch, float chargeSeconds)
+        private static void DrawBowChargeVisuals(SpriteBatch spriteBatch, Item bow, Character character, float chargeSeconds)
         {
             float ratio = MathHelper.Clamp(chargeSeconds / BowSuperChargeSeconds, 0.0f, 1.0f);
             Vector2 pos = PlayerInput.MousePosition + new Vector2(28.0f, 28.0f);
@@ -479,26 +474,82 @@ namespace Barotrauma.ElysianRealm
             spriteBatch.Draw(GUI.WhiteTexture, outer, Color.Black * 0.65f);
             spriteBatch.Draw(GUI.WhiteTexture, background, Color.Black * 0.45f);
             spriteBatch.Draw(GUI.WhiteTexture, fill, fillColor);
-            DrawBowChargeParticles(spriteBatch, pos + new Vector2(width * 0.5f, height * 0.5f), ratio, chargeSeconds);
+
+            DrawBowChargeParticles(spriteBatch, PlayerInput.MousePosition, ratio, chargeSeconds, 1.0f);
+            DrawBowChargeParticles(spriteBatch, pos + new Vector2(width * 0.5f, height * 0.5f), ratio, chargeSeconds, 0.55f);
+
+            Vector2 bowScreenPosition;
+            if (TryGetChargeVisualScreenPosition(bow, character, out bowScreenPosition))
+            {
+                DrawBowChargeParticles(spriteBatch, bowScreenPosition, ratio, chargeSeconds, 1.2f);
+            }
         }
 
-        private static void DrawBowChargeParticles(SpriteBatch spriteBatch, Vector2 center, float ratio, float chargeSeconds)
+        private static void DrawBowChargeParticles(SpriteBatch spriteBatch, Vector2 center, float ratio, float chargeSeconds, float scale)
         {
-            int particleCount = 3 + (int)(ratio * 28.0f);
+            int particleCount = 10 + (int)(ratio * 70.0f);
             float time = (Environment.TickCount & 0xFFFF) / 1000.0f;
-            float alpha = MathHelper.Clamp(0.18f + ratio * 0.72f, 0.18f, 0.9f);
-            float spread = 18.0f + ratio * 54.0f;
+            float alpha = MathHelper.Clamp(0.24f + ratio * 0.66f, 0.24f, 0.9f);
+            float spread = (22.0f + ratio * 72.0f) * scale;
+            int coreSize = Math.Max(6, (int)Math.Round((10.0f + ratio * 22.0f) * scale));
+            Rectangle core = new Rectangle(
+                (int)Math.Round(center.X - coreSize * 0.5f),
+                (int)Math.Round(center.Y - coreSize * 0.5f),
+                coreSize,
+                coreSize);
+
+            spriteBatch.Draw(GUI.WhiteTexture, core, new Color(255, 90, 215, 255) * (0.12f + ratio * 0.22f));
 
             for (int i = 0; i < particleCount; i++)
             {
                 float seed = i * 2.399963f;
                 float pulse = (float)Math.Sin(time * (1.5f + i * 0.07f) + seed + chargeSeconds * 0.2f);
-                float distance = spread * (0.25f + ((i * 37) % 100) / 100.0f * 0.75f) * (0.85f + pulse * 0.15f);
-                Vector2 offset = new Vector2((float)Math.Cos(seed + time * 0.9f), (float)Math.Sin(seed - time * 0.7f)) * distance;
-                int size = 2 + (int)(ratio * 3.0f);
+                float distanceRatio = 0.2f + ((i * 37) % 100) / 100.0f * 0.8f;
+                float distance = spread * distanceRatio * (0.82f + pulse * 0.18f);
+                float angle = seed + time * (1.25f + ratio * 1.25f);
+                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * distance;
+                int size = Math.Max(2, (int)Math.Round((3.0f + ratio * 7.0f) * scale * (0.75f + distanceRatio * 0.5f)));
                 Rectangle rect = new Rectangle((int)(center.X + offset.X), (int)(center.Y + offset.Y), size, size);
-                Color color = new Color(255, 115, 220, 255) * alpha;
+                Color color = (i % 3 == 0 ? new Color(255, 225, 245, 255) : new Color(255, 95, 220, 255)) * alpha;
                 spriteBatch.Draw(GUI.WhiteTexture, rect, color);
+            }
+        }
+
+        private static bool TryGetChargeVisualScreenPosition(Item bow, Character character, out Vector2 screenPosition)
+        {
+            Vector2 worldPosition;
+            if (TryGetWorldPosition(bow, out worldPosition) && TryWorldToScreen(worldPosition, out screenPosition))
+            {
+                return true;
+            }
+
+            if (character != null && TryWorldToScreen(character.WorldPosition, out screenPosition))
+            {
+                screenPosition += new Vector2(0.0f, -28.0f);
+                return true;
+            }
+
+            screenPosition = Vector2.Zero;
+            return false;
+        }
+
+        private static bool TryWorldToScreen(Vector2 worldPosition, out Vector2 screenPosition)
+        {
+            try
+            {
+                if (Screen.Selected == null || Screen.Selected.Cam == null)
+                {
+                    screenPosition = Vector2.Zero;
+                    return false;
+                }
+
+                screenPosition = Screen.Selected.Cam.WorldToScreen(worldPosition);
+                return true;
+            }
+            catch
+            {
+                screenPosition = Vector2.Zero;
+                return false;
             }
         }
 
@@ -1413,6 +1464,38 @@ namespace Barotrauma.ElysianRealm
                     {
                         return character;
                     }
+                }
+            }
+
+            return GetArgByType<Character>(args, null);
+        }
+
+        private static T GetArgByType<T>(Dictionary<string, object> args, string preferredKey) where T : class
+        {
+            if (args == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(preferredKey))
+            {
+                object preferredValue;
+                if (args.TryGetValue(preferredKey, out preferredValue))
+                {
+                    T preferred = preferredValue as T;
+                    if (preferred != null)
+                    {
+                        return preferred;
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<string, object> pair in args)
+            {
+                T value = pair.Value as T;
+                if (value != null)
+                {
+                    return value;
                 }
             }
 
