@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Barotrauma;
+using Barotrauma.Items.Components;
 using Barotrauma.LuaCs;
 using Barotrauma.LuaCs.Compatibility;
 using Microsoft.Xna.Framework;
