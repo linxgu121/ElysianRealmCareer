@@ -39,6 +39,55 @@
 - 视觉反馈：蓄力时会在鼠标/准星附近和角色弓附近绘制粉色聚能粒子，粒子数量、大小和透明度随蓄力时间增加而增强。
 - 关键日志：普通蓄力就绪会出现 `[ElysianRealm] Pastflower bow normal charge ready`；15 秒超蓄力就绪会出现 `[ElysianRealm] Pastflower bow super charge ready`；HUD 视觉链路首次绘制会出现 `[ElysianRealm] Pastflower charge visuals are drawing`。
 
+## 贴图与握持点调整
+
+给其他玩家改图时，优先改 `Content/Items` 下的 XML，不需要改 C#：
+
+- 弓 `pastflower`：`Content/Items/ElysianItems.xml`，找到 `Item identifier="pastflower"`。
+- 爱矛 `lovespears`：`Content/Items/LoveSpear.xml`，找到 `Item identifier="lovespears"`。
+- 爱莉希雅喇叭 `elysiahorn`：`Content/Items/ElysianItems.xml`，找到 `Item identifier="elysiahorn"`。
+- 真我服装 `Elysiagear`：`Content/Items/ElysiaGear.xml`，找到 `Item identifier="Elysiagear"`。
+
+常用字段：
+
+- 物品栏图标：`InventoryIcon texture`、`InventoryIcon sourcerect`、`InventoryIcon origin`。
+- 世界贴图：`Sprite texture`、`Sprite sourcerect`、`Sprite origin`、`Sprite depth`。
+- 整体显示大小：物品本体上的 `scale`。
+- 碰撞体大小：`Body width`、`Body height`。
+- 手持点位：`Holdable handle1`、`Holdable handle2`、`Holdable aimpos`、`Holdable holdpos`、`Holdable holdangle`。
+- 弓/枪类发射点：`RangedWeapon barrelpos`，往事的飞花当前是 `70,0`。
+- 服装穿戴贴图：`Wearable` 节点里的各个小写 `sprite`，按 `name`/`limb` 区分，例如 `Head`、`Torso`、`RightArm`、`LeftLeg`；常改 `texture`、`sourcerect`、`origin`。
+
+坐标和裁剪格式：
+
+- `texture` 建议写 `%ModDir%/Assets/Items/文件名.png`，这样复制到其他人的本地目录也能工作。
+- `sourcerect` 是 `x,y,width,height`，表示从贴图哪一块裁剪，例如 `0,0,1500,1500`。
+- `origin` 通常是 `0.5,0.5`，表示贴图中心点；改服装肢体贴图时这个值会影响肢体对齐。
+- `handle1`、`handle2`、`aimpos`、`holdpos`、`barrelpos` 都是 `x,y` 坐标。`x` 往右为正，`y` 往下为正；如果手拿得太靠左，就增大 `handle` 的 x；如果发射点不在弓尖，就调 `barrelpos`。
+- 每次改完后重进游戏或重新加载 Mod 测试，手感调点位通常需要多次微调。
+
+不会手改 XML 的玩家可以用小工具：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\ItemVisualTuner.ps1
+```
+
+运行后按提示选择物品，直接回车表示保留原值。工具会在保存前自动生成 `.bak-日期时间` 备份。
+
+也可以用命令一次性改某个物品，例如把往事的飞花的贴图、握持点和发射点改成新值：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\ItemVisualTuner.ps1 -Identifier pastflower -SpriteTexture "%ModDir%/Assets/Items/MyBow.png" -IconTexture "%ModDir%/Assets/Items/MyBowIcon.png" -Handle1 "-35,0" -Handle2 "20,0" -AimPos "50,0" -BarrelPos "70,0"
+```
+
+改服装肢体贴图示例：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\ItemVisualTuner.ps1 -Identifier Elysiagear -WearableSpriteName Head -WearableTexture "%ModDir%/Assets/Items/Elysia/NewHead.png" -WearableSourceRect "0,0,205,473" -WearableOrigin "0.79,0.18"
+```
+
+工具只负责改 XML 字段，不会自动处理图片尺寸。图片路径、文件名、大小写必须和 `Assets` 里的真实文件一致。
+
 ## 仍然下线内容
 
 任务、随机事件，以及旧包里未迁移的专属装备仍然不加载，归档位置：
