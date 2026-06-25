@@ -3,17 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Barotrauma;
-using Barotrauma.Items.Components;
 using Barotrauma.LuaCs;
-using Barotrauma.LuaCs.Compatibility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-[assembly: IgnoreAccessChecksTo("Barotrauma")]
-[assembly: IgnoreAccessChecksTo("BarotraumaCore")]
-[assembly: IgnoreAccessChecksTo("DedicatedServer")]
 
 namespace Barotrauma.ElysianRealm
 {
@@ -54,6 +47,7 @@ namespace Barotrauma.ElysianRealm
         private static ContentPackage ownerPackage;
         private static MethodInfo characterIsKeyDownMethod;
         private static MethodInfo characterIsKeyHitMethod;
+        private static Type rangedWeaponType;
 
         public void PreInitPatching()
         {
@@ -88,7 +82,7 @@ namespace Barotrauma.ElysianRealm
             ownerPackage = null;
         }
 
-        private static void HookCharacterControl(object hookOwner)
+        private static void HookCharacterControl(IAssemblyPlugin hookOwner)
         {
             MethodInfo method = typeof(Character).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .FirstOrDefault(m => string.Equals(m.Name, "Control", StringComparison.Ordinal) &&
@@ -108,9 +102,16 @@ namespace Barotrauma.ElysianRealm
                 owner: hookOwner);
         }
 
-        private static void HookRangedWeaponUse(object hookOwner)
+        private static void HookRangedWeaponUse(IAssemblyPlugin hookOwner)
         {
-            MethodInfo method = typeof(RangedWeapon).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            Type type = FindRangedWeaponType();
+            if (type == null)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] RangedWeapon type was not found; bow super shot disabled.");
+                return;
+            }
+
+            MethodInfo method = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .FirstOrDefault(m => string.Equals(m.Name, "Use", StringComparison.Ordinal) &&
                                      m.GetParameters().Any(p => p.ParameterType == typeof(Character)));
 
@@ -135,9 +136,16 @@ namespace Barotrauma.ElysianRealm
                 owner: hookOwner);
         }
 
-        private static void HookBowHud(object hookOwner)
+        private static void HookBowHud(IAssemblyPlugin hookOwner)
         {
-            MethodInfo method = typeof(RangedWeapon).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            Type type = FindRangedWeaponType();
+            if (type == null)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] RangedWeapon type was not found; bow charge bar disabled.");
+                return;
+            }
+
+            MethodInfo method = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .FirstOrDefault(m => string.Equals(m.Name, "DrawHUD", StringComparison.Ordinal) &&
                                      m.GetParameters().Any(p => p.ParameterType == typeof(SpriteBatch)) &&
                                      m.GetParameters().Any(p => p.ParameterType == typeof(Character)));
@@ -156,7 +164,7 @@ namespace Barotrauma.ElysianRealm
                 owner: hookOwner);
         }
 
-        private static void HookProjectileImpact(object hookOwner)
+        private static void HookProjectileImpact(IAssemblyPlugin hookOwner)
         {
             Type projectileType = FindTypeByName("Projectile");
             if (projectileType == null)
@@ -210,7 +218,12 @@ namespace Barotrauma.ElysianRealm
 
         private static object RangedWeaponUseBefore(object self, Dictionary<string, object> args)
         {
-            RangedWeapon rangedWeapon = self as RangedWeapon;
+            object rangedWeapon = IsRangedWeapon(self) ? self : null;
+            if (rangedWeapon == null)
+            {
+                return null;
+            }
+
             Character character = GetCharacterArg(args);
             if (!IsUsableCharacter(character))
             {
@@ -327,7 +340,12 @@ namespace Barotrauma.ElysianRealm
 
         private static object BowDrawHudAfter(object self, Dictionary<string, object> args)
         {
-            RangedWeapon rangedWeapon = self as RangedWeapon;
+            object rangedWeapon = IsRangedWeapon(self) ? self : null;
+            if (rangedWeapon == null)
+            {
+                return null;
+            }
+
             Item bow = GetComponentItem(rangedWeapon);
             if (!HasIdentifier(bow, BowIdentifier))
             {
@@ -527,14 +545,14 @@ namespace Barotrauma.ElysianRealm
             return state;
         }
 
-        private static WeaponOverride CreateNormalShotOverride(RangedWeapon rangedWeapon)
+        private static WeaponOverride CreateNormalShotOverride(object rangedWeapon)
         {
             WeaponOverride weaponOverride = new WeaponOverride(rangedWeapon);
             weaponOverride.TryOverrideInt("ProjectileCount", 1);
             return weaponOverride;
         }
 
-        private static WeaponOverride CreateSuperShotOverride(RangedWeapon rangedWeapon, Item projectileItem, int arrowCount)
+        private static WeaponOverride CreateSuperShotOverride(object rangedWeapon, Item projectileItem, int arrowCount)
         {
             WeaponOverride weaponOverride = CreateNormalShotOverride(rangedWeapon);
             float damageMultiplier = Math.Max(1.0f, arrowCount);
@@ -1486,6 +1504,22 @@ namespace Barotrauma.ElysianRealm
         private static Item GetComponentItem(object component)
         {
             return GetMemberValue(component, "Item") as Item;
+        }
+
+        private static Type FindRangedWeaponType()
+        {
+            if (rangedWeaponType == null)
+            {
+                rangedWeaponType = FindTypeByName("RangedWeapon");
+            }
+
+            return rangedWeaponType;
+        }
+
+        private static bool IsRangedWeapon(object instance)
+        {
+            Type type = FindRangedWeaponType();
+            return instance != null && type != null && type.IsInstanceOfType(instance);
         }
 
         private static bool HasIdentifier(Item item, string identifier)

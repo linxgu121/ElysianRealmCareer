@@ -2,17 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Barotrauma;
-using Barotrauma.Items.Components;
 using Barotrauma.LuaCs;
-using Barotrauma.LuaCs.Compatibility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
-[assembly: IgnoreAccessChecksTo("Barotrauma")]
-[assembly: IgnoreAccessChecksTo("BarotraumaCore")]
-[assembly: IgnoreAccessChecksTo("DedicatedServer")]
 
 namespace Barotrauma.ElysianRealm
 {
