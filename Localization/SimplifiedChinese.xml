@@ -195,7 +195,7 @@
   <entityname.crystal>湛蓝水晶</entityname.crystal>
   <entitydescription.crystal>不知道为什么，你的肝忽然疼了起来。</entitydescription.crystal>
   <entityname.pastflower>‖color:255,86,217,255‖往事的飞花‖end‖</entityname.pastflower>
-  <entitydescription.pastflower>可装入爱矛发射的弓。右键蓄力满15秒后左键射击，会通过 LuaCs 触发全弹强化。</entitydescription.pastflower>
+  <entitydescription.pastflower>双手持握的弓。物品栏内携带爱矛即可发射：右键蓄力超过0.5秒后左键射出一根爱矛；满15秒后会消耗物品栏内所有爱矛，发射一记强化箭。</entitydescription.pastflower>
   <entityname.elysiaknife>爱莉希雅的小刀</entityname.elysiaknife>
   <entitydescription.elysiaknife>轻巧锋利的小刀。</entitydescription.elysiaknife>
   <entityname.elysiahorn>爱莉希雅的喇叭</entityname.elysiahorn>
