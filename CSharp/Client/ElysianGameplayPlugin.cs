@@ -1529,8 +1529,14 @@ namespace Barotrauma.ElysianRealm
                 return false;
             }
 
-            return string.Equals(item.Prefab.Identifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(item.Identifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
+            if (item.Prefab != null && string.Equals(item.Prefab.Identifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            object itemIdentifier = GetMemberValue(item, "Identifier");
+            return itemIdentifier != null &&
+                   string.Equals(itemIdentifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
         }
 
         private static Type FindTypeByName(string typeName)
