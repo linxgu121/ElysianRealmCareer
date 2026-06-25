@@ -2,6 +2,7 @@
 <contentpackage name="Elysian Realm Career Core / 乐土刻印职业核心" modversion="0.1.0" gameversion="1.0.21.0" corepackage="false">
   <!-- Core migration with recruitment baseline restored. Deprecated missions/random events remain archived under Deprecated/Recruitment. -->
   <Other file="%ModDir%/ModConfig.xml" />
+  <Other file="%ModDir%/CSharp/Client/ElysianGameplayPlugin.cs" />
   <Other file="%ModDir%/CSharp/Client/ElysianPortraitPlugin.cs" />
   <Text file="%ModDir%/Localization/SimplifiedChinese.xml" />
   <Jobs file="%ModDir%/Content/Jobs/Jobs.xml" />
@@ -10,6 +11,7 @@
   <Afflictions file="%ModDir%/Content/Afflictions/RealmeAfflictions.xml" />
   <Item file="%ModDir%/Content/Items/ElysiaGear.xml" />
   <Item file="%ModDir%/Content/Items/LoveSpear.xml" />
+  <Item file="%ModDir%/Content/Items/ElysianItems.xml" />
   <Factions file="%ModDir%/Content/Recruitment/Factions.xml" />
   <LocationTypes file="%ModDir%/Content/Recruitment/LocationTypes.xml" />
   <NPCSets file="%ModDir%/Content/Recruitment/NPCSets.xml" />
@@ -44,6 +46,12 @@
   <Other file="%ModDir%/Assets/Items/Elysia/Waist.png" />
   <Other file="%ModDir%/Assets/Items/Exotic_Amor_suit.png" />
   <Other file="%ModDir%/Assets/Items/OutfitIcons.png" />
+  <Other file="%ModDir%/Assets/Items/crystal Mine.png" />
+  <Other file="%ModDir%/Assets/Items/crystal.png" />
+  <Other file="%ModDir%/Assets/Items/loversarrow-tini.png" />
+  <Other file="%ModDir%/Assets/Items/loversarrow.png" />
+  <Other file="%ModDir%/Assets/Items/stigmata.jpg" />
+  <Other file="%ModDir%/Assets/Items/往世的飞花.png" />
   <Other file="%ModDir%/Assets/Items/爱矛缩略.png" />
   <Other file="%ModDir%/Assets/Recruitment/ElysianLoading1.png" />
   <Other file="%ModDir%/Assets/Recruitment/ElysianLoading2.png" />

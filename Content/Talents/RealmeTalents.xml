@@ -312,7 +312,6 @@
         <CharacterAbilityGiveFlag flagtype="GainSkillPastMaximum" />
       </Abilities>
     </AbilityGroupEffect>
-    <AddedRecipe itemidentifier="lovespears" />
   </Talent>
   <!--天与地之施-->
   <Talent identifier="ABlessingfromHeavenandEarth">
@@ -358,21 +357,19 @@
   <Talent identifier="AnArrowforFlowerandFowl">
     <Icon texture="%ModDir%/Assets/UI/花与鸟之矢.png" sheetindex="0,0" sheetelementsize="128,128" />
     <Description tag="talentdescription.AnArrowforFlowerandFowl"></Description>
-    <AbilityGroupEffect abilityeffecttype="None">
-      <Abilities>
-        <CharacterAbilityGiveStat stattype="HelmSkillBonus" value="+30" />
-        <CharacterAbilityGiveStat stattype="MedicalSkillBonus" value="+30" />
-      </Abilities>
-    </AbilityGroupEffect>
+    <AddedRecipe itemidentifier="pastflower" />
+    <AddedRecipe itemidentifier="lovespears" />
   </Talent>
   <!--落花刹那，光翳明灭-->
   <Talent identifier="ShatteredTransience">
     <Icon texture="%ModDir%/Assets/UI/落花刹那，光翳明灭.png" sheetindex="0,0" sheetelementsize="128,128" />
     <Description tag="talentdescription.ShatteredTransience"></Description>
-    <AbilityGroupEffect abilityeffecttype="None">
+    <AbilityGroupEffect abilityeffecttype="OnAttack">
+      <Conditions>
+        <AbilityConditionAttackData tags="harpoonammo" />
+      </Conditions>
       <Abilities>
-        <CharacterAbilityGiveStat stattype="MedicalSkillBonus" value="+30" />
-        <CharacterAbilityGiveStat stattype="WeaponsSkillBonus" value="+30" />
+        <CharacterAbilityModifyAttackData addeddamagemultiplier="2.0" />
       </Abilities>
     </AbilityGroupEffect>
   </Talent>
@@ -383,6 +380,7 @@
     <Description tag="talentdescription.TheBeginningofYouandI">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiaknife" />
   </Talent>
   <!--命定此身，璀璨永恒-->
   <Talent identifier="RadiantDestiny">
@@ -390,6 +388,7 @@
     <Description tag="talentdescription.RadiantDestiny">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiahorn" />
   </Talent>
   <!--如弓矢般凛冽-->
   <Talent identifier="BitingArrows">
@@ -397,6 +396,7 @@
     <Description tag="talentdescription.BitingArrows">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiastigmata_top_human" />
   </Talent>
   <!--愿海洋辽阔-->
   <Talent identifier="WishforSea">
@@ -404,6 +404,7 @@
     <Description tag="talentdescription.WishforSea">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiastigmata_top_origin" />
   </Talent>
   <!--如精灵般灵动-->
   <Talent identifier="ElvenAgility">
@@ -411,6 +412,7 @@
     <Description tag="talentdescription.ElvenAgility">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiastigmata_mid_human" />
   </Talent>
   <!--愿大地丰饶-->
   <Talent identifier="WishforEarth">
@@ -418,6 +420,7 @@
     <Description tag="talentdescription.WishforEarth">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiastigmata_mid_origin" />
   </Talent>
   <!--如飞花般绚丽-->
   <Talent identifier="FloralSplendor">
@@ -425,6 +428,7 @@
     <Description tag="talentdescription.FloralSplendor">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiastigmata_bottom_human" />
   </Talent>
   <!--愿群星闪耀-->
   <Talent identifier="WishforStars">
@@ -432,5 +436,6 @@
     <Description tag="talentdescription.WishforStars">
       <Replace tag="[amount]" value="80" color="gui.green" />
     </Description>
+    <AddedRecipe itemidentifier="elysiastigmata_bottom_origin" />
   </Talent>
 </Talents>

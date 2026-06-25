@@ -18,6 +18,7 @@
 
 - `ModConfig.xml`: LuaCs 专用配置，已作为 `Other` 文件随包发布；LuaCs 会读取它加载客户端脚本。
 - `CSharp/Client/ElysianPortraitPlugin.cs`: 客户端 C# 脚本插件，已作为 `Other` 文件随包发布；它会拦截 `CharacterInfo.DrawIcon(...)`，将 `realme` 职业的生成头像替换为指定图片。
+- `CSharp/Client/ElysianGameplayPlugin.cs`: 客户端 C# 玩法脚本插件，负责往事的飞花 15 秒蓄力全弹强化、爱莉希雅的喇叭范围鼓励/敌对 AI 嘲讽尝试、圣痕本源条件门控。
 - 默认头像图片是 `Assets/UI/elysia_portrait.png`。要改成其他图片，修改脚本里的 `PortraitRelativePath`。
 
 安装前置：
@@ -63,7 +64,9 @@
 
 - 已安装并启用 Client-Side LuaCs。
 - LuaCs 已启用 C# 执行，并能读取 Mod 根目录的 `ModConfig.xml`。
-- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
+- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered`、`[ElysianRealm] Gameplay plugin registered`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
+- 使用往事的飞花右键蓄力满 15 秒后，日志会出现 `[ElysianRealm] Pastflower bow super charge ready`；随后左键射击会出现 `[ElysianRealm] Pastflower super shot prepared`。
+- 使用爱莉希雅的喇叭时，日志会出现 `[ElysianRealm] Horn used`，其中会统计本次鼓励和嘲讽尝试数量。
 - Mod 是否能被识别并启用。
 - 新职业“真我”是否出现在职业列表。
 - 新战役地图中是否能生成“往世乐土”系列哨站。

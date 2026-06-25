@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Items>
+  <!--
+  BALANCE:
+  Core craft costs and XML-safe behavior for the new Elysian items live here.
+  LuaCs should extend pastflower charge shots and elysiahorn faction-aware taunt/buffs later.
+  -->
+
+  <!-- 湛蓝水晶 -->
+  <Item name="" identifier="crystal" category="Material" tags="smallitem,ore,elysianmaterial" maxstacksize="64" canbepicked="true" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <PreferredContainer primary="mineralcab" secondary="storagecab" />
+    <Price baseprice="128" sold="false">
+      <Price storeidentifier="merchantoutpost" multiplier="1.1" />
+      <Price storeidentifier="merchantcity" multiplier="1.25" />
+      <Price storeidentifier="merchantresearch" />
+      <Price storeidentifier="merchantmilitary" />
+      <Price storeidentifier="merchantmine" multiplier="0.75" />
+    </Price>
+    <Deconstruct time="20" />
+    <LightComponent lightcolor="150,240,250,225" range="100" powerconsumption="0" flicker="0.0" flickerspeed="0.4" pulsefrequency="0.4" pulseamount="0" ison="true" drawbehindsubs="true">
+      <LightTexture texture="Content/Lights/pointlight_rays.png" origin="0.5,0.5" />
+    </LightComponent>
+    <ContainedSprite texture="Content/Items/Materials/MineralEnvironment.png" usewhenattached="true" decorativespritebehavior="HideWhenNotVisible" depth="0.55" sourcerect="0,146,86,147" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/crystal.png" depth="0.3" sourcerect="0,0,100,109" origin="0.5,0.5" />
+    <DecorativeSprite texture="%ModDir%/Assets/Items/crystal Mine.png" depth="0.49" sourcerect="0,0,120,108" offset="20,0" randomrotation="-20,20" randomscale="0.8,1.5" randomoffset="30,30" origin="0.5,0.5" randomgroupid="1" />
+    <DecorativeSprite texture="%ModDir%/Assets/Items/crystal Mine.png" depth="0.48" sourcerect="0,0,120,108" offset="20,0" randomrotation="-20,20" randomscale="0.8,1.5" randomoffset="30,30" origin="0.5,0.5" randomgroupid="1" />
+    <DecorativeSprite texture="%ModDir%/Assets/Items/crystal Mine.png" depth="0.51" sourcerect="0,0,120,108" offset="-20,0" randomrotation="-20,20" randomscale="0.8,1.5" randomoffset="30,30" origin="0.5,0.5" randomgroupid="2" />
+    <DecorativeSprite texture="%ModDir%/Assets/Items/crystal Mine.png" depth="0.52" sourcerect="0,0,120,108" offset="-20,0" randomrotation="-20,20" randomscale="0.8,1.5" randomoffset="30,30" origin="0.5,0.5" randomgroupid="2" />
+    <DecorativeSprite texture="%ModDir%/Assets/Items/crystal Mine.png" depth="0.491" sourcerect="0,0,120,108" offset="0,-30" randomrotation="-20,20" randomscale="0.8,1.5" randomoffset="30,10" origin="0.5,0.5" randomgroupid="3" />
+    <DecorativeSprite texture="%ModDir%/Assets/Items/crystal Mine.png" depth="0.53" sourcerect="0,0,120,108" offset="0,-30" randomrotation="-20,20" randomscale="0.8,1.5" randomoffset="30,10" origin="0.5,0.5" randomgroupid="3" />
+    <DecorativeSprite texture="Content/Items/Materials/Minerals.png" depth="0.4" sourcerect="810,893,173,131" offset="0,-40" randomrotation="-20,20" origin="0.5,0.5" />
+    <Body radius="40" width="20" density="25" />
+    <LevelResource deattachduration="4" randomoffsetfromwall="80">
+      <Commonness commonness="0.2" abysscommonness="0.3" />
+      <Commonness commonness="0.3" cavecommonness="0.4" abysscommonness="20" leveltype="europanridge" />
+      <Commonness commonness="0.4" cavecommonness="0.5" abysscommonness="20" leveltype="theaphoticplateau" />
+      <Commonness commonness="0.5" cavecommonness="0.5" abysscommonness="50" leveltype="thegreatsea" />
+      <Commonness commonness="0.7" cavecommonness="1" abysscommonness="10" leveltype="hydrothermalwastes" />
+      <RequiredItem items="cuttingequipment" type="Equipped" />
+    </LevelResource>
+    <Holdable slots="Any,RightHand,LeftHand" msg="ItemMsgUsePlasmaCutter" handle1="0,0" pickingtime="5.0" attachable="true" reattachable="false" />
+  </Item>
+
+  <!-- 往事的飞花：XML 基础版，LuaCs 后续负责长蓄力全弹发射。 -->
+  <Item name="" identifier="pastflower" category="Weapon" tags="mediumitem,weapon,gunsmith,elysianweapon" cargocontaineridentifier="metalcrate" scale="0.18" impactsoundtag="impact_metal_light" requireaimtouse="true">
+    <Price baseprice="8000" sold="false" />
+    <Deconstruct time="20">
+      <Item identifier="crystal" amount="64" />
+    </Deconstruct>
+    <Fabricate suitablefabricators="fabricator" requiredtime="30" requiresrecipe="true">
+      <Item identifier="crystal" amount="64" />
+      <Item identifier="steel" amount="12" />
+      <Item identifier="titaniumaluminiumalloy" amount="4" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/往世的飞花.png" sourcerect="0,0,1500,1500" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/往世的飞花.png" sourcerect="0,0,1500,1500" depth="0.55" origin="0.5,0.5" />
+    <Body width="140" height="80" density="25" />
+    <ItemContainer capacity="1" maxstacksize="4" slotsperrow="1" hideitems="true" drawinventory="true" containableitems="lovespears" />
+    <Holdable slots="Any,RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="-35,0" handle2="20,0" aimpos="50,0" holdpos="0,0" holdangle="0" aimable="true" />
+    <RangedWeapon barrelpos="70,0" reload="1.0" launchimpulse="10.0" spread="0" unskilledspread="5" projectilecount="1" maxchargetime="0.5" suitableprojectiles="lovespears" msg="ItemMsgPickUpSelect" />
+    <aitarget sightrange="500" soundrange="250" fadeouttime="1" />
+  </Item>
+
+  <!-- 爱莉希雅的小刀 -->
+  <Item name="" identifier="elysiaknife" category="Weapon" tags="smallitem,weapon,gunsmith,mountableweapon,sharptool,elysianweapon" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" requireaimtouse="true">
+    <Price baseprice="680" sold="false" />
+    <Deconstruct time="5">
+      <Item identifier="crystal" amount="6" />
+    </Deconstruct>
+    <Fabricate suitablefabricators="fabricator" requiredtime="10" requiresrecipe="true">
+      <Item identifier="iron" amount="2" />
+      <Item identifier="crystal" amount="6" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/loversarrow-tini.png" sourcerect="0,0,131,115" origin="0.5,0.5" />
+    <Sprite texture="Content/Items/Weapons/weapons_new.png" sourcerect="183,203,66,16" depth="0.55" origin="0.5,0.5" />
+    <Body width="65" height="15" density="25" />
+    <MeleeWeapon slots="Any,RightHand,LeftHand" aimpos="50,0" handle1="-10,0" holdangle="30" reload="0.75" range="50" combatpriority="25" msg="ItemMsgPickUpSelect">
+      <Attack targetimpulse="2" severlimbsprobability="0.1" itemdamage="3" structuredamage="2" structuresoundtype="StructureSlash">
+        <Affliction identifier="lacerations" strength="20" />
+        <Affliction identifier="bleeding" strength="15" />
+        <Affliction identifier="stun" strength="0.2" />
+      </Attack>
+    </MeleeWeapon>
+    <aitarget sightrange="500" soundrange="250" fadeouttime="1" />
+    <Quality>
+      <QualityStat stattype="StrikingPowerMultiplier" value="0.1" />
+    </Quality>
+    <Upgrade gameversion="0.10.0.0" scale="0.5" />
+  </Item>
+
+  <!-- 爱莉希雅的喇叭：XML 基础版先提供物品/配方/自我鼓励，阵营嘲讽与范围友军筛选交给 LuaCs。 -->
+  <Item name="" identifier="elysiahorn" category="Misc" tags="smallitem,tool,elysianitem" cargocontaineridentifier="metalcrate" scale="0.45" impactsoundtag="impact_metal_light">
+    <Price baseprice="900" sold="false" />
+    <Deconstruct time="5">
+      <Item identifier="crystal" amount="4" />
+    </Deconstruct>
+    <Fabricate suitablefabricators="fabricator" requiredtime="10" requiresrecipe="true">
+      <Item identifier="crystal" amount="6" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" depth="0.55" origin="0.5,0.5" />
+    <Body width="40" height="25" density="20" />
+    <Holdable slots="Any,RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="0,0">
+      <StatusEffect type="OnUse" target="Character" disabledeltatime="true">
+        <Affliction identifier="elysiaencouragement" strength="10" />
+        <Sound file="%ModDir%/Assets/Audio/粉色妖精小姐♪.ogg" range="1000" />
+      </StatusEffect>
+    </Holdable>
+  </Item>
+
+  <!-- 圣痕槽位：三格圣痕/遗传物质容器。 -->
+  <Item name="" identifier="stigmataslot" category="Equipment" tags="smallitem,geneticmaterialcontainer,elysianitem" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="2500" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20">
+      <Item identifier="crystal" amount="30" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" depth="0.55" origin="0.5,0.5" />
+    <Body width="35" height="35" density="15" />
+    <ItemContainer capacity="3" maxstacksize="1" slotsperrow="3" hideitems="true" drawinventory="true" containableitems="geneticmaterial,elysiastigmata" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+  </Item>
+
+  <!-- 圣痕：遗传物质式物品，可放入原版基因拼接器，也可放入圣痕槽位。 -->
+  <Item name="" identifier="elysiastigmata_top_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="9000" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
+      <Item identifier="crystal" amount="128" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <Body width="25" height="25" density="10" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <GeneticMaterial effect="elysiastigmata_top_human_effect" nameidentifier="elysiastigmata_top_human" />
+  </Item>
+
+  <Item name="" identifier="elysiastigmata_top_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="9000" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
+      <Item identifier="crystal" amount="128" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <Body width="25" height="25" density="10" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <GeneticMaterial effect="elysiastigmata_top_origin_effect" nameidentifier="elysiastigmata_top_origin" />
+  </Item>
+
+  <Item name="" identifier="elysiastigmata_mid_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="9000" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
+      <Item identifier="crystal" amount="128" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <Body width="25" height="25" density="10" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <GeneticMaterial effect="elysiastigmata_mid_human_effect" nameidentifier="elysiastigmata_mid_human" />
+  </Item>
+
+  <Item name="" identifier="elysiastigmata_mid_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="9000" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
+      <Item identifier="crystal" amount="128" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <Body width="25" height="25" density="10" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <GeneticMaterial effect="elysiastigmata_mid_origin_effect" nameidentifier="elysiastigmata_mid_origin" />
+  </Item>
+
+  <Item name="" identifier="elysiastigmata_bottom_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="9000" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
+      <Item identifier="crystal" amount="128" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <Body width="25" height="25" density="10" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <GeneticMaterial effect="elysiastigmata_bottom_human_effect" nameidentifier="elysiastigmata_bottom_human" />
+  </Item>
+
+  <Item name="" identifier="elysiastigmata_bottom_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+    <Price baseprice="9000" sold="false" />
+    <Deconstruct time="10" />
+    <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
+      <Item identifier="crystal" amount="128" />
+    </Fabricate>
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <Body width="25" height="25" density="10" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <GeneticMaterial effect="elysiastigmata_bottom_origin_effect" nameidentifier="elysiastigmata_bottom_origin" />
+  </Item>
+</Items>

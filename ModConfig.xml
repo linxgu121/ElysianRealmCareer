@@ -10,4 +10,13 @@
     Platform="Any"
     LoadPriority="0"
     UseInternalAccessName="true" />
+  <Assembly
+    Name="ElysianRealm.Gameplay"
+    FriendlyName="Elysian Realm Gameplay"
+    File="%ModDir%/CSharp/Client/ElysianGameplayPlugin.cs"
+    IsScript="true"
+    Target="Client"
+    Platform="Any"
+    LoadPriority="1"
+    UseInternalAccessName="true" />
 </ModConfig>

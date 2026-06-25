@@ -142,4 +142,77 @@
     </PeriodicEffect>
     <Icon texture="Content/UI/TalentsIcons3.png" sheetindex="1,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
+  <!--爱莉希雅的鼓励-->
+  <Affliction identifier="elysiaencouragement" type="talentbuff" isbuff="true" limbspecific="false" showiconthreshold="1" maxstrength="10" treatmentthreshold="1000" duration="10" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10">
+      <StatValue stattype="SwimmingSpeed" value="0.2" />
+      <StatValue stattype="AttackMultiplier" value="0.1" />
+    </Effect>
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="psychosis" strength="100" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--爱莉希雅(上)-->
+  <Affliction identifier="elysiastigmata_top_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100">
+      <StatValue stattype="SwimmingSpeed" value="0.5" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--爱莉希雅 · 无瑕之人(上)-->
+  <Affliction identifier="elysiastigmata_top_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="pressure" strength="1000" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--爱莉希雅(中)-->
+  <Affliction identifier="elysiastigmata_mid_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <Affliction identifier="nightvision" strength="100" />
+        <ReduceAffliction identifier="oxygenlow" strength="100" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--爱莉希雅 · 无瑕之人(中)-->
+  <Affliction identifier="elysiastigmata_mid_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="stun" strength="0.5" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--爱莉希雅(下)-->
+  <Affliction identifier="elysiastigmata_bottom_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="pressure" strength="1000" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--爱莉希雅 · 无瑕之人(下)-->
+  <Affliction identifier="elysiastigmata_bottom_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="bleeding" strength="1" />
+        <ReduceAffliction identifier="bloodloss" strength="1" />
+        <ReduceAffliction identifier="burn" strength="1" />
+        <ReduceAffliction identifier="internaldamage" strength="1" />
+        <ReduceAffliction identifier="lacerations" strength="1" />
+        <ReduceAffliction identifier="blunttrauma" strength="1" />
+        <ReduceAffliction identifier="bitewounds" strength="1" />
+        <ReduceAffliction identifier="gunshotwound" strength="1" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
 </Afflictions>

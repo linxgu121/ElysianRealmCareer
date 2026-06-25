@@ -49,6 +49,13 @@
   <afflictionname.brilliantlightshiningontheearth>璀璨光芒，照耀大地</afflictionname.brilliantlightshiningontheearth>
   <afflictionname.adreamycoperformance>梦幻的共演哦</afflictionname.adreamycoperformance>
   <afflictionname.itseemstohavetobeserious>似乎得认真点啦哪</afflictionname.itseemstohavetobeserious>
+  <afflictionname.elysiaencouragement>爱莉希雅的鼓励</afflictionname.elysiaencouragement>
+  <afflictionname.elysiastigmata_top_human_effect>爱莉希雅(上)</afflictionname.elysiastigmata_top_human_effect>
+  <afflictionname.elysiastigmata_top_origin_effect>爱莉希雅 · 无瑕之人(上)</afflictionname.elysiastigmata_top_origin_effect>
+  <afflictionname.elysiastigmata_mid_human_effect>爱莉希雅(中)</afflictionname.elysiastigmata_mid_human_effect>
+  <afflictionname.elysiastigmata_mid_origin_effect>爱莉希雅 · 无瑕之人(中)</afflictionname.elysiastigmata_mid_origin_effect>
+  <afflictionname.elysiastigmata_bottom_human_effect>爱莉希雅(下)</afflictionname.elysiastigmata_bottom_human_effect>
+  <afflictionname.elysiastigmata_bottom_origin_effect>爱莉希雅 · 无瑕之人(下)</afflictionname.elysiastigmata_bottom_origin_effect>
   <!--爱莉希雅-->
   <talentdescription.Elysia>这是名为‖color:255,86,217,255‖爱莉希雅‖end‖的核心技能
 ‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！“如果选错分支，可是无法后悔的哦‖color:255,86,217,255‖♪‖end‖”</talentdescription.Elysia>
@@ -143,7 +150,6 @@
 手枪伤害‖color:gui.green‖+110%‖end‖，近战伤害‖color:gui.green‖+50%‖end‖</talentdescription.AnOathtoWindandMoon>
   <!--因果螺旋，蛰转无限-->
   <talentdescription.InfiniteHelix>‖color:255,86,217,255‖可爱的少女心，可是无所不能的哦‖end‖
-解锁物品：‖color:255,86,217,255‖爱矛‖end‖
 技能点上限提高至200</talentdescription.InfiniteHelix>
   <!--天与地之施-->
   <talentdescription.ABlessingfromHeavenandEarth>‖color:255,86,217,255‖似乎得认真点了呢‖end‖
@@ -154,32 +160,60 @@
 受到攻击后：移动速度增加‖color:gui.green‖+40%‖end‖，持续10s</talentdescription.RisingStarbeams>
   <!--花与鸟之矢-->
   <talentdescription.AnArrowforFlowerandFowl>‖color:255,86,217,255‖绚丽，如繁花初绽‖end‖
-驾驶水平‖color:gui.green‖+30‖end‖，医疗水平‖color:gui.green‖+30‖end‖</talentdescription.AnArrowforFlowerandFowl>
+解锁配方：‖color:255,86,217,255‖往事的飞花‖end‖、‖color:255,86,217,255‖爱矛‖end‖</talentdescription.AnArrowforFlowerandFowl>
   <!--落花刹那，光翳明灭-->
   <talentdescription.ShatteredTransience>‖color:255,86,217,255‖希翼，如星火熠熠‖end‖
-武器操作‖color:gui.green‖+30‖end‖，医疗水平‖color:gui.green‖+30‖end‖</talentdescription.ShatteredTransience>
+鱼叉与爱矛类弹药伤害‖color:gui.green‖+200%‖end‖</talentdescription.ShatteredTransience>
   <!--你与我之始-->
-  <talentdescription.TheBeginningofYouandI>这条天赋树暂未想好要做什么</talentdescription.TheBeginningofYouandI>
+  <talentdescription.TheBeginningofYouandI>解锁配方：‖color:255,86,217,255‖爱莉希雅的小刀‖end‖</talentdescription.TheBeginningofYouandI>
   <!--命定此身，璀璨永恒-->
-  <talentdescription.RadiantDestiny>如果有好想法可以留言给我</talentdescription.RadiantDestiny>
+  <talentdescription.RadiantDestiny>解锁配方：‖color:255,86,217,255‖爱莉希雅的喇叭‖end‖</talentdescription.RadiantDestiny>
   <!--如弓矢般凛冽-->
-  <talentdescription.BitingArrows>目前暂定为和之后的英桀联动线</talentdescription.BitingArrows>
+  <talentdescription.BitingArrows>解锁配方：‖color:255,86,217,255‖爱莉希雅(上)‖end‖
+圣痕效果：游泳速度‖color:gui.green‖+50%‖end‖</talentdescription.BitingArrows>
   <!--愿海洋辽阔-->
-  <talentdescription.WishforSea>暂无</talentdescription.WishforSea>
+  <talentdescription.WishforSea>解锁配方：‖color:255,86,217,255‖爱莉希雅 · 无瑕之人(上)‖end‖
+圣痕效果：持续清除水压伤害</talentdescription.WishforSea>
   <!--如精灵般灵动-->
-  <talentdescription.ElvenAgility>暂无</talentdescription.ElvenAgility>
+  <talentdescription.ElvenAgility>解锁配方：‖color:255,86,217,255‖爱莉希雅(中)‖end‖
+圣痕效果：夜视，并持续清除缺氧</talentdescription.ElvenAgility>
   <!--愿大地丰饶-->
-  <talentdescription.WishforEarth>暂无</talentdescription.WishforEarth>
+  <talentdescription.WishforEarth>解锁配方：‖color:255,86,217,255‖爱莉希雅 · 无瑕之人(中)‖end‖
+圣痕效果：持续削减眩晕</talentdescription.WishforEarth>
   <!--如飞花般绚丽-->
-  <talentdescription.FloralSplendor>暂无</talentdescription.FloralSplendor>
+  <talentdescription.FloralSplendor>解锁配方：‖color:255,86,217,255‖爱莉希雅(下)‖end‖
+圣痕效果：持续清除水压伤害</talentdescription.FloralSplendor>
   <!--愿群星闪耀-->
-  <talentdescription.WishforStars>暂无</talentdescription.WishforStars>
+  <talentdescription.WishforStars>解锁配方：‖color:255,86,217,255‖爱莉希雅 · 无瑕之人(下)‖end‖
+圣痕效果：轻微治疗自身负面伤害</talentdescription.WishforStars>
   <!--物品-->
   <entityname.Elysiagear>‖color:255,86,217,255‖粉色妖精小姐♪‖end‖</entityname.Elysiagear>
   <entitydescription.Elysiagear>无论何时何地，爱莉希雅就在这里，回应你的期待♪。</entitydescription.Elysiagear>
   <entityname.lovespears>‖color:255,86,217,255‖爱矛‖end‖</entityname.lovespears>
   <entitydescription.lovespears>‖color:255,86,217,255‖这束鲜花，要心怀感激的收下哦。‖end‖
 使用鱼叉发射</entitydescription.lovespears>
+  <entityname.crystal>湛蓝水晶</entityname.crystal>
+  <entitydescription.crystal>不知道为什么，你的肝忽然疼了起来。</entitydescription.crystal>
+  <entityname.pastflower>‖color:255,86,217,255‖往事的飞花‖end‖</entityname.pastflower>
+  <entitydescription.pastflower>可装入爱矛发射的弓。右键蓄力满15秒后左键射击，会通过 LuaCs 触发全弹强化。</entitydescription.pastflower>
+  <entityname.elysiaknife>爱莉希雅的小刀</entityname.elysiaknife>
+  <entitydescription.elysiaknife>轻巧锋利的小刀。</entitydescription.elysiaknife>
+  <entityname.elysiahorn>爱莉希雅的喇叭</entityname.elysiahorn>
+  <entitydescription.elysiahorn>吹响后给予附近友方短暂的爱莉希雅的鼓励，并通过 LuaCs 尝试嘲讽附近敌对 AI。</entitydescription.elysiahorn>
+  <entityname.stigmataslot>圣痕槽位</entityname.stigmataslot>
+  <entitydescription.stigmataslot>可放入三枚圣痕或遗传物质的特殊槽位。</entitydescription.stigmataslot>
+  <entityname.elysiastigmata_top_human>爱莉希雅(上)</entityname.elysiastigmata_top_human>
+  <entitydescription.elysiastigmata_top_human>圣痕。游泳速度+50%。</entitydescription.elysiastigmata_top_human>
+  <entityname.elysiastigmata_top_origin>爱莉希雅 · 无瑕之人(上)</entityname.elysiastigmata_top_origin>
+  <entitydescription.elysiastigmata_top_origin>圣痕。持续清除水压伤害。</entitydescription.elysiastigmata_top_origin>
+  <entityname.elysiastigmata_mid_human>爱莉希雅(中)</entityname.elysiastigmata_mid_human>
+  <entitydescription.elysiastigmata_mid_human>圣痕。夜视，并持续清除缺氧。</entitydescription.elysiastigmata_mid_human>
+  <entityname.elysiastigmata_mid_origin>爱莉希雅 · 无瑕之人(中)</entityname.elysiastigmata_mid_origin>
+  <entitydescription.elysiastigmata_mid_origin>圣痕。持续削减眩晕。</entitydescription.elysiastigmata_mid_origin>
+  <entityname.elysiastigmata_bottom_human>爱莉希雅(下)</entityname.elysiastigmata_bottom_human>
+  <entitydescription.elysiastigmata_bottom_human>圣痕。持续清除水压伤害。</entitydescription.elysiastigmata_bottom_human>
+  <entityname.elysiastigmata_bottom_origin>爱莉希雅 · 无瑕之人(下)</entityname.elysiastigmata_bottom_origin>
+  <entitydescription.elysiastigmata_bottom_origin>圣痕。轻微治疗自身负面伤害。</entitydescription.elysiastigmata_bottom_origin>
   <!--  招募相关  -->
   <locationname.ElysianRealm>往世乐土哨站</locationname.ElysianRealm>
   <faction.ElysianRealm>逐火之蛾</faction.ElysianRealm>
