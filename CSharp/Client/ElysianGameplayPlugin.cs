@@ -25,6 +25,7 @@ namespace Barotrauma.ElysianRealm
         private const string HornBuffIdentifier = "elysiaencouragement";
         private const string HumanSourceIdentifier = "asourcefromherrscherofhuman";
         private const string OriginSourceIdentifier = "asourcefromherrscheroforigin";
+        private const string ChargeSoundAfflictionIdentifier = "pastflower_charge_sound";
         private const string ChargeSpriteRelativePath = "Assets/UI/Pillarofflame.png";
         private const string ExplosionSpriteRelativePath = "Assets/UI/\u771f\u62111.png";
 
@@ -314,6 +315,7 @@ namespace Barotrauma.ElysianRealm
             state.ChargeSeconds = 0.0f;
             state.WasReadyLogged = false;
             state.WasFullyChargedLogged = false;
+            state.WasChargeSoundPlayed = false;
 
             if (isSuperShot)
             {
@@ -415,11 +417,18 @@ namespace Barotrauma.ElysianRealm
                     state.ChargeSeconds = 0.0f;
                     state.WasReadyLogged = false;
                     state.WasFullyChargedLogged = false;
+                    state.WasChargeSoundPlayed = false;
                 }
                 return;
             }
 
             state.ChargeSeconds += Math.Max(0.0f, deltaTime);
+            if (state.ChargeSeconds >= BowMinChargeSeconds && !state.WasChargeSoundPlayed)
+            {
+                state.WasChargeSoundPlayed = true;
+                ApplyAffliction(character, ChargeSoundAfflictionIdentifier, 1.0f);
+            }
+
             if (state.ChargeSeconds >= BowMinChargeSeconds && !state.WasReadyLogged)
             {
                 state.WasReadyLogged = true;
@@ -2108,6 +2117,7 @@ namespace Barotrauma.ElysianRealm
             public float ChargeSeconds;
             public bool WasReadyLogged;
             public bool WasFullyChargedLogged;
+            public bool WasChargeSoundPlayed;
         }
 
         private sealed class SuperShotData

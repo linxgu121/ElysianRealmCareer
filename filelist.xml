@@ -17,6 +17,7 @@
   <NPCSets file="%ModDir%/Content/Recruitment/NPCSets.xml" />
   <OutpostConfig file="%ModDir%/Content/Recruitment/OutpostGeneration.xml" />
   <Other file="%ModDir%/Content/Recruitment/ElysianRealmLocationNames.txt" />
+  <Other file="%ModDir%/Assets/Audio/Ac.ogg" />
   <Other file="%ModDir%/Assets/Audio/爱莉希雅-打不着哦~.ogg" />
   <Other file="%ModDir%/Assets/Audio/爱莉希雅-是一群可爱的小家伙呢。.ogg" />
   <Other file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" />
