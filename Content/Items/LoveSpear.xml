@@ -44,14 +44,13 @@
         <Affliction identifier="stun" strength="0.5" />
       </Attack>
       <StatusEffect type="OnImpact" target="This" Condition="-100.0" disabledeltatime="true">
-        <Explosion range="200.0" ballastfloradamage="100" structuredamage="100" levelwalldamage="50" itemdamage="250" force="5" severlimbsprobability="0.25">
+        <Explosion range="500.0" colormultiplier="255,86,217,255" ballastfloradamage="100" structuredamage="300" levelwalldamage="50" force="15" severlimbsprobability="0.25">
           <Affliction identifier="burn" strength="150" />
+          <Affliction identifier="internaldamage" strength="300" />
           <Affliction identifier="stun" strength="1.5" />
         </Explosion>
-        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" range="6000" />
-        <Sound file="Content/Items/Weapons/ExplosionSmall2.ogg" range="3000" />
-        <Sound file="Content/Items/Weapons/ExplosionSmall3.ogg" range="3000" />
-        <Remove />
+        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" range="6000" volume="100" />
+        <Remove delay="3.0" />
       </StatusEffect>
     </Projectile>
     <Upgrade gameversion="0.10.0.0" scale="0.5" />
