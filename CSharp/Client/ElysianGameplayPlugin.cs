@@ -16,6 +16,7 @@ namespace Barotrauma.ElysianRealm
         private const string CharacterControlHook = "elysianrealm.gameplay.character.control";
         private const string BowDrawHudHook = "elysianrealm.gameplay.rangedweapon.drawhud.after";
         private const string ProjectileImpactHook = "elysianrealm.gameplay.projectile.impact.after";
+        private const string ProjectileShootHook = "elysianrealm.gameplay.projectile.shoot.after";
         private const string RangedWeaponBeforeHook = "elysianrealm.gameplay.rangedweapon.use.before";
         private const string RangedWeaponAfterHook = "elysianrealm.gameplay.rangedweapon.use.after";
 
@@ -52,6 +53,7 @@ namespace Barotrauma.ElysianRealm
         private const float HornRange = 1000.0f;
         private const float HornCooldownSeconds = 2.0f;
         private const float StigmataGateInterval = 0.5f;
+        private const int PendingSuperShotMilliseconds = 8000;
 
         private static readonly Dictionary<Character, ChargeState> ChargeStates = new Dictionary<Character, ChargeState>();
         private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
@@ -61,6 +63,7 @@ namespace Barotrauma.ElysianRealm
         private static readonly Dictionary<Item, SuperShotData> SuperProjectiles = new Dictionary<Item, SuperShotData>();
         private static readonly HashSet<Item> RemovedVolleyAmmo = new HashSet<Item>();
         private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
+        private static readonly List<PendingSuperShot> PendingSuperShots = new List<PendingSuperShot>();
         private static readonly List<BeamVisual> BeamVisuals = new List<BeamVisual>();
         private static readonly List<ExplosionVisual> ExplosionVisuals = new List<ExplosionVisual>();
         private static readonly List<DelayedItemRemoval> DelayedItemRemovals = new List<DelayedItemRemoval>();
@@ -124,6 +127,7 @@ namespace Barotrauma.ElysianRealm
             WeaponOverrides.Clear();
             SuperProjectiles.Clear();
             RemovedVolleyAmmo.Clear();
+            PendingSuperShots.Clear();
             BeamVisuals.Clear();
             ExplosionVisuals.Clear();
             DelayedItemRemovals.Clear();
@@ -234,37 +238,80 @@ namespace Barotrauma.ElysianRealm
                 return;
             }
 
-            string[] preferredNames = new[]
-            {
-                "HandleProjectileCollision",
-                "OnProjectileCollision",
-                "OnCollision",
-                "Impact"
-            };
+            List<MethodInfo> impactMethods = projectileType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(IsProjectileImpactMethod)
+                .GroupBy(m => m.MetadataToken)
+                .Select(g => g.First())
+                .ToList();
 
-            MethodInfo method = projectileType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .FirstOrDefault(m => preferredNames.Any(n => string.Equals(m.Name, n, StringComparison.Ordinal))) ??
-                projectileType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .FirstOrDefault(m => m.Name.IndexOf("Collision", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                     m.Name.IndexOf("Impact", StringComparison.OrdinalIgnoreCase) >= 0);
-
-            if (method == null)
+            if (impactMethods.Count == 0)
             {
                 LuaCsLogger.LogError("[ElysianRealm] Projectile impact method was not found; pastflower impact explosion disabled.");
-                return;
             }
 
-            LuaCsSetup.Instance.EventService.HookMethod(
-                ProjectileImpactHook,
-                method,
-                ProjectileImpactAfter,
-                ILuaCsHook.HookMethodType.After,
-                owner: hookOwner);
+            foreach (MethodInfo method in impactMethods)
+            {
+                LuaCsSetup.Instance.EventService.HookMethod(
+                    ProjectileImpactHook + "." + method.Name + "." + method.MetadataToken,
+                    method,
+                    ProjectileImpactAfter,
+                    ILuaCsHook.HookMethodType.After,
+                    owner: hookOwner);
+            }
+
+            List<MethodInfo> shootMethods = projectileType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(IsProjectileShootMethod)
+                .GroupBy(m => m.MetadataToken)
+                .Select(g => g.First())
+                .ToList();
+
+            foreach (MethodInfo method in shootMethods)
+            {
+                LuaCsSetup.Instance.EventService.HookMethod(
+                    ProjectileShootHook + "." + method.Name + "." + method.MetadataToken,
+                    method,
+                    ProjectileShootAfter,
+                    ILuaCsHook.HookMethodType.After,
+                    owner: hookOwner);
+            }
+
+            LuaCsLogger.LogMessage("[ElysianRealm] Projectile hooks registered. impact=" + impactMethods.Count + ", shoot=" + shootMethods.Count);
+        }
+
+        private static bool IsProjectileImpactMethod(MethodInfo method)
+        {
+            if (method == null || method.IsSpecialName || method.GetParameters().Length == 0)
+            {
+                return false;
+            }
+
+            foreach (string name in new[] { "HandleProjectileCollision", "OnProjectileCollision", "OnCollision", "Impact" })
+            {
+                if (string.Equals(method.Name, name, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return method.Name.IndexOf("Collision", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   method.Name.IndexOf("Impact", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool IsProjectileShootMethod(MethodInfo method)
+        {
+            if (method == null || method.IsSpecialName)
+            {
+                return false;
+            }
+
+            return string.Equals(method.Name, "Shoot", StringComparison.Ordinal) ||
+                   string.Equals(method.Name, "Launch", StringComparison.Ordinal);
         }
 
         private static object CharacterControlAfter(object self, Dictionary<string, object> args)
         {
             UpdateDelayedItemRemovals();
+            PruneExpiredPendingSuperShots();
 
             Character character = self as Character;
             if (!IsUsableCharacter(character))
@@ -342,10 +389,12 @@ namespace Barotrauma.ElysianRealm
             if (isSuperShot)
             {
                 consumed = ConsumeExtraVolleyAmmo(ammo, int.MaxValue);
+                SuperShotData superShotData = new SuperShotData(character, arrowCount);
                 if (loadedArrow != null)
                 {
-                    SuperProjectiles[loadedArrow] = new SuperShotData(character, arrowCount);
+                    SuperProjectiles[loadedArrow] = superShotData;
                 }
+                QueuePendingSuperShot(character, loadedArrow, arrowCount);
                 ApplyAffliction(character, HornBuffIdentifier, 10.0f);
                 PlayRandomPastflowerSuperVoice(character);
                 AddPastflowerBeamVisual(character, bow);
@@ -379,6 +428,31 @@ namespace Barotrauma.ElysianRealm
             return null;
         }
 
+        private static object ProjectileShootAfter(object self, Dictionary<string, object> args)
+        {
+            Item projectileItem = GetComponentItem(self);
+            if (!HasIdentifier(projectileItem, ArrowIdentifier))
+            {
+                return null;
+            }
+
+            SuperShotData existingData;
+            if (SuperProjectiles.TryGetValue(projectileItem, out existingData))
+            {
+                RemovePendingSuperShotForProjectile(projectileItem, existingData.Attacker);
+                return null;
+            }
+
+            SuperShotData data;
+            if (TryClaimPendingSuperShot(projectileItem, GetCharacterArg(args), out data))
+            {
+                SuperProjectiles[projectileItem] = data;
+                LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile bound on shoot. arrows=" + data.ArrowCount);
+            }
+
+            return null;
+        }
+
         private static object ProjectileImpactAfter(object self, Dictionary<string, object> args)
         {
             Item projectileItem = GetComponentItem(self);
@@ -388,12 +462,11 @@ namespace Barotrauma.ElysianRealm
             }
 
             SuperShotData data;
-            if (!SuperProjectiles.TryGetValue(projectileItem, out data))
+            if (!TryTakeSuperProjectileData(projectileItem, out data))
             {
                 return null;
             }
 
-            SuperProjectiles.Remove(projectileItem);
             Vector2 position;
             if (!TryGetProjectileImpactWorldPosition(args, projectileItem, out position) &&
                 !TryGetWorldPosition(projectileItem, out position))
@@ -401,8 +474,8 @@ namespace Barotrauma.ElysianRealm
                 position = data.Attacker == null ? Vector2.Zero : data.Attacker.WorldPosition;
             }
 
-            ApplyPastflowerSuperDirectDamage(data.Attacker, position, data.ArrowCount);
             ApplyPastflowerExplosion(data.Attacker, position);
+            ApplyPastflowerSuperDirectDamage(data.Attacker, position, data.ArrowCount);
             AddPastflowerExplosionVisual(position);
             ScheduleDelayedItemRemoval(projectileItem, PastflowerExplosionVisualSeconds);
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount);
@@ -425,7 +498,7 @@ namespace Barotrauma.ElysianRealm
             }
 
             Character character = GetCharacterArg(args);
-            if (!IsUsableCharacter(character) || !IsInputDown(character, "Aim"))
+            if (!IsUsableCharacter(character))
             {
                 return null;
             }
@@ -438,6 +511,11 @@ namespace Barotrauma.ElysianRealm
 
             DrawPastflowerActiveShotVisuals(spriteBatch);
             DrawPastflowerNoAmmoHint(spriteBatch, character);
+
+            if (!IsInputDown(character, "Aim"))
+            {
+                return null;
+            }
 
             ChargeState state = GetChargeState(character);
             if (!HasSufficientArrowAmmoForCharge(character, bow))
@@ -1453,6 +1531,96 @@ namespace Barotrauma.ElysianRealm
             }
         }
 
+        private static void QueuePendingSuperShot(Character attacker, Item loadedArrow, int arrowCount)
+        {
+            PruneExpiredPendingSuperShots();
+            PendingSuperShots.Add(new PendingSuperShot(attacker, loadedArrow, arrowCount, Environment.TickCount));
+        }
+
+        private static bool TryTakeSuperProjectileData(Item projectileItem, out SuperShotData data)
+        {
+            if (SuperProjectiles.TryGetValue(projectileItem, out data))
+            {
+                SuperProjectiles.Remove(projectileItem);
+                RemovePendingSuperShotForProjectile(projectileItem, data.Attacker);
+                return true;
+            }
+
+            return TryClaimPendingSuperShot(projectileItem, null, out data);
+        }
+
+        private static bool TryClaimPendingSuperShot(Item projectileItem, Character shooter, out SuperShotData data)
+        {
+            data = null;
+            if (!HasIdentifier(projectileItem, ArrowIdentifier))
+            {
+                return false;
+            }
+
+            PruneExpiredPendingSuperShots();
+
+            int bestIndex = -1;
+            for (int i = PendingSuperShots.Count - 1; i >= 0; i--)
+            {
+                PendingSuperShot pending = PendingSuperShots[i];
+                if (shooter != null && pending.Attacker != null && !ReferenceEquals(pending.Attacker, shooter))
+                {
+                    continue;
+                }
+
+                if (pending.LoadedArrow != null && ReferenceEquals(pending.LoadedArrow, projectileItem))
+                {
+                    bestIndex = i;
+                    break;
+                }
+
+                if (bestIndex < 0)
+                {
+                    bestIndex = i;
+                }
+            }
+
+            if (bestIndex < 0)
+            {
+                return false;
+            }
+
+            PendingSuperShot selected = PendingSuperShots[bestIndex];
+            PendingSuperShots.RemoveAt(bestIndex);
+            if (selected.LoadedArrow != null && !ReferenceEquals(selected.LoadedArrow, projectileItem))
+            {
+                SuperProjectiles.Remove(selected.LoadedArrow);
+            }
+
+            data = new SuperShotData(selected.Attacker, selected.ArrowCount);
+            return true;
+        }
+
+        private static void RemovePendingSuperShotForProjectile(Item projectileItem, Character attacker)
+        {
+            for (int i = PendingSuperShots.Count - 1; i >= 0; i--)
+            {
+                PendingSuperShot pending = PendingSuperShots[i];
+                if ((projectileItem != null && pending.LoadedArrow != null && ReferenceEquals(pending.LoadedArrow, projectileItem)) ||
+                    (attacker != null && pending.Attacker != null && ReferenceEquals(pending.Attacker, attacker)))
+                {
+                    PendingSuperShots.RemoveAt(i);
+                }
+            }
+        }
+
+        private static void PruneExpiredPendingSuperShots()
+        {
+            int now = Environment.TickCount;
+            for (int i = PendingSuperShots.Count - 1; i >= 0; i--)
+            {
+                if (unchecked(now - PendingSuperShots[i].CreatedTicks) > PendingSuperShotMilliseconds)
+                {
+                    PendingSuperShots.RemoveAt(i);
+                }
+            }
+        }
+
         private static List<Item> FindArrowAmmo(Character character, Item bow)
         {
             List<Item> result = new List<Item>();
@@ -1865,21 +2033,45 @@ namespace Barotrauma.ElysianRealm
 
             float multiplier = Math.Max(1.0f, arrowCount);
             int applied = 0;
+            float fallbackInternalDamage = 0.0f;
+            float fallbackBleedingDamage = 0.0f;
             if (ApplyAffliction(target, "internaldamage", LoveSpearInternalDamage * multiplier))
             {
                 applied++;
             }
+            else
+            {
+                fallbackInternalDamage += LoveSpearInternalDamage * multiplier;
+            }
+
             if (ApplyAffliction(target, "lacerations", LoveSpearLacerationDamage * multiplier))
             {
                 applied++;
             }
+            else
+            {
+                fallbackInternalDamage += LoveSpearLacerationDamage * multiplier;
+            }
+
             if (ApplyAffliction(target, "bleeding", LoveSpearBleedingDamage * multiplier))
             {
                 applied++;
             }
+            else
+            {
+                fallbackBleedingDamage += LoveSpearBleedingDamage * multiplier;
+            }
+
             if (ApplyAffliction(target, "stun", LoveSpearStunDamage * multiplier))
             {
                 applied++;
+            }
+
+            if ((fallbackInternalDamage > 0.0f || fallbackBleedingDamage > 0.0f) &&
+                TryAddCharacterDamage(target, fallbackInternalDamage, fallbackBleedingDamage, 0.0f))
+            {
+                applied++;
+                LogOnce("pastflower_direct_fallback_damage", "[ElysianRealm] Pastflower direct fallback damage applied.");
             }
 
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super direct damage applied. arrows=" + arrowCount + ", afflictions=" + applied);
@@ -1935,6 +2127,7 @@ namespace Barotrauma.ElysianRealm
             int characterHits = 0;
             int itemHits = 0;
             int structureHits = 0;
+            float explosionRangeSquared = PastflowerExplosionRange * PastflowerExplosionRange;
 
             foreach (Character target in Character.CharacterList)
             {
@@ -1943,12 +2136,12 @@ namespace Barotrauma.ElysianRealm
                     continue;
                 }
 
-                if (Vector2.Distance(target.WorldPosition, position) > PastflowerExplosionRange)
+                if (GetClosestCharacterDistanceSquared(target, position) > explosionRangeSquared)
                 {
                     continue;
                 }
 
-                if (ApplyAffliction(target, "internaldamage", PastflowerExplosionInternalDamage))
+                if (ApplyPastflowerExplosionDamage(target))
                 {
                     characterHits++;
                 }
@@ -1974,6 +2167,108 @@ namespace Barotrauma.ElysianRealm
             }
 
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower explosion hits. characters=" + characterHits + ", items=" + itemHits + ", structures=" + structureHits);
+        }
+
+        private static bool ApplyPastflowerExplosionDamage(Character target)
+        {
+            if (ApplyAffliction(target, "internaldamage", PastflowerExplosionInternalDamage))
+            {
+                return true;
+            }
+
+            if (TryAddCharacterDamage(target, PastflowerExplosionInternalDamage, 0.0f, 0.0f))
+            {
+                LogOnce("pastflower_explosion_fallback_damage", "[ElysianRealm] Pastflower explosion fallback internal damage applied.");
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryAddCharacterDamage(Character character, float internalDamage, float bleedingDamage, float burnDamage)
+        {
+            if (character == null || character.CharacterHealth == null ||
+                (internalDamage <= 0.0f && bleedingDamage <= 0.0f && burnDamage <= 0.0f))
+            {
+                return false;
+            }
+
+            float internalAmount = Math.Max(0.0f, GetAfflictionStrength(character, "internaldamage")) + Math.Max(0.0f, internalDamage);
+            float bleedingAmount = Math.Max(0.0f, GetAfflictionStrength(character, "bleeding")) + Math.Max(0.0f, bleedingDamage);
+            float burnAmount = Math.Max(0.0f, GetAfflictionStrength(character, "burn")) + Math.Max(0.0f, burnDamage);
+
+            foreach (MethodInfo method in character.CharacterHealth.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "SetAllDamage", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                object[] values;
+                if (!TryBuildSetAllDamageArguments(method.GetParameters(), internalAmount, bleedingAmount, burnAmount, out values))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    method.Invoke(character.CharacterHealth, values);
+                    return true;
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryBuildSetAllDamageArguments(ParameterInfo[] parameters, float internalDamage, float bleedingDamage, float burnDamage, out object[] values)
+        {
+            values = new object[parameters.Length];
+            int floatIndex = 0;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                string name = (parameters[i].Name ?? string.Empty).ToLowerInvariant();
+
+                if (type == typeof(float))
+                {
+                    if (name.Contains("bleed") || floatIndex == 1)
+                    {
+                        values[i] = bleedingDamage;
+                    }
+                    else if (name.Contains("burn") || floatIndex == 2)
+                    {
+                        values[i] = burnDamage;
+                    }
+                    else
+                    {
+                        values[i] = internalDamage;
+                    }
+
+                    floatIndex++;
+                }
+                else if (type == typeof(double))
+                {
+                    values[i] = (double)internalDamage;
+                }
+                else if (type == typeof(int))
+                {
+                    values[i] = (int)Math.Round(internalDamage);
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return floatIndex > 0;
         }
 
         private static IEnumerable<object> EnumerateStaticObjects(Type type, IEnumerable<string> memberNames)
@@ -3224,6 +3519,22 @@ namespace Barotrauma.ElysianRealm
             {
                 Attacker = attacker;
                 ArrowCount = Math.Max(1, arrowCount);
+            }
+        }
+
+        private sealed class PendingSuperShot
+        {
+            public readonly Character Attacker;
+            public readonly Item LoadedArrow;
+            public readonly int ArrowCount;
+            public readonly int CreatedTicks;
+
+            public PendingSuperShot(Character attacker, Item loadedArrow, int arrowCount, int createdTicks)
+            {
+                Attacker = attacker;
+                LoadedArrow = loadedArrow;
+                ArrowCount = Math.Max(1, arrowCount);
+                CreatedTicks = createdTicks;
             }
         }
 
