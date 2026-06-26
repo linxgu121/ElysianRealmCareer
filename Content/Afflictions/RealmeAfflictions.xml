@@ -208,7 +208,6 @@
   <Affliction identifier="elysiastigmata_mid_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
-        <Affliction identifier="nightvision" strength="100" />
         <ReduceAffliction identifier="oxygenlow" strength="100" />
       </StatusEffect>
     </PeriodicEffect>

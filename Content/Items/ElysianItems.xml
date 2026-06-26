@@ -79,8 +79,8 @@
       <Item identifier="iron" amount="2" />
       <Item identifier="crystal" amount="6" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/loversarrow-tini.png" sourcerect="0,0,131,115" origin="0.5,0.5" />
-    <Sprite texture="Content/Items/Weapons/weapons_new.png" sourcerect="183,203,66,16" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/Items/xiaodao(缩略).png" sourcerect="0,0,131,115" origin="0.5,0.5" />
+    <Sprite texture="Content/Items/Weapons/xiaodao.png" sourcerect="183,203,66,16" depth="0.55" origin="0.5,0.5" />
     <Body width="65" height="15" density="25" />
     <MeleeWeapon slots="Any,RightHand,LeftHand" aimpos="50,0" handle1="-10,0" holdangle="30" reload="0.75" range="50" combatpriority="25" msg="ItemMsgPickUpSelect">
       <Attack targetimpulse="2" severlimbsprobability="0.1" itemdamage="3" structuredamage="2" structuresoundtype="StructureSlash">
@@ -105,8 +105,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="10" requiresrecipe="true">
       <Item identifier="crystal" amount="6" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,351,300" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,351,300" depth="0.55" origin="0.5,0.5" />
     <Body width="40" height="25" density="20" />
     <Holdable slots="Any,RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="0,0">
       <StatusEffect type="OnUse" target="Character" disabledeltatime="true">
@@ -123,8 +123,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20">
       <Item identifier="crystal" amount="30" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/crystal.png" sourcerect="0,0,100,109" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/Items/圣痕槽位（缩略）.png" sourcerect="0,0,64,64" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/圣痕槽位（手持）.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="35" height="35" density="15" />
     <ItemContainer capacity="3" maxstacksize="1" slotsperrow="3" hideitems="true" drawinventory="true" containableitems="geneticmaterial,elysiastigmata" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
@@ -137,8 +137,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
       <Item identifier="crystal" amount="128" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/UI/如弓矢般凛冽.png" sourcerect="0,0,124,112" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/UI/如弓矢般凛冽.png" sourcerect="0,0,124,112" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <GeneticMaterial effect="elysiastigmata_top_human_effect" nameidentifier="elysiastigmata_top_human" />
@@ -150,8 +150,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
       <Item identifier="crystal" amount="128" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/UI/愿海洋辽阔.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/UI/愿海洋辽阔.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <GeneticMaterial effect="elysiastigmata_top_origin_effect" nameidentifier="elysiastigmata_top_origin" />
@@ -163,8 +163,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
       <Item identifier="crystal" amount="128" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/UI/如精灵般灵动.png" sourcerect="0,0,124,112" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/UI/如精灵般灵动.png" sourcerect="0,0,124,112" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <GeneticMaterial effect="elysiastigmata_mid_human_effect" nameidentifier="elysiastigmata_mid_human" />
@@ -176,8 +176,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
       <Item identifier="crystal" amount="128" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/UI/愿大地丰饶.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/UI/愿大地丰饶.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <GeneticMaterial effect="elysiastigmata_mid_origin_effect" nameidentifier="elysiastigmata_mid_origin" />
@@ -189,8 +189,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
       <Item identifier="crystal" amount="128" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/UI/如飞花般绚丽.png" sourcerect="0,0,124,112" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/UI/如飞花般绚丽.png" sourcerect="0,0,124,112" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <GeneticMaterial effect="elysiastigmata_bottom_human_effect" nameidentifier="elysiastigmata_bottom_human" />
@@ -202,8 +202,8 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
       <Item identifier="crystal" amount="128" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata.jpg" sourcerect="0,0,2048,1687" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/UI/愿群星闪耀.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/UI/愿群星闪耀.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <GeneticMaterial effect="elysiastigmata_bottom_origin_effect" nameidentifier="elysiastigmata_bottom_origin" />
