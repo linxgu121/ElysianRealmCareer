@@ -168,7 +168,7 @@
     <Effect minstrength="0" maxstrength="1" strengthchange="-2"></Effect>
     <PeriodicEffect mininterval="0" maxinterval="200000000">
       <StatusEffect target="Character" duration="1" setvalue="true">
-        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-逃不掉哦~.ogg" range="3000" />
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-逃不掉哦~.ogg" range="8000" volume="2.2" />
       </StatusEffect>
     </PeriodicEffect>
   </Affliction>
@@ -176,7 +176,7 @@
     <Effect minstrength="0" maxstrength="1" strengthchange="-2"></Effect>
     <PeriodicEffect mininterval="0" maxinterval="200000000">
       <StatusEffect target="Character" duration="1" setvalue="true">
-        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" range="3000" />
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" range="8000" volume="2.2" />
       </StatusEffect>
     </PeriodicEffect>
   </Affliction>
@@ -184,7 +184,7 @@
     <Effect minstrength="0" maxstrength="1" strengthchange="-2"></Effect>
     <PeriodicEffect mininterval="0" maxinterval="200000000">
       <StatusEffect target="Character" duration="1" setvalue="true">
-        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" range="3000" />
+        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" range="8000" volume="2.2" />
       </StatusEffect>
     </PeriodicEffect>
   </Affliction>

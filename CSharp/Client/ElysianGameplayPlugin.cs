@@ -26,6 +26,7 @@ namespace Barotrauma.ElysianRealm
         private const string HumanSourceIdentifier = "asourcefromherrscherofhuman";
         private const string OriginSourceIdentifier = "asourcefromherrscheroforigin";
         private const string ChargeSoundAfflictionIdentifier = "pastflower_charge_sound";
+        private const string BowNoAmmoHintText = "\u7231\u8389\u5e0c\u96c5\u7684\u6e29\u99a8\u63d0\u793a\uff1a\u9700\u8981\u7231\u77db";
         private const string ChargeSpriteRelativePath = "Assets/UI/Pillarofflame.png";
         private const string ExplosionSpriteRelativePath = "Assets/UI/\u771f\u62111.png";
 
@@ -35,15 +36,25 @@ namespace Barotrauma.ElysianRealm
         private const float BowSuperImpulseMultiplier = 10.0f;
         private const float PastflowerBeamVisualSeconds = 0.34f;
         private const float PastflowerExplosionVisualSeconds = 0.85f;
+        private const float PastflowerExplosionVisualScale = 2.0f;
         private const float PastflowerExplosionRange = 500.0f;
         private const float PastflowerExplosionInternalDamage = 500.0f;
         private const float PastflowerExplosionStructureDamage = 300.0f;
-        private const float PastflowerExplosionItemDamage = 200.0f;
+        private const float LoveSpearInternalDamage = 75.0f;
+        private const float LoveSpearLacerationDamage = 200.0f;
+        private const float LoveSpearBleedingDamage = 90.0f;
+        private const float LoveSpearStunDamage = 0.5f;
+        private const float PastflowerDirectHitRadius = 220.0f;
+        private const float BowNoAmmoHintSeconds = 2.0f;
+        private const float BowNoAmmoHintCooldownSeconds = 0.75f;
+        private const float PastflowerSuperVoiceRange = 8000.0f;
+        private const float PastflowerSuperVoiceVolume = 2.2f;
         private const float HornRange = 1000.0f;
         private const float HornCooldownSeconds = 2.0f;
         private const float StigmataGateInterval = 0.5f;
 
         private static readonly Dictionary<Character, ChargeState> ChargeStates = new Dictionary<Character, ChargeState>();
+        private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
         private static readonly Dictionary<Character, float> HornCooldowns = new Dictionary<Character, float>();
         private static readonly Dictionary<Character, float> StigmataGateTimers = new Dictionary<Character, float>();
         private static readonly Dictionary<object, WeaponOverride> WeaponOverrides = new Dictionary<object, WeaponOverride>();
@@ -58,15 +69,29 @@ namespace Barotrauma.ElysianRealm
             "pastflower_super_voice_flower",
             "pastflower_super_voice_surprise"
         };
+        private static readonly string[] PastflowerSuperVoiceFiles = new[]
+        {
+            "Assets/Audio/\u7231\u8389\u5e0c\u96c5-\u9003\u4e0d\u6389\u54e6~.ogg",
+            "Assets/Audio/\u7231\u8389\u5e0c\u96c5-\u9001\u4f60\u4e00\u6735\u82b1~.ogg",
+            "Assets/Audio/\u4eba\u4e4b\u5f8b\u8005-\u9001\u4f60\u4e00\u70b9\u60ca\u559c\u3002.ogg"
+        };
 
         private static ContentPackage ownerPackage;
         private static MethodInfo characterIsKeyDownMethod;
         private static MethodInfo characterIsKeyHitMethod;
+        private static MethodInfo guiDrawStringMethod;
+        private static MethodInfo toDisplayUnitsMethod;
+        private static List<MethodInfo> soundPlayMethods;
         private static Type rangedWeaponType;
         private static Sprite chargeSprite;
         private static Sprite explosionSprite;
         private static bool chargeSpriteLoadFailed;
         private static bool explosionSpriteLoadFailed;
+        private static bool guiDrawStringLookupFailed;
+        private static bool guiDrawStringInvokeFailed;
+        private static bool toDisplayUnitsLookupFailed;
+        private static bool soundPlayLookupFailed;
+        private static bool directVoicePlayFailed;
 
         public void PreInitPatching()
         {
@@ -92,6 +117,7 @@ namespace Barotrauma.ElysianRealm
         public void Dispose()
         {
             ChargeStates.Clear();
+            BowNoAmmoHintTicks.Clear();
             HornCooldowns.Clear();
             StigmataGateTimers.Clear();
             WeaponOverrides.Clear();
@@ -102,8 +128,16 @@ namespace Barotrauma.ElysianRealm
             LoggedOnce.Clear();
             RemoveSprite(ref chargeSprite);
             RemoveSprite(ref explosionSprite);
+            guiDrawStringMethod = null;
+            toDisplayUnitsMethod = null;
+            soundPlayMethods = null;
             chargeSpriteLoadFailed = false;
             explosionSpriteLoadFailed = false;
+            guiDrawStringLookupFailed = false;
+            guiDrawStringInvokeFailed = false;
+            toDisplayUnitsLookupFailed = false;
+            soundPlayLookupFailed = false;
+            directVoicePlayFailed = false;
             ownerPackage = null;
         }
 
@@ -274,6 +308,7 @@ namespace Barotrauma.ElysianRealm
 
             if (!EnsureBowLoadedFromInventory(character, bow))
             {
+                ShowPastflowerNoAmmoHint(character);
                 LogOnce("bow_no_inventory_arrow", "[ElysianRealm] Pastflower shot blocked: no lovespears in character inventory.");
                 return null;
             }
@@ -356,14 +391,18 @@ namespace Barotrauma.ElysianRealm
 
             SuperProjectiles.Remove(projectileItem);
             Vector2 position;
-            if (!TryGetWorldPosition(projectileItem, out position))
+            if (!TryGetProjectileImpactWorldPosition(args, projectileItem, out position) &&
+                !TryGetWorldPosition(projectileItem, out position))
             {
                 position = data.Attacker == null ? Vector2.Zero : data.Attacker.WorldPosition;
             }
 
+            ApplyPastflowerSuperDirectDamage(data.Attacker, position, data.ArrowCount);
             ApplyPastflowerExplosion(data.Attacker, position);
             AddPastflowerExplosionVisual(position);
+            bool removedProjectile = TryRemoveItem(projectileItem);
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount);
+            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile removed=" + removedProjectile);
             return null;
         }
 
@@ -394,6 +433,7 @@ namespace Barotrauma.ElysianRealm
             }
 
             DrawPastflowerActiveShotVisuals(spriteBatch);
+            DrawPastflowerNoAmmoHint(spriteBatch, character);
 
             ChargeState state = GetChargeState(character);
             if (state.ChargeSeconds < BowChargeVisualStartSeconds)
@@ -410,8 +450,25 @@ namespace Barotrauma.ElysianRealm
         {
             ChargeState state = GetChargeState(character);
             Item bow = FindHeldItem(character, BowIdentifier);
-            if (bow == null || !IsInputDown(character, "Aim") || !IsHoldingOnlyBow(character, bow) || !HasAnyArrowAvailable(character, bow))
+            if (bow == null || !IsInputDown(character, "Aim") || !IsHoldingOnlyBow(character, bow))
             {
+                if (state.ChargeSeconds > 0.0f)
+                {
+                    state.ChargeSeconds = 0.0f;
+                    state.WasReadyLogged = false;
+                    state.WasFullyChargedLogged = false;
+                    state.WasChargeSoundPlayed = false;
+                }
+                return;
+            }
+
+            if (!HasAnyArrowAvailable(character, bow))
+            {
+                if (IsInputHit(character, "Shoot") || IsInputHit(character, "Use"))
+                {
+                    ShowPastflowerNoAmmoHint(character);
+                }
+
                 if (state.ChargeSeconds > 0.0f)
                 {
                     state.ChargeSeconds = 0.0f;
@@ -496,6 +553,218 @@ namespace Barotrauma.ElysianRealm
             }
 
             LuaCsLogger.LogMessage("[ElysianRealm] Horn used. buffed=" + buffed + ", taunted=" + taunted);
+        }
+
+        private static void ShowPastflowerNoAmmoHint(Character character)
+        {
+            if (character == null)
+            {
+                return;
+            }
+
+            int now = Environment.TickCount;
+            int previous;
+            if (BowNoAmmoHintTicks.TryGetValue(character, out previous) &&
+                TicksToSeconds(unchecked(now - previous)) < BowNoAmmoHintCooldownSeconds)
+            {
+                return;
+            }
+
+            BowNoAmmoHintTicks[character] = now;
+        }
+
+        private static void DrawPastflowerNoAmmoHint(SpriteBatch spriteBatch, Character character)
+        {
+            int started;
+            if (character == null || !BowNoAmmoHintTicks.TryGetValue(character, out started))
+            {
+                return;
+            }
+
+            float age = TicksToSeconds(unchecked(Environment.TickCount - started));
+            if (age >= BowNoAmmoHintSeconds)
+            {
+                BowNoAmmoHintTicks.Remove(character);
+                return;
+            }
+
+            float fadeStart = Math.Max(0.1f, BowNoAmmoHintSeconds - 0.35f);
+            float alpha = age < fadeStart ? 1.0f : MathHelper.Clamp((BowNoAmmoHintSeconds - age) / Math.Max(0.01f, BowNoAmmoHintSeconds - fadeStart), 0.0f, 1.0f);
+            Vector2 pos = PlayerInput.MousePosition + new Vector2(34.0f, -54.0f);
+            int x = Math.Max(18, (int)Math.Round(pos.X));
+            int y = Math.Max(18, (int)Math.Round(pos.Y));
+            Rectangle panel = new Rectangle(x, y, 318, 34);
+            Rectangle accent = new Rectangle(x, y, 4, 34);
+            Color hintColor = new Color(255, 86, 217, 255) * alpha;
+
+            if (GUI.WhiteTexture != null)
+            {
+                spriteBatch.Draw(GUI.WhiteTexture, panel, Color.Black * (0.66f * alpha));
+                spriteBatch.Draw(GUI.WhiteTexture, accent, hintColor);
+            }
+
+            DrawGuiString(spriteBatch, new Vector2(x + 12.0f, y + 8.0f), BowNoAmmoHintText, hintColor);
+        }
+
+        private static void DrawGuiString(SpriteBatch spriteBatch, Vector2 position, string text, Color color)
+        {
+            MethodInfo method = GetGuiDrawStringMethod(text);
+            if (method == null)
+            {
+                return;
+            }
+
+            try
+            {
+                ParameterInfo[] parameters = method.GetParameters();
+                object[] values = new object[parameters.Length];
+                bool textSet = false;
+                bool spriteBatchSet = false;
+                bool positionSet = false;
+                bool colorSet = false;
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    Type parameterType = parameters[i].ParameterType;
+                    object textValue;
+
+                    if (!spriteBatchSet && parameterType.IsAssignableFrom(typeof(SpriteBatch)))
+                    {
+                        spriteBatchSet = true;
+                        values[i] = spriteBatch;
+                    }
+                    else if (!positionSet && parameterType == typeof(Vector2))
+                    {
+                        positionSet = true;
+                        values[i] = position;
+                    }
+                    else if (!textSet && TryCreateGuiTextParameter(parameterType, text, out textValue))
+                    {
+                        textSet = true;
+                        values[i] = textValue;
+                    }
+                    else if (!colorSet && parameterType == typeof(Color))
+                    {
+                        colorSet = true;
+                        values[i] = color;
+                    }
+                    else
+                    {
+                        values[i] = GetParameterDefault(parameters[i]);
+                    }
+                }
+
+                method.Invoke(null, values);
+            }
+            catch (Exception ex)
+            {
+                if (!guiDrawStringInvokeFailed)
+                {
+                    guiDrawStringInvokeFailed = true;
+                    LuaCsLogger.LogError("[ElysianRealm] Failed to draw no-ammo hint text: " + ex.Message);
+                }
+            }
+        }
+
+        private static MethodInfo GetGuiDrawStringMethod(string sampleText)
+        {
+            if (guiDrawStringMethod != null || guiDrawStringLookupFailed)
+            {
+                return guiDrawStringMethod;
+            }
+
+            MethodInfo[] methods = typeof(GUI).GetMethods(BindingFlags.Public | BindingFlags.Static);
+            foreach (MethodInfo method in methods)
+            {
+                if (!string.Equals(method.Name, "DrawString", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length < 4 ||
+                    !parameters[0].ParameterType.IsAssignableFrom(typeof(SpriteBatch)) ||
+                    parameters[1].ParameterType != typeof(Vector2) ||
+                    !HasColorParameter(parameters))
+                {
+                    continue;
+                }
+
+                object ignored;
+                if (!TryCreateGuiTextParameter(parameters[2].ParameterType, sampleText, out ignored))
+                {
+                    continue;
+                }
+
+                guiDrawStringMethod = method;
+                return guiDrawStringMethod;
+            }
+
+            guiDrawStringLookupFailed = true;
+            LogOnce("gui_draw_string_missing", "[ElysianRealm] GUI.DrawString method was not found; no-ammo hint text disabled.");
+            return null;
+        }
+
+        private static bool HasColorParameter(ParameterInfo[] parameters)
+        {
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].ParameterType == typeof(Color))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryCreateGuiTextParameter(Type parameterType, string text, out object value)
+        {
+            if (parameterType == typeof(string) || parameterType.IsAssignableFrom(typeof(string)))
+            {
+                value = text;
+                return true;
+            }
+
+            MethodInfo[] methods = parameterType.GetMethods(BindingFlags.Public | BindingFlags.Static);
+            foreach (MethodInfo method in methods)
+            {
+                if ((method.Name != "op_Implicit" && method.Name != "op_Explicit") ||
+                    method.ReturnType != parameterType)
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length == 1 && parameters[0].ParameterType == typeof(string))
+                {
+                    value = method.Invoke(null, new object[] { text });
+                    return true;
+                }
+            }
+
+            ConstructorInfo constructor = parameterType.GetConstructor(new[] { typeof(string) });
+            if (constructor != null)
+            {
+                value = constructor.Invoke(new object[] { text });
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        private static object GetParameterDefault(ParameterInfo parameter)
+        {
+            if (parameter.HasDefaultValue &&
+                parameter.DefaultValue != null &&
+                parameter.DefaultValue != DBNull.Value &&
+                parameter.DefaultValue != Missing.Value)
+            {
+                return parameter.DefaultValue;
+            }
+
+            return GetDefaultValue(parameter.ParameterType);
         }
 
         private static void DrawBowChargeVisuals(SpriteBatch spriteBatch, Item bow, Character character, float chargeSeconds)
@@ -613,7 +882,7 @@ namespace Barotrauma.ElysianRealm
 
                 float t = MathHelper.Clamp(age / Math.Max(0.01f, visual.Duration), 0.0f, 1.0f);
                 float alpha = 1.0f - t;
-                float scale = 0.35f + t * 1.05f;
+                float scale = (0.35f + t * 1.05f) * PastflowerExplosionVisualScale;
                 Color color = new Color(255, 86, 217, 255) * alpha;
                 if (explosionSprite != null && explosionSprite.Texture != null)
                 {
@@ -657,13 +926,278 @@ namespace Barotrauma.ElysianRealm
 
         private static void PlayRandomPastflowerSuperVoice(Character character)
         {
-            if (character == null || PastflowerSuperVoiceAfflictions.Length == 0)
+            if (character == null || PastflowerSuperVoiceAfflictions.Length == 0 || PastflowerSuperVoiceFiles.Length == 0)
             {
                 return;
             }
 
             int index = (Environment.TickCount & int.MaxValue) % PastflowerSuperVoiceAfflictions.Length;
+            if (index >= PastflowerSuperVoiceFiles.Length)
+            {
+                index = 0;
+            }
+
+            bool playedDirectly = TryPlaySoundFromCharacter(
+                character,
+                PastflowerSuperVoiceFiles[index],
+                PastflowerSuperVoiceRange,
+                PastflowerSuperVoiceVolume);
             ApplyAffliction(character, PastflowerSuperVoiceAfflictions[index], 1.0f);
+            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super voice played. index=" + index + ", direct=" + playedDirectly);
+        }
+
+        private static bool TryPlaySoundFromCharacter(Character character, string relativePath, float range, float volume)
+        {
+            if (character == null || string.IsNullOrEmpty(relativePath))
+            {
+                return false;
+            }
+
+            Vector2 position = character.WorldPosition;
+            foreach (string soundPath in GetSoundPathCandidates(relativePath))
+            {
+                foreach (MethodInfo method in GetSoundPlayMethods())
+                {
+                    object[] values;
+                    if (!TryBuildSoundPlayArguments(method.GetParameters(), soundPath, position, range, volume, out values))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        object result = method.Invoke(null, values);
+                        if (method.ReturnType == typeof(void) || result != null)
+                        {
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            if (!directVoicePlayFailed)
+            {
+                directVoicePlayFailed = true;
+                LuaCsLogger.LogMessage("[ElysianRealm] Direct character voice playback unavailable; affliction voice fallback remains active.");
+            }
+            return false;
+        }
+
+        private static IEnumerable<string> GetSoundPathCandidates(string relativePath)
+        {
+            if (ownerPackage == null)
+            {
+                LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianGameplayPlugin>(out ownerPackage);
+            }
+
+            if (ownerPackage != null && !string.IsNullOrEmpty(ownerPackage.Dir))
+            {
+                yield return Path.Combine(ownerPackage.Dir, relativePath.Replace('/', Path.DirectorySeparatorChar));
+            }
+
+            yield return relativePath;
+            yield return relativePath.Replace('/', Path.DirectorySeparatorChar);
+            yield return "%ModDir%/" + relativePath;
+        }
+
+        private static IEnumerable<MethodInfo> GetSoundPlayMethods()
+        {
+            if (soundPlayMethods != null)
+            {
+                return soundPlayMethods;
+            }
+
+            soundPlayMethods = new List<MethodInfo>();
+            if (soundPlayLookupFailed)
+            {
+                return soundPlayMethods;
+            }
+
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                foreach (Type type in types)
+                {
+                    if (type == null || !IsSoundPlaybackType(type))
+                    {
+                        continue;
+                    }
+
+                    foreach (MethodInfo method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                    {
+                        if (!IsSoundPlayMethod(method))
+                        {
+                            continue;
+                        }
+
+                        soundPlayMethods.Add(method);
+                    }
+                }
+            }
+
+            if (soundPlayMethods.Count == 0)
+            {
+                soundPlayLookupFailed = true;
+            }
+
+            return soundPlayMethods;
+        }
+
+        private static bool IsSoundPlaybackType(Type type)
+        {
+            string name = type.Name.ToLowerInvariant();
+            return name.Contains("soundplayer") || name.Contains("soundmanager");
+        }
+
+        private static bool IsSoundPlayMethod(MethodInfo method)
+        {
+            if (method == null || !method.IsStatic || method.Name.IndexOf("Play", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return false;
+            }
+
+            bool hasSoundPath = false;
+            bool hasPosition = false;
+            foreach (ParameterInfo parameter in method.GetParameters())
+            {
+                if (CanPassSoundPath(parameter.ParameterType))
+                {
+                    hasSoundPath = true;
+                }
+                if (parameter.ParameterType == typeof(Vector2))
+                {
+                    hasPosition = true;
+                }
+            }
+
+            return hasSoundPath && hasPosition;
+        }
+
+        private static bool TryBuildSoundPlayArguments(ParameterInfo[] parameters, string soundPath, Vector2 position, float range, float volume, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool soundAssigned = false;
+            bool positionAssigned = false;
+            bool rangeAssigned = false;
+            bool volumeAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                string name = parameters[i].Name ?? string.Empty;
+                object soundValue;
+
+                if (!soundAssigned && TryCreateSoundPathParameter(type, soundPath, out soundValue))
+                {
+                    values[i] = soundValue;
+                    soundAssigned = true;
+                }
+                else if (!positionAssigned && type == typeof(Vector2))
+                {
+                    values[i] = position;
+                    positionAssigned = true;
+                }
+                else if (type == typeof(float))
+                {
+                    if (!rangeAssigned && name.IndexOf("range", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        values[i] = range;
+                        rangeAssigned = true;
+                    }
+                    else if (!volumeAssigned && (name.IndexOf("volume", StringComparison.OrdinalIgnoreCase) >= 0 || name.IndexOf("gain", StringComparison.OrdinalIgnoreCase) >= 0))
+                    {
+                        values[i] = volume;
+                        volumeAssigned = true;
+                    }
+                    else if (!volumeAssigned)
+                    {
+                        values[i] = volume;
+                        volumeAssigned = true;
+                    }
+                    else if (!rangeAssigned)
+                    {
+                        values[i] = range;
+                        rangeAssigned = true;
+                    }
+                    else
+                    {
+                        values[i] = GetParameterDefault(parameters[i]);
+                    }
+                }
+                else if (type == typeof(int))
+                {
+                    values[i] = name.IndexOf("range", StringComparison.OrdinalIgnoreCase) >= 0 ? (int)Math.Round(range) : (int)GetDefaultValue(type);
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return soundAssigned && positionAssigned;
+        }
+
+        private static bool CanPassSoundPath(Type parameterType)
+        {
+            if (parameterType == typeof(string) || parameterType == typeof(Identifier))
+            {
+                return true;
+            }
+
+            string typeName = parameterType.FullName ?? parameterType.Name;
+            return typeName.IndexOf("ContentPath", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   parameterType.GetConstructor(new[] { typeof(string) }) != null;
+        }
+
+        private static bool TryCreateSoundPathParameter(Type parameterType, string soundPath, out object value)
+        {
+            if (parameterType == typeof(string) || parameterType.IsAssignableFrom(typeof(string)))
+            {
+                value = soundPath;
+                return true;
+            }
+
+            if (parameterType == typeof(Identifier))
+            {
+                value = CreateIdentifier(soundPath);
+                return true;
+            }
+
+            ConstructorInfo constructor = parameterType.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(string) }, null);
+            if (constructor != null)
+            {
+                try
+                {
+                    value = constructor.Invoke(new object[] { soundPath });
+                    return true;
+                }
+                catch
+                {
+                }
+            }
+
+            value = null;
+            return false;
         }
 
         private static bool TryGetChargeVisualScreenPosition(Item bow, Character character, out Vector2 screenPosition)
@@ -1265,9 +1799,84 @@ namespace Barotrauma.ElysianRealm
             }
             catch (Exception ex)
             {
-                LogOnce("remove_item_failed", "[ElysianRealm] Failed to remove volley arrow: " + ex.GetType().Name);
+                LogOnce("remove_item_failed", "[ElysianRealm] Failed to remove item: " + ex.GetType().Name);
                 return false;
             }
+        }
+
+        private static void ApplyPastflowerSuperDirectDamage(Character attacker, Vector2 position, int arrowCount)
+        {
+            Character target = FindClosestCharacter(position, attacker, PastflowerDirectHitRadius);
+            if (target == null)
+            {
+                return;
+            }
+
+            float multiplier = Math.Max(1.0f, arrowCount);
+            int applied = 0;
+            if (ApplyAffliction(target, "internaldamage", LoveSpearInternalDamage * multiplier))
+            {
+                applied++;
+            }
+            if (ApplyAffliction(target, "lacerations", LoveSpearLacerationDamage * multiplier))
+            {
+                applied++;
+            }
+            if (ApplyAffliction(target, "bleeding", LoveSpearBleedingDamage * multiplier))
+            {
+                applied++;
+            }
+            if (ApplyAffliction(target, "stun", LoveSpearStunDamage * multiplier))
+            {
+                applied++;
+            }
+
+            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super direct damage applied. arrows=" + arrowCount + ", afflictions=" + applied);
+        }
+
+        private static Character FindClosestCharacter(Vector2 position, Character attacker, float range)
+        {
+            Character closest = null;
+            float bestDistance = range * range;
+
+            foreach (Character target in Character.CharacterList)
+            {
+                if (!IsUsableCharacter(target) || ReferenceEquals(target, attacker))
+                {
+                    continue;
+                }
+
+                float distance = GetClosestCharacterDistanceSquared(target, position);
+                if (distance <= bestDistance)
+                {
+                    bestDistance = distance;
+                    closest = target;
+                }
+            }
+
+            return closest;
+        }
+
+        private static float GetClosestCharacterDistanceSquared(Character character, Vector2 position)
+        {
+            float best = Vector2.DistanceSquared(character.WorldPosition, position);
+            object limbs = character.AnimController == null ? null : GetMemberValue(character.AnimController, "Limbs");
+            IEnumerable enumerable = limbs as IEnumerable;
+            if (enumerable == null)
+            {
+                return best;
+            }
+
+            foreach (object limb in enumerable)
+            {
+                Vector2 limbPosition;
+                if (TryGetWorldPosition(limb, out limbPosition))
+                {
+                    best = Math.Min(best, Vector2.DistanceSquared(limbPosition, position));
+                }
+            }
+
+            return best;
         }
 
         private static void ApplyPastflowerExplosion(Character attacker, Vector2 position)
@@ -1291,27 +1900,6 @@ namespace Barotrauma.ElysianRealm
                 if (ApplyAffliction(target, "internaldamage", PastflowerExplosionInternalDamage))
                 {
                     characterHits++;
-                }
-            }
-
-            object itemList = GetStaticMemberValue(typeof(Item), "ItemList");
-            foreach (Item item in EnumerateItems(itemList))
-            {
-                if (item == null || IsRemovedObject(item))
-                {
-                    continue;
-                }
-
-                Vector2 itemPosition;
-                if (!TryGetWorldPosition(item, out itemPosition) ||
-                    Vector2.Distance(itemPosition, position) > PastflowerExplosionRange)
-                {
-                    continue;
-                }
-
-                if (TryApplyObjectDamage(item, position, PastflowerExplosionItemDamage))
-                {
-                    itemHits++;
                 }
             }
 
@@ -1448,16 +2036,96 @@ namespace Barotrauma.ElysianRealm
                 return false;
             }
 
-            MethodInfo instantiate = prefab.GetType().GetMethod("Instantiate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(float) }, null);
-            if (instantiate == null)
+            object affliction;
+            if (!TryInstantiateAffliction(prefab, strength, character, out affliction))
             {
                 LogOnce("affliction_instantiate_" + identifier, "[ElysianRealm] Affliction instantiate method not found: " + identifier);
                 return false;
             }
 
-            object affliction = instantiate.Invoke(prefab, new object[] { strength });
             object limb = character.AnimController == null ? null : character.AnimController.MainLimb;
             return InvokeHealthMethod(character.CharacterHealth, "ApplyAffliction", limb, affliction);
+        }
+
+        private static bool TryInstantiateAffliction(object prefab, float strength, Character source, out object affliction)
+        {
+            affliction = null;
+            if (prefab == null)
+            {
+                return false;
+            }
+
+            foreach (MethodInfo method in prefab.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "Instantiate", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                object[] values;
+                if (!TryBuildAfflictionInstantiateArguments(parameters, strength, source, out values))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    affliction = method.Invoke(prefab, values);
+                    if (affliction != null)
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryBuildAfflictionInstantiateArguments(ParameterInfo[] parameters, float strength, Character source, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool strengthAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                string name = parameters[i].Name ?? string.Empty;
+
+                if (!strengthAssigned && (type == typeof(float) || type == typeof(double) || type == typeof(int)))
+                {
+                    strengthAssigned = true;
+                    if (type == typeof(float))
+                    {
+                        values[i] = strength;
+                    }
+                    else if (type == typeof(double))
+                    {
+                        values[i] = (double)strength;
+                    }
+                    else
+                    {
+                        values[i] = (int)Math.Round(strength);
+                    }
+                }
+                else if (source != null && type.IsInstanceOfType(source))
+                {
+                    values[i] = source;
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return strengthAssigned || parameters.Length == 0;
         }
 
         private static float GetAfflictionStrength(Character character, string identifier)
@@ -1591,12 +2259,10 @@ namespace Barotrauma.ElysianRealm
                     continue;
                 }
 
-                object[] values = new object[parameters.Length];
-                values[0] = limb;
-                values[1] = affliction;
-                for (int i = 2; i < values.Length; i++)
+                object[] values;
+                if (!TryBuildApplyAfflictionArguments(parameters, limb, affliction, out values))
                 {
-                    values[i] = GetDefaultValue(parameters[i].ParameterType);
+                    continue;
                 }
 
                 try
@@ -1610,6 +2276,38 @@ namespace Barotrauma.ElysianRealm
             }
 
             return false;
+        }
+
+        private static bool TryBuildApplyAfflictionArguments(ParameterInfo[] parameters, object limb, object affliction, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool limbAssigned = false;
+            bool afflictionAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                if (!afflictionAssigned && affliction != null && type.IsInstanceOfType(affliction))
+                {
+                    values[i] = affliction;
+                    afflictionAssigned = true;
+                }
+                else if (!limbAssigned && limb != null && type.IsInstanceOfType(limb))
+                {
+                    values[i] = limb;
+                    limbAssigned = true;
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return afflictionAssigned;
         }
 
         private static bool TryForceAiTarget(Character target, Character source)
@@ -1881,6 +2579,352 @@ namespace Barotrauma.ElysianRealm
                 }
             }
 
+            return null;
+        }
+
+        private static bool TryGetProjectileImpactWorldPosition(Dictionary<string, object> args, Item projectileItem, out Vector2 position)
+        {
+            if (args == null || args.Count == 0)
+            {
+                position = Vector2.Zero;
+                return false;
+            }
+
+            List<Vector2> candidates = new List<Vector2>();
+            foreach (string key in new[]
+            {
+                "worldPosition",
+                "worldPos",
+                "hitPosition",
+                "hitPos",
+                "collisionPosition",
+                "collisionPos",
+                "contactPosition",
+                "contactPoint",
+                "point",
+                "position",
+                "simPosition"
+            })
+            {
+                object value;
+                if (TryGetArgIgnoreCase(args, key, out value))
+                {
+                    CollectImpactVectorCandidates(value, candidates, new HashSet<object>(), 0);
+                }
+            }
+
+            if (TryChooseImpactPosition(candidates, projectileItem, false, out position))
+            {
+                return true;
+            }
+
+            candidates.Clear();
+            foreach (KeyValuePair<string, object> pair in args)
+            {
+                if (!IsLikelyImpactArgument(pair.Key, pair.Value))
+                {
+                    continue;
+                }
+
+                CollectImpactVectorCandidates(pair.Value, candidates, new HashSet<object>(), 0);
+            }
+
+            if (TryChooseImpactPosition(candidates, projectileItem, true, out position))
+            {
+                return true;
+            }
+
+            candidates.Clear();
+            foreach (KeyValuePair<string, object> pair in args)
+            {
+                if (pair.Value is Vector2)
+                {
+                    candidates.Add((Vector2)pair.Value);
+                }
+            }
+
+            return TryChooseImpactPosition(candidates, projectileItem, false, out position);
+        }
+
+        private static bool TryGetArgIgnoreCase(Dictionary<string, object> args, string key, out object value)
+        {
+            foreach (KeyValuePair<string, object> pair in args)
+            {
+                if (string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = pair.Value;
+                    return true;
+                }
+            }
+
+            value = null;
+            return false;
+        }
+
+        private static bool IsLikelyImpactArgument(string key, object value)
+        {
+            string normalizedKey = key == null ? string.Empty : key.ToLowerInvariant();
+            if (normalizedKey.Contains("contact") ||
+                normalizedKey.Contains("collision") ||
+                normalizedKey.Contains("hit") ||
+                normalizedKey.Contains("fixture") ||
+                normalizedKey.Contains("body") ||
+                normalizedKey.Contains("position") ||
+                normalizedKey.Contains("point"))
+            {
+                return true;
+            }
+
+            if (value == null)
+            {
+                return false;
+            }
+
+            string typeName = value.GetType().FullName ?? value.GetType().Name;
+            typeName = typeName.ToLowerInvariant();
+            return typeName.Contains("contact") ||
+                   typeName.Contains("fixture") ||
+                   typeName.Contains("body") ||
+                   typeName.Contains("manifold");
+        }
+
+        private static void CollectImpactVectorCandidates(object value, List<Vector2> candidates, HashSet<object> visited, int depth)
+        {
+            if (value == null || depth > 3)
+            {
+                return;
+            }
+
+            if (value is Vector2)
+            {
+                Vector2 vector = (Vector2)value;
+                if (vector != Vector2.Zero)
+                {
+                    candidates.Add(vector);
+                }
+                return;
+            }
+
+            if (value is string)
+            {
+                return;
+            }
+
+            Type valueType = value.GetType();
+            if (!valueType.IsValueType)
+            {
+                if (visited.Contains(value))
+                {
+                    return;
+                }
+                visited.Add(value);
+            }
+
+            CollectContactWorldManifoldCandidates(value, candidates, visited, depth + 1);
+
+            foreach (string memberName in new[]
+            {
+                "WorldPosition",
+                "WorldPoint",
+                "HitPosition",
+                "CollisionPosition",
+                "ContactPosition",
+                "ContactPoint",
+                "Point",
+                "Position",
+                "Value0",
+                "Value1"
+            })
+            {
+                object memberValue = GetMemberValue(value, memberName);
+                if (memberValue != null && !ReferenceEquals(memberValue, value))
+                {
+                    CollectImpactVectorCandidates(memberValue, candidates, visited, depth + 1);
+                }
+            }
+
+            IEnumerable enumerable = value as IEnumerable;
+            if (enumerable == null)
+            {
+                return;
+            }
+
+            int count = 0;
+            foreach (object entry in enumerable)
+            {
+                CollectImpactVectorCandidates(entry, candidates, visited, depth + 1);
+                count++;
+                if (count >= 4)
+                {
+                    break;
+                }
+            }
+        }
+
+        private static void CollectContactWorldManifoldCandidates(object value, List<Vector2> candidates, HashSet<object> visited, int depth)
+        {
+            if (value == null || depth > 3)
+            {
+                return;
+            }
+
+            foreach (MethodInfo method in value.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "GetWorldManifold", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                object[] values = new object[parameters.Length];
+                bool canInvoke = true;
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    Type parameterType = parameters[i].ParameterType;
+                    if (!parameterType.IsByRef)
+                    {
+                        canInvoke = false;
+                        break;
+                    }
+
+                    Type elementType = parameterType.GetElementType();
+                    values[i] = GetDefaultValue(elementType ?? parameterType);
+                }
+
+                if (!canInvoke)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object result = method.Invoke(value, values);
+                    if (method.ReturnType != typeof(void))
+                    {
+                        CollectImpactVectorCandidates(result, candidates, visited, depth + 1);
+                    }
+
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        CollectImpactVectorCandidates(values[i], candidates, visited, depth + 1);
+                    }
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        private static bool TryChooseImpactPosition(List<Vector2> candidates, Item projectileItem, bool preferSimUnits, out Vector2 position)
+        {
+            if (candidates == null || candidates.Count == 0)
+            {
+                position = Vector2.Zero;
+                return false;
+            }
+
+            Vector2 projectilePosition;
+            bool hasProjectilePosition = TryGetWorldPosition(projectileItem, out projectilePosition);
+            float bestDistance = float.MaxValue;
+            Vector2 best = Vector2.Zero;
+            bool found = false;
+
+            foreach (Vector2 candidate in candidates)
+            {
+                Vector2 world = NormalizeImpactCandidate(candidate, projectileItem, preferSimUnits);
+                if (world == Vector2.Zero)
+                {
+                    continue;
+                }
+
+                float distance = hasProjectilePosition ? Vector2.DistanceSquared(world, projectilePosition) : 0.0f;
+                if (!found || distance < bestDistance)
+                {
+                    found = true;
+                    bestDistance = distance;
+                    best = world;
+                }
+            }
+
+            position = best;
+            return found;
+        }
+
+        private static Vector2 NormalizeImpactCandidate(Vector2 candidate, Item projectileItem, bool preferSimUnits)
+        {
+            Vector2 displayCandidate;
+            if (!TryConvertSimToDisplayUnits(candidate, out displayCandidate))
+            {
+                return candidate;
+            }
+
+            if (preferSimUnits)
+            {
+                return displayCandidate;
+            }
+
+            Vector2 projectilePosition;
+            if (!TryGetWorldPosition(projectileItem, out projectilePosition))
+            {
+                return candidate;
+            }
+
+            float directDistance = Vector2.DistanceSquared(candidate, projectilePosition);
+            float convertedDistance = Vector2.DistanceSquared(displayCandidate, projectilePosition);
+            return convertedDistance < directDistance ? displayCandidate : candidate;
+        }
+
+        private static bool TryConvertSimToDisplayUnits(Vector2 simPosition, out Vector2 displayPosition)
+        {
+            MethodInfo method = GetToDisplayUnitsMethod();
+            if (method == null)
+            {
+                displayPosition = Vector2.Zero;
+                return false;
+            }
+
+            try
+            {
+                object result = method.Invoke(null, new object[] { simPosition });
+                if (result is Vector2)
+                {
+                    displayPosition = (Vector2)result;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            displayPosition = Vector2.Zero;
+            return false;
+        }
+
+        private static MethodInfo GetToDisplayUnitsMethod()
+        {
+            if (toDisplayUnitsMethod != null || toDisplayUnitsLookupFailed)
+            {
+                return toDisplayUnitsMethod;
+            }
+
+            Type convertUnitsType = FindTypeByName("ConvertUnits");
+            if (convertUnitsType != null)
+            {
+                foreach (MethodInfo method in convertUnitsType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    ParameterInfo[] parameters = method.GetParameters();
+                    if (string.Equals(method.Name, "ToDisplayUnits", StringComparison.Ordinal) &&
+                        method.ReturnType == typeof(Vector2) &&
+                        parameters.Length == 1 &&
+                        parameters[0].ParameterType == typeof(Vector2))
+                    {
+                        toDisplayUnitsMethod = method;
+                        return toDisplayUnitsMethod;
+                    }
+                }
+            }
+
+            toDisplayUnitsLookupFailed = true;
             return null;
         }
 
