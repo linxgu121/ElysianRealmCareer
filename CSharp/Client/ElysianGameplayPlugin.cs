@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Reflection;
 using Barotrauma;
 using Barotrauma.LuaCs;
@@ -24,10 +25,15 @@ namespace Barotrauma.ElysianRealm
         private const string HornBuffIdentifier = "elysiaencouragement";
         private const string HumanSourceIdentifier = "asourcefromherrscherofhuman";
         private const string OriginSourceIdentifier = "asourcefromherrscheroforigin";
+        private const string ChargeSpriteRelativePath = "Assets/UI/Pillarofflame.png";
+        private const string ExplosionSpriteRelativePath = "Assets/UI/\u771f\u62111.png";
 
         private const float BowSuperChargeSeconds = 15.0f;
         private const float BowMinChargeSeconds = 0.5f;
+        private const float BowChargeVisualStartSeconds = 0.5f;
         private const float BowSuperImpulseMultiplier = 10.0f;
+        private const float PastflowerBeamVisualSeconds = 0.34f;
+        private const float PastflowerExplosionVisualSeconds = 0.85f;
         private const float PastflowerExplosionRange = 500.0f;
         private const float PastflowerExplosionInternalDamage = 500.0f;
         private const float PastflowerExplosionStructureDamage = 300.0f;
@@ -43,11 +49,23 @@ namespace Barotrauma.ElysianRealm
         private static readonly Dictionary<Item, SuperShotData> SuperProjectiles = new Dictionary<Item, SuperShotData>();
         private static readonly HashSet<Item> RemovedVolleyAmmo = new HashSet<Item>();
         private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
+        private static readonly List<BeamVisual> BeamVisuals = new List<BeamVisual>();
+        private static readonly List<ExplosionVisual> ExplosionVisuals = new List<ExplosionVisual>();
+        private static readonly string[] PastflowerSuperVoiceAfflictions = new[]
+        {
+            "pastflower_super_voice_escape",
+            "pastflower_super_voice_flower",
+            "pastflower_super_voice_surprise"
+        };
 
         private static ContentPackage ownerPackage;
         private static MethodInfo characterIsKeyDownMethod;
         private static MethodInfo characterIsKeyHitMethod;
         private static Type rangedWeaponType;
+        private static Sprite chargeSprite;
+        private static Sprite explosionSprite;
+        private static bool chargeSpriteLoadFailed;
+        private static bool explosionSpriteLoadFailed;
 
         public void PreInitPatching()
         {
@@ -78,7 +96,13 @@ namespace Barotrauma.ElysianRealm
             WeaponOverrides.Clear();
             SuperProjectiles.Clear();
             RemovedVolleyAmmo.Clear();
+            BeamVisuals.Clear();
+            ExplosionVisuals.Clear();
             LoggedOnce.Clear();
+            RemoveSprite(ref chargeSprite);
+            RemoveSprite(ref explosionSprite);
+            chargeSpriteLoadFailed = false;
+            explosionSpriteLoadFailed = false;
             ownerPackage = null;
         }
 
@@ -283,6 +307,8 @@ namespace Barotrauma.ElysianRealm
                     SuperProjectiles[loadedArrow] = new SuperShotData(character, arrowCount);
                 }
                 ApplyAffliction(character, HornBuffIdentifier, 10.0f);
+                PlayRandomPastflowerSuperVoice(character);
+                AddPastflowerBeamVisual(character, bow);
             }
 
             state.ChargeSeconds = 0.0f;
@@ -334,6 +360,7 @@ namespace Barotrauma.ElysianRealm
             }
 
             ApplyPastflowerExplosion(data.Attacker, position);
+            AddPastflowerExplosionVisual(position);
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount);
             return null;
         }
@@ -364,8 +391,10 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
+            DrawPastflowerActiveShotVisuals(spriteBatch);
+
             ChargeState state = GetChargeState(character);
-            if (state.ChargeSeconds <= 0.0f)
+            if (state.ChargeSeconds < BowChargeVisualStartSeconds)
             {
                 return null;
             }
@@ -462,7 +491,7 @@ namespace Barotrauma.ElysianRealm
 
         private static void DrawBowChargeVisuals(SpriteBatch spriteBatch, Item bow, Character character, float chargeSeconds)
         {
-            float ratio = MathHelper.Clamp(chargeSeconds / BowSuperChargeSeconds, 0.0f, 1.0f);
+            float ratio = MathHelper.Clamp((chargeSeconds - BowChargeVisualStartSeconds) / Math.Max(0.1f, BowSuperChargeSeconds - BowChargeVisualStartSeconds), 0.0f, 1.0f);
             Vector2 pos = PlayerInput.MousePosition + new Vector2(28.0f, 28.0f);
             int width = 132;
             int height = 8;
@@ -475,44 +504,157 @@ namespace Barotrauma.ElysianRealm
             spriteBatch.Draw(GUI.WhiteTexture, background, Color.Black * 0.45f);
             spriteBatch.Draw(GUI.WhiteTexture, fill, fillColor);
 
-            DrawBowChargeParticles(spriteBatch, PlayerInput.MousePosition, ratio, chargeSeconds, 1.0f);
-            DrawBowChargeParticles(spriteBatch, pos + new Vector2(width * 0.5f, height * 0.5f), ratio, chargeSeconds, 0.55f);
-
-            Vector2 bowScreenPosition;
-            if (TryGetChargeVisualScreenPosition(bow, character, out bowScreenPosition))
+            Vector2 handScreenPosition;
+            if (TryGetChargeVisualScreenPosition(bow, character, out handScreenPosition))
             {
-                DrawBowChargeParticles(spriteBatch, bowScreenPosition, ratio, chargeSeconds, 1.2f);
+                DrawBowChargeConvergence(spriteBatch, handScreenPosition, ratio, chargeSeconds);
             }
         }
 
-        private static void DrawBowChargeParticles(SpriteBatch spriteBatch, Vector2 center, float ratio, float chargeSeconds, float scale)
+        private static void DrawBowChargeConvergence(SpriteBatch spriteBatch, Vector2 center, float ratio, float chargeSeconds)
         {
-            int particleCount = 10 + (int)(ratio * 70.0f);
-            float time = (Environment.TickCount & 0xFFFF) / 1000.0f;
-            float alpha = MathHelper.Clamp(0.24f + ratio * 0.66f, 0.24f, 0.9f);
-            float spread = (22.0f + ratio * 72.0f) * scale;
-            int coreSize = Math.Max(6, (int)Math.Round((10.0f + ratio * 22.0f) * scale));
-            Rectangle core = new Rectangle(
-                (int)Math.Round(center.X - coreSize * 0.5f),
-                (int)Math.Round(center.Y - coreSize * 0.5f),
-                coreSize,
-                coreSize);
+            TryLoadPastflowerVisualSprites();
 
-            spriteBatch.Draw(GUI.WhiteTexture, core, new Color(255, 90, 215, 255) * (0.12f + ratio * 0.22f));
+            int particleCount = 16 + (int)(ratio * 78.0f);
+            float time = (Environment.TickCount & 0xFFFF) / 1000.0f;
+            float alpha = MathHelper.Clamp(0.22f + ratio * 0.7f, 0.22f, 0.92f);
+            float spread = 118.0f + ratio * 84.0f;
+            float coreScale = 0.22f + ratio * 0.74f;
+            Color coreColor = new Color(255, 86, 217, 255) * alpha;
+
+            if (chargeSprite != null && chargeSprite.Texture != null)
+            {
+                DrawSpriteCentered(spriteBatch, chargeSprite, center, coreScale, coreColor, time * (0.8f + ratio * 1.4f));
+            }
+            else
+            {
+                int coreSize = Math.Max(10, (int)Math.Round(22.0f + ratio * 42.0f));
+                Rectangle core = new Rectangle(
+                    (int)Math.Round(center.X - coreSize * 0.5f),
+                    (int)Math.Round(center.Y - coreSize * 0.5f),
+                    coreSize,
+                    coreSize);
+                spriteBatch.Draw(GUI.WhiteTexture, core, coreColor * 0.38f);
+            }
 
             for (int i = 0; i < particleCount; i++)
             {
                 float seed = i * 2.399963f;
-                float pulse = (float)Math.Sin(time * (1.5f + i * 0.07f) + seed + chargeSeconds * 0.2f);
+                float pulse = (float)Math.Sin(time * (1.8f + i * 0.05f) + seed + chargeSeconds * 0.22f);
                 float distanceRatio = 0.2f + ((i * 37) % 100) / 100.0f * 0.8f;
-                float distance = spread * distanceRatio * (0.82f + pulse * 0.18f);
-                float angle = seed + time * (1.25f + ratio * 1.25f);
-                Vector2 offset = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * distance;
-                int size = Math.Max(2, (int)Math.Round((3.0f + ratio * 7.0f) * scale * (0.75f + distanceRatio * 0.5f)));
-                Rectangle rect = new Rectangle((int)(center.X + offset.X), (int)(center.Y + offset.Y), size, size);
-                Color color = (i % 3 == 0 ? new Color(255, 225, 245, 255) : new Color(255, 95, 220, 255)) * alpha;
+                float flow = (time * (0.45f + ratio * 0.85f) + i * 0.071f) % 1.0f;
+                float distance = spread * distanceRatio * (1.0f - flow) * (0.9f + pulse * 0.1f);
+                float angle = seed + time * (0.65f + ratio * 1.15f);
+                Vector2 direction = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                Vector2 offset = direction * distance;
+                Vector2 particlePos = center + offset;
+                int size = Math.Max(2, (int)Math.Round(3.0f + ratio * 8.0f + (1.0f - flow) * 2.0f));
+                Rectangle rect = new Rectangle((int)(particlePos.X), (int)(particlePos.Y), size, size);
+                Color color = (i % 4 == 0 ? new Color(255, 235, 250, 255) : new Color(255, 86, 217, 255)) * (alpha * (0.35f + flow * 0.65f));
+                if (i % 3 == 0)
+                {
+                    GUI.DrawLine(spriteBatch, particlePos, center, color * (0.16f + ratio * 0.28f), 0.0f, 1.0f + ratio * 3.0f);
+                }
                 spriteBatch.Draw(GUI.WhiteTexture, rect, color);
             }
+        }
+
+        private static void DrawPastflowerActiveShotVisuals(SpriteBatch spriteBatch)
+        {
+            TryLoadPastflowerVisualSprites();
+            int now = Environment.TickCount;
+
+            for (int i = BeamVisuals.Count - 1; i >= 0; i--)
+            {
+                BeamVisual beam = BeamVisuals[i];
+                float age = TicksToSeconds(unchecked(now - beam.CreatedTicks));
+                if (age >= beam.Duration)
+                {
+                    BeamVisuals.RemoveAt(i);
+                    continue;
+                }
+
+                float t = MathHelper.Clamp(age / Math.Max(0.01f, beam.Duration), 0.0f, 1.0f);
+                float alpha = 1.0f - t;
+                Vector2 beamVector = beam.EndScreen - beam.StartScreen;
+                Vector2 pulse = beamVector.LengthSquared() <= 1.0f ? Vector2.UnitX : Vector2.Normalize(beamVector);
+                Vector2 shimmer = new Vector2(-pulse.Y, pulse.X) * (float)Math.Sin(age * 72.0f) * (2.0f + alpha * 4.0f);
+                Color core = new Color(255, 240, 255, 255) * alpha;
+                Color glow = new Color(255, 86, 217, 255) * (alpha * 0.65f);
+
+                GUI.DrawLine(spriteBatch, beam.StartScreen + shimmer, beam.EndScreen + shimmer, glow, 0.0f, 18.0f * alpha + 4.0f);
+                GUI.DrawLine(spriteBatch, beam.StartScreen, beam.EndScreen, core, 0.0f, 5.0f * alpha + 2.0f);
+            }
+
+            for (int i = ExplosionVisuals.Count - 1; i >= 0; i--)
+            {
+                ExplosionVisual visual = ExplosionVisuals[i];
+                float age = TicksToSeconds(unchecked(now - visual.CreatedTicks));
+                if (age >= visual.Duration)
+                {
+                    ExplosionVisuals.RemoveAt(i);
+                    continue;
+                }
+
+                Vector2 screenPosition;
+                if (!TryWorldToScreen(visual.WorldPosition, out screenPosition))
+                {
+                    continue;
+                }
+
+                float t = MathHelper.Clamp(age / Math.Max(0.01f, visual.Duration), 0.0f, 1.0f);
+                float alpha = 1.0f - t;
+                float scale = 0.35f + t * 1.05f;
+                Color color = new Color(255, 86, 217, 255) * alpha;
+                if (explosionSprite != null && explosionSprite.Texture != null)
+                {
+                    DrawSpriteCentered(spriteBatch, explosionSprite, screenPosition, scale, color, age * 4.0f);
+                }
+                else
+                {
+                    int size = Math.Max(12, (int)Math.Round(48.0f * scale));
+                    Rectangle rect = new Rectangle((int)(screenPosition.X - size * 0.5f), (int)(screenPosition.Y - size * 0.5f), size, size);
+                    spriteBatch.Draw(GUI.WhiteTexture, rect, color * 0.45f);
+                }
+            }
+        }
+
+        private static void AddPastflowerBeamVisual(Character character, Item bow)
+        {
+            Vector2 start;
+            if (!TryGetChargeVisualScreenPosition(bow, character, out start))
+            {
+                return;
+            }
+
+            Vector2 aim = PlayerInput.MousePosition;
+            Vector2 direction = aim - start;
+            if (direction.LengthSquared() <= 1.0f)
+            {
+                direction = Vector2.UnitX;
+            }
+            else
+            {
+                direction.Normalize();
+            }
+
+            BeamVisuals.Add(new BeamVisual(start, start + direction * 2400.0f, Environment.TickCount, PastflowerBeamVisualSeconds));
+        }
+
+        private static void AddPastflowerExplosionVisual(Vector2 worldPosition)
+        {
+            ExplosionVisuals.Add(new ExplosionVisual(worldPosition, Environment.TickCount, PastflowerExplosionVisualSeconds));
+        }
+
+        private static void PlayRandomPastflowerSuperVoice(Character character)
+        {
+            if (character == null || PastflowerSuperVoiceAfflictions.Length == 0)
+            {
+                return;
+            }
+
+            int index = (Environment.TickCount & int.MaxValue) % PastflowerSuperVoiceAfflictions.Length;
+            ApplyAffliction(character, PastflowerSuperVoiceAfflictions[index], 1.0f);
         }
 
         private static bool TryGetChargeVisualScreenPosition(Item bow, Character character, out Vector2 screenPosition)
@@ -531,6 +673,87 @@ namespace Barotrauma.ElysianRealm
 
             screenPosition = Vector2.Zero;
             return false;
+        }
+
+        private static void TryLoadPastflowerVisualSprites()
+        {
+            TryLoadSprite(ref chargeSprite, ref chargeSpriteLoadFailed, ChargeSpriteRelativePath, "charge");
+            TryLoadSprite(ref explosionSprite, ref explosionSpriteLoadFailed, ExplosionSpriteRelativePath, "explosion");
+        }
+
+        private static void TryLoadSprite(ref Sprite sprite, ref bool failed, string relativePath, string label)
+        {
+            if (failed || (sprite != null && sprite.Texture != null))
+            {
+                return;
+            }
+
+            if (ownerPackage == null &&
+                !LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianGameplayPlugin>(out ownerPackage))
+            {
+                failed = true;
+                LuaCsLogger.LogError("[ElysianRealm] Cannot resolve package while loading " + label + " sprite.");
+                return;
+            }
+
+            string fullPath = Path.Combine(ownerPackage.Dir, relativePath.Replace('/', Path.DirectorySeparatorChar));
+            if (!File.Exists(fullPath))
+            {
+                failed = true;
+                LuaCsLogger.LogError("[ElysianRealm] Missing " + label + " sprite: " + fullPath);
+                return;
+            }
+
+            try
+            {
+                sprite = new Sprite(fullPath, sourceRectangle: null, origin: new Vector2(0.5f, 0.5f));
+                if (sprite.Texture == null)
+                {
+                    RemoveSprite(ref sprite);
+                    failed = true;
+                    LuaCsLogger.LogError("[ElysianRealm] Failed to load " + label + " sprite: " + fullPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                RemoveSprite(ref sprite);
+                failed = true;
+                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
+            }
+        }
+
+        private static void DrawSpriteCentered(SpriteBatch spriteBatch, Sprite sprite, Vector2 center, float scale, Color color, float rotation)
+        {
+            if (sprite == null || sprite.Texture == null)
+            {
+                return;
+            }
+
+            Rectangle sourceRect = sprite.SourceRect;
+            spriteBatch.Draw(
+                sprite.Texture,
+                center,
+                sourceRect,
+                color,
+                rotation,
+                new Vector2(sourceRect.Width * 0.5f, sourceRect.Height * 0.5f),
+                scale,
+                SpriteEffects.None,
+                0.0f);
+        }
+
+        private static void RemoveSprite(ref Sprite sprite)
+        {
+            if (sprite != null)
+            {
+                sprite.Remove();
+                sprite = null;
+            }
+        }
+
+        private static float TicksToSeconds(int ticks)
+        {
+            return Math.Max(0, ticks) / 1000.0f;
         }
 
         private static bool TryWorldToScreen(Vector2 worldPosition, out Vector2 screenPosition)
@@ -1896,6 +2119,36 @@ namespace Barotrauma.ElysianRealm
             {
                 Attacker = attacker;
                 ArrowCount = Math.Max(1, arrowCount);
+            }
+        }
+
+        private sealed class BeamVisual
+        {
+            public readonly Vector2 StartScreen;
+            public readonly Vector2 EndScreen;
+            public readonly int CreatedTicks;
+            public readonly float Duration;
+
+            public BeamVisual(Vector2 startScreen, Vector2 endScreen, int createdTicks, float duration)
+            {
+                StartScreen = startScreen;
+                EndScreen = endScreen;
+                CreatedTicks = createdTicks;
+                Duration = Math.Max(0.01f, duration);
+            }
+        }
+
+        private sealed class ExplosionVisual
+        {
+            public readonly Vector2 WorldPosition;
+            public readonly int CreatedTicks;
+            public readonly float Duration;
+
+            public ExplosionVisual(Vector2 worldPosition, int createdTicks, float duration)
+            {
+                WorldPosition = worldPosition;
+                CreatedTicks = createdTicks;
+                Duration = Math.Max(0.01f, duration);
             }
         }
 

@@ -155,6 +155,31 @@
     </PeriodicEffect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
+  <!-- 往事的飞花超蓄力随机语音：无数值效果，仅由 LuaCs 随机施加其一。 -->
+  <Affliction identifier="pastflower_super_voice_escape" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="1" treatmentthreshold="1000" duration="1" showbarinhealthmenu="false">
+    <Effect minstrength="0" maxstrength="1" strengthchange="-2"></Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="1" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-逃不掉哦~.ogg" range="3000" />
+      </StatusEffect>
+    </PeriodicEffect>
+  </Affliction>
+  <Affliction identifier="pastflower_super_voice_flower" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="1" treatmentthreshold="1000" duration="1" showbarinhealthmenu="false">
+    <Effect minstrength="0" maxstrength="1" strengthchange="-2"></Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="1" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" range="3000" />
+      </StatusEffect>
+    </PeriodicEffect>
+  </Affliction>
+  <Affliction identifier="pastflower_super_voice_surprise" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" maxstrength="1" treatmentthreshold="1000" duration="1" showbarinhealthmenu="false">
+    <Effect minstrength="0" maxstrength="1" strengthchange="-2"></Effect>
+    <PeriodicEffect mininterval="0" maxinterval="200000000">
+      <StatusEffect target="Character" duration="1" setvalue="true">
+        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" range="3000" />
+      </StatusEffect>
+    </PeriodicEffect>
+  </Affliction>
   <!--爱莉希雅(上)-->
   <Affliction identifier="elysiastigmata_top_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="100">

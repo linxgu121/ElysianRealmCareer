@@ -52,6 +52,7 @@
   <Other file="%ModDir%/Assets/Items/loversarrow.png" />
   <Other file="%ModDir%/Assets/Items/stigmata.jpg" />
   <Other file="%ModDir%/Assets/Items/往世的飞花.png" />
+  <Other file="%ModDir%/Assets/Items/往世的飞花（缩略）.png" />
   <Other file="%ModDir%/Assets/Items/爱矛缩略.png" />
   <Other file="%ModDir%/Assets/Recruitment/ElysianLoading1.png" />
   <Other file="%ModDir%/Assets/Recruitment/ElysianLoading2.png" />
@@ -61,6 +62,7 @@
   <Other file="%ModDir%/Assets/Recruitment/FireMothInsignia.png" />
   <Other file="%ModDir%/Assets/Recruitment/OutpostIcon.png" />
   <Other file="%ModDir%/Assets/UI/爱莉头像.png" />
+  <Other file="%ModDir%/Assets/UI/Pillarofflame.png" />
   <Other file="%ModDir%/Assets/UI/爱与伶之诗.png" />
   <Other file="%ModDir%/Assets/UI/沉睡的种.png" />
   <Other file="%ModDir%/Assets/UI/elysia_portrait.png" />
@@ -96,4 +98,5 @@
   <Other file="%ModDir%/Assets/UI/真我刻印7.png" />
   <Other file="%ModDir%/Assets/UI/真我刻印8.png" />
   <Other file="%ModDir%/Assets/UI/真我刻印9.png" />
+  <Other file="%ModDir%/Assets/UI/准心.png" />
 </contentpackage>
