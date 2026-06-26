@@ -31,11 +31,11 @@
 
 ## 往事的飞花弓机制
 
-- 物品定义：`Content/Items/ElysianItems.xml` 中的 `pastflower`，弹药定义为 `Content/Items/LoveSpear.xml` 中的 `lovespears`。
+- 物品定义：`Content/Items/ElysianItems.xml` 中的 `pastflower`，弹药定义为 `Content/Items/LoveSpear.xml` 中的 `lovespears`；`lovespears_super` 是 15 秒超蓄力时由脚本临时装入弓内的隐藏爆炸弹体。
 - 持弓方式：双手持弓，右键进入蓄力判定；物品栏或弓的隐藏弹仓中必须有 `lovespears`。
 - 普通射击：右键蓄力大于 0.5 秒且小于 15 秒时，左键会自动装填并发射 1 根爱矛。
 - 超蓄力射击：右键蓄力达到 15 秒后，左键会删除物品栏中所有可用爱矛，并发射 1 根强化爱矛；伤害按消耗爱矛数量倍增，发射冲击量按正常值的 10 倍尝试覆盖。
-- 爆炸效果：超蓄力爱矛命中后触发一次范围爆炸伤害，当前数值在 `CSharp/Client/ElysianGameplayPlugin.cs` 顶部常量中统一管理。
+- 爆炸效果：超蓄力爱矛命中后由 `lovespears_super` 的 `StatusEffect type="OnImpact"` 触发原生 `Explosion`，爆炸范围、结构伤害、物品伤害、燃烧和眩晕数值在 `Content/Items/LoveSpear.xml` 中统一管理。
 - 视觉反馈：右键蓄力达到 0.5 秒后开始显示粉色 `gravityspherefx`/聚能视觉，能量会向持弓手附近汇聚；蓄力越久，核心特效越大，光线越强。
 - 超蓄力表现：只有达到 15 秒并射击时才绘制弹道方向的激光；未达到 15 秒时不会出现激光。命中后会在命中位置显示 `Assets/UI/真我1.png` 爆炸图标。
 - 语音反馈：15 秒超蓄力射击后，会在 `爱莉希雅-逃不掉哦~.ogg`、`爱莉希雅-送你一朵花~.ogg`、`人之律者-送你一点惊喜。.ogg` 中随机播放一条。

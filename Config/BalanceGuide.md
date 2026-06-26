@@ -75,12 +75,12 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 
 - `maxstacksize`：堆叠上限。
 - `Fabricate requiredtime`：制造时间。
-- `RequiredSkill level`：制造技能需求。
-- `Attack structuredamage`：直接命中结构伤害。
-- `explosiondamage strength`：直接命中爆炸伤害。
+- `lovespears` 的 `Attack`：普通爱矛直接命中伤害。
+- `lovespears_super`：15 秒超蓄力时由脚本临时装入弓内的隐藏爆炸弹体。
+- `lovespears_super` 的 `Attack`：超蓄力直击基础伤害，会被脚本按消耗爱矛数量尝试倍增。
+- `lovespears_super` 的 `StatusEffect type="OnImpact"`：命中地面、墙体或目标时触发原生爆炸。
 - `Explosion range`：爆炸范围。
-- `Explosion structuredamage`：爆炸结构伤害。
-- `Explosion itemdamage`：爆炸物品伤害。
+- `Explosion structuredamage`、`levelwalldamage`、`itemdamage`：爆炸对结构、关卡墙体和物品的伤害。
 - `burn strength`、`stun strength`：爆炸附加状态。
 
 ## 改完后检查

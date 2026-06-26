@@ -29,4 +29,31 @@
     </Projectile>
     <Upgrade gameversion="0.10.0.0" scale="0.5" />
   </Item>
+
+  <!-- Hidden projectile used only by Pastflower 15s super charge. -->
+  <Item name="" identifier="lovespears_super" category="Weapon" maxstacksize="1" interactthroughwalls="true" cargocontaineridentifier="metalcrate" tags="mediumitem,harpoonammo,demolitionsexpert" Scale="0.5" impactsoundtag="impact_metal_light">
+    <InventoryIcon texture="%ModDir%/Assets/Items/loversarrow-tini.png" sourcerect="0,0,131,115" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/loversarrow.png" sourcerect="0,0,168,19" depth="0.55" origin="0.5,0.5" />
+    <Body width="160" height="10" density="30" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <Projectile characterusable="false" launchimpulse="20.0" severlimbsprobability="0.5" penetration="1.0">
+      <Attack itemdamage="200" targetforce="10" penetration="1.0">
+        <Affliction identifier="internaldamage" strength="75" />
+        <Affliction identifier="lacerations" strength="200" />
+        <Affliction identifier="bleeding" strength="90" />
+        <Affliction identifier="stun" strength="0.5" />
+      </Attack>
+      <StatusEffect type="OnImpact" target="This" Condition="-100.0" disabledeltatime="true">
+        <Explosion range="200.0" ballastfloradamage="100" structuredamage="100" levelwalldamage="50" itemdamage="250" force="5" severlimbsprobability="0.25">
+          <Affliction identifier="burn" strength="150" />
+          <Affliction identifier="stun" strength="1.5" />
+        </Explosion>
+        <Sound file="%ModDir%/Assets/Audio/爱莉希雅-送你一朵花~.ogg" range="6000" />
+        <Sound file="Content/Items/Weapons/ExplosionSmall2.ogg" range="3000" />
+        <Sound file="Content/Items/Weapons/ExplosionSmall3.ogg" range="3000" />
+        <Remove />
+      </StatusEffect>
+    </Projectile>
+    <Upgrade gameversion="0.10.0.0" scale="0.5" />
+  </Item>
 </Items>

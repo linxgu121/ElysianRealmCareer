@@ -23,6 +23,7 @@ namespace Barotrauma.ElysianRealm
         private const string BowIdentifier = "pastflower";
         private const string HornIdentifier = "elysiahorn";
         private const string ArrowIdentifier = "lovespears";
+        private const string SuperArrowIdentifier = "lovespears_super";
         private const string HornBuffIdentifier = "elysiaencouragement";
         private const string HumanSourceIdentifier = "asourcefromherrscherofhuman";
         private const string OriginSourceIdentifier = "asourcefromherrscheroforigin";
@@ -389,6 +390,16 @@ namespace Barotrauma.ElysianRealm
             if (isSuperShot)
             {
                 consumed = ConsumeExtraVolleyAmmo(ammo, int.MaxValue);
+                Item superLoadedArrow;
+                if (TryReplaceLoadedArrowWithSuperProjectile(character, bow, loadedArrow, out superLoadedArrow))
+                {
+                    loadedArrow = superLoadedArrow;
+                }
+                else
+                {
+                    LogOnce("bow_super_arrow_replace_failed", "[ElysianRealm] Failed to replace loaded lovespear with super impact projectile; C# impact fallback will be used.");
+                }
+
                 SuperShotData superShotData = new SuperShotData(character, arrowCount);
                 if (loadedArrow != null)
                 {
@@ -431,7 +442,7 @@ namespace Barotrauma.ElysianRealm
         private static object ProjectileShootAfter(object self, Dictionary<string, object> args)
         {
             Item projectileItem = GetComponentItem(self);
-            if (!HasIdentifier(projectileItem, ArrowIdentifier))
+            if (!IsPastflowerArrow(projectileItem))
             {
                 return null;
             }
@@ -1552,7 +1563,7 @@ namespace Barotrauma.ElysianRealm
         private static bool TryClaimPendingSuperShot(Item projectileItem, Character shooter, out SuperShotData data)
         {
             data = null;
-            if (!HasIdentifier(projectileItem, ArrowIdentifier))
+            if (!IsPastflowerArrow(projectileItem))
             {
                 return false;
             }
@@ -1619,6 +1630,164 @@ namespace Barotrauma.ElysianRealm
                     PendingSuperShots.RemoveAt(i);
                 }
             }
+        }
+
+        private static bool TryReplaceLoadedArrowWithSuperProjectile(Character character, Item bow, Item loadedArrow, out Item superArrow)
+        {
+            superArrow = null;
+            if (bow == null || loadedArrow == null)
+            {
+                return false;
+            }
+
+            object bowInventory = GetInventory(bow);
+            if (bowInventory == null)
+            {
+                return false;
+            }
+
+            Vector2 position;
+            if (!TryGetWorldPosition(loadedArrow, out position) &&
+                !TryGetWorldPosition(bow, out position))
+            {
+                position = character == null ? Vector2.Zero : character.WorldPosition;
+            }
+
+            object submarine = GetMemberValue(loadedArrow, "Submarine") ?? GetMemberValue(bow, "Submarine");
+            if (!TryCreateItem(SuperArrowIdentifier, position, submarine, out superArrow))
+            {
+                return false;
+            }
+
+            if (!TryRemoveItem(loadedArrow))
+            {
+                TryRemoveItem(superArrow);
+                superArrow = null;
+                return false;
+            }
+
+            if (TryPutItemIntoInventory(bowInventory, superArrow, character))
+            {
+                return true;
+            }
+
+            TryRemoveItem(superArrow);
+            superArrow = null;
+            return false;
+        }
+
+        private static bool TryCreateItem(string identifier, Vector2 position, object submarine, out Item item)
+        {
+            item = null;
+            object prefab = GetItemPrefab(identifier);
+            if (prefab == null)
+            {
+                LogOnce("item_prefab_" + identifier, "[ElysianRealm] Item prefab not found: " + identifier);
+                return false;
+            }
+
+            foreach (ConstructorInfo constructor in typeof(Item).GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).OrderBy(c => c.GetParameters().Length))
+            {
+                if (constructor.GetParameters().Any(p => p.ParameterType == typeof(Rectangle)))
+                {
+                    continue;
+                }
+
+                object[] values;
+                if (!TryBuildItemConstructorArguments(constructor.GetParameters(), prefab, position, submarine, identifier, out values))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    item = constructor.Invoke(values) as Item;
+                    if (item != null)
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            LogOnce("item_create_failed_" + identifier, "[ElysianRealm] Could not create item: " + identifier);
+            return false;
+        }
+
+        private static bool TryBuildItemConstructorArguments(ParameterInfo[] parameters, object prefab, Vector2 position, object submarine, string identifier, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool prefabAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                if (!prefabAssigned && prefab != null && type.IsInstanceOfType(prefab))
+                {
+                    values[i] = prefab;
+                    prefabAssigned = true;
+                }
+                else if (type == typeof(Vector2))
+                {
+                    values[i] = position;
+                }
+                else if (submarine != null && type.IsInstanceOfType(submarine))
+                {
+                    values[i] = submarine;
+                }
+                else if ((type == typeof(string) || string.Equals(type.Name, "Identifier", StringComparison.Ordinal)) &&
+                         CanPassIdentifier(type, CreateIdentifier(identifier)))
+                {
+                    values[i] = ConvertIdentifierForParameter(type, CreateIdentifier(identifier));
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return prefabAssigned;
+        }
+
+        private static object GetItemPrefab(string identifier)
+        {
+            object prefabs = GetStaticMemberValue(typeof(ItemPrefab), "Prefabs");
+            if (prefabs == null)
+            {
+                return null;
+            }
+
+            object id = CreateIdentifier(identifier);
+            foreach (MethodInfo method in prefabs.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "get_Item", StringComparison.Ordinal) &&
+                    !string.Equals(method.Name, "Get", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length != 1 || !CanPassIdentifier(parameters[0].ParameterType, id))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    return method.Invoke(prefabs, new[] { ConvertIdentifierForParameter(parameters[0].ParameterType, id) });
+                }
+                catch
+                {
+                }
+            }
+
+            return null;
         }
 
         private static List<Item> FindArrowAmmo(Character character, Item bow)
@@ -2896,6 +3065,11 @@ namespace Barotrauma.ElysianRealm
             object itemIdentifier = GetMemberValue(item, "Identifier");
             return itemIdentifier != null &&
                    string.Equals(itemIdentifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsPastflowerArrow(Item item)
+        {
+            return HasIdentifier(item, ArrowIdentifier) || HasIdentifier(item, SuperArrowIdentifier);
         }
 
         private static Type FindTypeByName(string typeName)
