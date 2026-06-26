@@ -52,11 +52,11 @@
       <Item identifier="steel" amount="12" />
       <Item identifier="titaniumaluminiumalloy" amount="4" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/往世的飞花.png" sourcerect="0,0,1500,1500" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/往世的飞花.png" sourcerect="0,0,1500,1500" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/Items/往世的飞花（缩略）.png" sourcerect="0,0,128,128" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/往世的飞花.png" sourcerect="800,0,700,1500" depth="0.55" origin="0.6,0.5" />
     <Body width="140" height="80" density="25" />
     <ItemContainer capacity="1" maxstacksize="1" slotsperrow="1" hideitems="true" drawinventory="false" containableitems="lovespears" />
-    <Holdable slots="RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="-35,0" handle2="20,0" aimpos="50,0" holdpos="0,0" holdangle="0" aimable="true" />
+    <Holdable slots="RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="0,-53" handle2="0,-53" aimpos="50,0" holdpos="0,0" holdangle="0" aimable="true" />
     <RangedWeapon barrelpos="70,0" reload="1.0" launchimpulse="10.0" spread="0" unskilledspread="5" projectilecount="1" maxchargetime="0.5" suitableprojectiles="lovespears" msg="ItemMsgPickUpSelect" />
     <aitarget sightrange="500" soundrange="250" fadeouttime="1" />
   </Item>
