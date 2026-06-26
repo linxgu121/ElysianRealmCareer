@@ -58,8 +58,6 @@
     <ItemContainer capacity="1" maxstacksize="1" slotsperrow="1" hideitems="true" drawinventory="false" containableitems="lovespears" />
     <Holdable slots="RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="0,-53" handle2="0,-53" aimpos="50,0" holdpos="0,0" holdangle="0" aimable="true" />
     <RangedWeapon barrelpos="70,0" reload="1.0" launchimpulse="10.0" spread="0" unskilledspread="5" projectilecount="1" maxchargetime="0.5" suitableprojectiles="lovespears" msg="ItemMsgPickUpSelect" drawhudwhenequipped="true" crosshairscale="0.25">
-      <ParticleEmitterCharge particle="gravityspherefx" particlespersecond="70" scalemin="0.25" scalemax="1.3" anglemin="0" anglemax="359" colormultiplier="255,86,217,220" />
-      <ChargeSound file="%ModDir%/Assets/Audio/Ac.ogg" range="3000" />
       <Sound file="Content/Items/Weapons/HarpoonGun1.ogg" type="OnUse" range="1000" />
       <Sound file="Content/Items/Weapons/HarpoonGun2.ogg" type="OnUse" range="1000" />
       <Sound file="Content/Items/Weapons/HarpoonGun3.ogg" type="OnUse" range="1000" />

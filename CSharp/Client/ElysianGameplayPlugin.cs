@@ -63,6 +63,7 @@ namespace Barotrauma.ElysianRealm
         private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
         private static readonly List<BeamVisual> BeamVisuals = new List<BeamVisual>();
         private static readonly List<ExplosionVisual> ExplosionVisuals = new List<ExplosionVisual>();
+        private static readonly List<DelayedItemRemoval> DelayedItemRemovals = new List<DelayedItemRemoval>();
         private static readonly string[] PastflowerSuperVoiceAfflictions = new[]
         {
             "pastflower_super_voice_escape",
@@ -125,6 +126,7 @@ namespace Barotrauma.ElysianRealm
             RemovedVolleyAmmo.Clear();
             BeamVisuals.Clear();
             ExplosionVisuals.Clear();
+            DelayedItemRemovals.Clear();
             LoggedOnce.Clear();
             RemoveSprite(ref chargeSprite);
             RemoveSprite(ref explosionSprite);
@@ -262,6 +264,8 @@ namespace Barotrauma.ElysianRealm
 
         private static object CharacterControlAfter(object self, Dictionary<string, object> args)
         {
+            UpdateDelayedItemRemovals();
+
             Character character = self as Character;
             if (!IsUsableCharacter(character))
             {
@@ -400,9 +404,9 @@ namespace Barotrauma.ElysianRealm
             ApplyPastflowerSuperDirectDamage(data.Attacker, position, data.ArrowCount);
             ApplyPastflowerExplosion(data.Attacker, position);
             AddPastflowerExplosionVisual(position);
-            bool removedProjectile = TryRemoveItem(projectileItem);
+            ScheduleDelayedItemRemoval(projectileItem, PastflowerExplosionVisualSeconds);
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount);
-            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile removed=" + removedProjectile);
+            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile removal scheduled.");
             return null;
         }
 
@@ -436,6 +440,12 @@ namespace Barotrauma.ElysianRealm
             DrawPastflowerNoAmmoHint(spriteBatch, character);
 
             ChargeState state = GetChargeState(character);
+            if (!HasSufficientArrowAmmoForCharge(character, bow))
+            {
+                ResetBowChargeState(state);
+                return null;
+            }
+
             if (state.ChargeSeconds < BowChargeVisualStartSeconds)
             {
                 return null;
@@ -454,15 +464,12 @@ namespace Barotrauma.ElysianRealm
             {
                 if (state.ChargeSeconds > 0.0f)
                 {
-                    state.ChargeSeconds = 0.0f;
-                    state.WasReadyLogged = false;
-                    state.WasFullyChargedLogged = false;
-                    state.WasChargeSoundPlayed = false;
+                    ResetBowChargeState(state);
                 }
                 return;
             }
 
-            if (!HasAnyArrowAvailable(character, bow))
+            if (!HasSufficientArrowAmmoForCharge(character, bow))
             {
                 if (IsInputHit(character, "Shoot") || IsInputHit(character, "Use"))
                 {
@@ -471,10 +478,7 @@ namespace Barotrauma.ElysianRealm
 
                 if (state.ChargeSeconds > 0.0f)
                 {
-                    state.ChargeSeconds = 0.0f;
-                    state.WasReadyLogged = false;
-                    state.WasFullyChargedLogged = false;
-                    state.WasChargeSoundPlayed = false;
+                    ResetBowChargeState(state);
                 }
                 return;
             }
@@ -924,6 +928,40 @@ namespace Barotrauma.ElysianRealm
             ExplosionVisuals.Add(new ExplosionVisual(worldPosition, Environment.TickCount, PastflowerExplosionVisualSeconds));
         }
 
+        private static void ScheduleDelayedItemRemoval(Item item, float delaySeconds)
+        {
+            if (item == null || IsRemovedObject(item))
+            {
+                return;
+            }
+
+            int delayMs = Math.Max(0, (int)Math.Round(Math.Max(0.0f, delaySeconds) * 1000.0f));
+            DelayedItemRemovals.Add(new DelayedItemRemoval(item, Environment.TickCount + delayMs));
+        }
+
+        private static void UpdateDelayedItemRemovals()
+        {
+            int now = Environment.TickCount;
+            for (int i = DelayedItemRemovals.Count - 1; i >= 0; i--)
+            {
+                DelayedItemRemoval removal = DelayedItemRemovals[i];
+                if (removal.Item == null || IsRemovedObject(removal.Item))
+                {
+                    DelayedItemRemovals.RemoveAt(i);
+                    continue;
+                }
+
+                if (unchecked(now - removal.RemoveAtTicks) < 0)
+                {
+                    continue;
+                }
+
+                bool removed = TryRemoveItem(removal.Item);
+                DelayedItemRemovals.RemoveAt(i);
+                LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile removed=" + removed);
+            }
+        }
+
         private static void PlayRandomPastflowerSuperVoice(Character character)
         {
             if (character == null || PastflowerSuperVoiceAfflictions.Length == 0 || PastflowerSuperVoiceFiles.Length == 0)
@@ -1362,6 +1400,24 @@ namespace Barotrauma.ElysianRealm
             return state;
         }
 
+        private static void ResetBowChargeState(ChargeState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            state.ChargeSeconds = 0.0f;
+            state.WasReadyLogged = false;
+            state.WasFullyChargedLogged = false;
+            state.WasChargeSoundPlayed = false;
+        }
+
+        private static bool HasSufficientArrowAmmoForCharge(Character character, Item bow)
+        {
+            return CountArrowAmount(FindArrowAmmo(character, bow)) > 0;
+        }
+
         private static WeaponOverride CreateNormalShotOverride(object rangedWeapon)
         {
             WeaponOverride weaponOverride = new WeaponOverride(rangedWeapon);
@@ -1494,11 +1550,6 @@ namespace Barotrauma.ElysianRealm
             }
 
             return 0.0f;
-        }
-
-        private static bool HasAnyArrowAvailable(Character character, Item bow)
-        {
-            return HasLoadedArrow(bow) || FindInventoryArrow(character) != null;
         }
 
         private static bool HasLoadedArrow(Item bow)
@@ -3203,6 +3254,18 @@ namespace Barotrauma.ElysianRealm
                 WorldPosition = worldPosition;
                 CreatedTicks = createdTicks;
                 Duration = Math.Max(0.01f, duration);
+            }
+        }
+
+        private sealed class DelayedItemRemoval
+        {
+            public readonly Item Item;
+            public readonly int RemoveAtTicks;
+
+            public DelayedItemRemoval(Item item, int removeAtTicks)
+            {
+                Item = item;
+                RemoveAtTicks = removeAtTicks;
             }
         }
 
