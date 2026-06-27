@@ -138,7 +138,7 @@
   </Item>
 
   <!-- 圣痕：遗传物质式物品，可放入原版基因拼接器，也可放入圣痕槽位。 -->
-  <Item name="" identifier="elysiastigmata_top_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiastigmata_top_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" hideconditionbar="true" hideconditionintooltip="false" allowsellingwhenbroken="true" >
     <Price baseprice="9000" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
@@ -148,10 +148,25 @@
     <Sprite texture="%ModDir%/Assets/UI/如弓矢般凛冽.png" sourcerect="0,0,124,112" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
-    <GeneticMaterial effect="elysiastigmata_top_human_effect" nameidentifier="elysiastigmata_top_human" />
+    <GeneticMaterial effect="elysiastigmata_top_human_effect" nameidentifier="elysiastigmata_top_human">
+      <StatusEffect type="OnWearing" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.3" scalemax="0.75" />
+      </StatusEffect>
+      <StatusEffect type="OnSevered" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.5" scalemax="1.0" />
+        <Affliction identifier="organdamage" amount="10" />
+        <Affliction identifier="stun" amount="0.5" />
+      </StatusEffect>
+    </GeneticMaterial>
   </Item>
 
-  <Item name="" identifier="elysiastigmata_top_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiastigmata_top_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" hideconditionbar="true" hideconditionintooltip="false" allowsellingwhenbroken="true" >
     <Price baseprice="9000" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
@@ -161,10 +176,25 @@
     <Sprite texture="%ModDir%/Assets/UI/愿海洋辽阔.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
-    <GeneticMaterial effect="elysiastigmata_top_origin_effect" nameidentifier="elysiastigmata_top_origin" />
+    <GeneticMaterial effect="elysiastigmata_top_origin_effect" nameidentifier="elysiastigmata_top_origin">
+      <StatusEffect type="OnWearing" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.3" scalemax="0.75" />
+      </StatusEffect>
+      <StatusEffect type="OnSevered" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.5" scalemax="1.0" />
+        <Affliction identifier="organdamage" amount="10" />
+        <Affliction identifier="stun" amount="0.5" />
+      </StatusEffect>
+    </GeneticMaterial>
   </Item>
 
-  <Item name="" identifier="elysiastigmata_mid_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiastigmata_mid_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" hideconditionbar="true" hideconditionintooltip="false" allowsellingwhenbroken="true" >
     <Price baseprice="9000" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
@@ -174,10 +204,25 @@
     <Sprite texture="%ModDir%/Assets/UI/如精灵般灵动.png" sourcerect="0,0,124,112" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
-    <GeneticMaterial effect="elysiastigmata_mid_human_effect" nameidentifier="elysiastigmata_mid_human" />
+    <GeneticMaterial effect="elysiastigmata_mid_human_effect" nameidentifier="elysiastigmata_mid_human">
+      <StatusEffect type="OnWearing" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.3" scalemax="0.75" />
+      </StatusEffect>
+      <StatusEffect type="OnSevered" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.5" scalemax="1.0" />
+        <Affliction identifier="organdamage" amount="10" />
+        <Affliction identifier="stun" amount="0.5" />
+      </StatusEffect>
+    </GeneticMaterial>
   </Item>
 
-  <Item name="" identifier="elysiastigmata_mid_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiastigmata_mid_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" hideconditionbar="true" hideconditionintooltip="false" allowsellingwhenbroken="true">
     <Price baseprice="9000" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
@@ -187,10 +232,25 @@
     <Sprite texture="%ModDir%/Assets/UI/愿大地丰饶.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
-    <GeneticMaterial effect="elysiastigmata_mid_origin_effect" nameidentifier="elysiastigmata_mid_origin" />
+    <GeneticMaterial effect="elysiastigmata_mid_origin_effect" nameidentifier="elysiastigmata_mid_origin">
+      <StatusEffect type="OnWearing" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.3" scalemax="0.75" />
+      </StatusEffect>
+      <StatusEffect type="OnSevered" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.5" scalemax="1.0" />
+        <Affliction identifier="organdamage" amount="10" />
+        <Affliction identifier="stun" amount="0.5" />
+      </StatusEffect>
+    </GeneticMaterial>
   </Item>
 
-  <Item name="" identifier="elysiastigmata_bottom_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiastigmata_bottom_human" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" hideconditionbar="true" hideconditionintooltip="false" allowsellingwhenbroken="true">
     <Price baseprice="9000" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
@@ -200,10 +260,25 @@
     <Sprite texture="%ModDir%/Assets/UI/如飞花般绚丽.png" sourcerect="0,0,124,112" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
-    <GeneticMaterial effect="elysiastigmata_bottom_human_effect" nameidentifier="elysiastigmata_bottom_human" />
+    <GeneticMaterial effect="elysiastigmata_bottom_human_effect" nameidentifier="elysiastigmata_bottom_human">
+      <StatusEffect type="OnWearing" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.3" scalemax="0.75" />
+      </StatusEffect>
+      <StatusEffect type="OnSevered" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.5" scalemax="1.0" />
+        <Affliction identifier="organdamage" amount="10" />
+        <Affliction identifier="stun" amount="0.5" />
+      </StatusEffect>
+    </GeneticMaterial>
   </Item>
 
-  <Item name="" identifier="elysiastigmata_bottom_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiastigmata_bottom_origin" category="Genetic Material" tags="smallitem,geneticmaterial,elysiastigmata" maxstacksize="1" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light" hideconditionbar="true" hideconditionintooltip="false" allowsellingwhenbroken="true">
     <Price baseprice="9000" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20" requiresrecipe="true">
@@ -213,6 +288,21 @@
     <Sprite texture="%ModDir%/Assets/UI/愿群星闪耀.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="25" height="25" density="10" />
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
-    <GeneticMaterial effect="elysiastigmata_bottom_origin_effect" nameidentifier="elysiastigmata_bottom_origin" />
+    <GeneticMaterial effect="elysiastigmata_bottom_origin_effect" nameidentifier="elysiastigmata_bottom_origin">
+      <StatusEffect type="OnWearing" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.3" scalemax="0.75" />
+      </StatusEffect>
+      <StatusEffect type="OnSevered" target="Character" duration="0.0">
+        <Sound file="Content/Sounds/Damage/Gore1.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore2.ogg" type="OnUse" range="500" />
+        <Sound file="Content/Sounds/Damage/Gore3.ogg" type="OnUse" range="500" />
+        <ParticleEmitter particle="bloodsplash" anglemin="0" anglemax="360" particleamount="5" velocitymin="0" velocitymax="0" scalemin="0.5" scalemax="1.0" />
+        <Affliction identifier="organdamage" amount="10" />
+        <Affliction identifier="stun" amount="0.5" />
+      </StatusEffect>
+    </GeneticMaterial>
   </Item>
 </Items>
