@@ -151,10 +151,7 @@ namespace Barotrauma.ElysianRealm
 
             try
             {
-                LuaCsSetup.Instance.EventService.UnhookMethod(
-                    CharacterControlHook,
-                    characterControlHookMethod,
-                    ILuaCsHook.HookMethodType.After);
+                TryUnhookLuaCsMethod(CharacterControlHook, characterControlHookMethod, ILuaCsHook.HookMethodType.After);
             }
             catch (Exception ex)
             {
@@ -204,10 +201,7 @@ namespace Barotrauma.ElysianRealm
 
             try
             {
-                LuaCsSetup.Instance.EventService.UnhookMethod(
-                    GeneticMaterialEquipHook,
-                    geneticMaterialEquipHookMethod,
-                    ILuaCsHook.HookMethodType.Before);
+                TryUnhookLuaCsMethod(GeneticMaterialEquipHook, geneticMaterialEquipHookMethod, ILuaCsHook.HookMethodType.Before);
             }
             catch (Exception ex)
             {
@@ -216,6 +210,31 @@ namespace Barotrauma.ElysianRealm
 
             geneticMaterialEquipHookRegistered = false;
             geneticMaterialEquipHookMethod = null;
+        }
+
+        private static bool TryUnhookLuaCsMethod(string identifier, MethodBase method, ILuaCsHook.HookMethodType hookType)
+        {
+            object eventService = LuaCsSetup.Instance.EventService;
+            if (eventService == null || method == null)
+            {
+                return false;
+            }
+
+            object patcher = GetMemberValue(eventService, "_luaPatcher") ?? eventService;
+            MethodInfo unhookMethod = patcher.GetType().GetMethod(
+                "UnhookMethod",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(string), typeof(MethodBase), typeof(ILuaCsHook.HookMethodType) },
+                null);
+
+            if (unhookMethod == null)
+            {
+                return false;
+            }
+
+            unhookMethod.Invoke(patcher, new object[] { identifier, method, hookType });
+            return true;
         }
 
         private static object GeneticMaterialEquipBefore(object self, Dictionary<string, object> args)

@@ -212,7 +212,10 @@ namespace Barotrauma.ElysianRealm
                 RegisteredHook hook = RegisteredHooks[i];
                 try
                 {
-                    LuaCsSetup.Instance.EventService.UnhookMethod(hook.Identifier, hook.Method, hook.HookType);
+                    if (!TryUnhookLuaCsMethod(hook.Identifier, hook.Method, hook.HookType))
+                    {
+                        continue;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -225,6 +228,31 @@ namespace Barotrauma.ElysianRealm
             }
 
             RegisteredHooks.Clear();
+        }
+
+        private static bool TryUnhookLuaCsMethod(string identifier, MethodBase method, ILuaCsHook.HookMethodType hookType)
+        {
+            object eventService = LuaCsSetup.Instance.EventService;
+            if (eventService == null || method == null)
+            {
+                return false;
+            }
+
+            object patcher = GetMemberValue(eventService, "_luaPatcher") ?? eventService;
+            MethodInfo unhookMethod = patcher.GetType().GetMethod(
+                "UnhookMethod",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(string), typeof(MethodBase), typeof(ILuaCsHook.HookMethodType) },
+                null);
+
+            if (unhookMethod == null)
+            {
+                return false;
+            }
+
+            unhookMethod.Invoke(patcher, new object[] { identifier, method, hookType });
+            return true;
         }
 
         private static void HookCharacterControl(IAssemblyPlugin hookOwner)
