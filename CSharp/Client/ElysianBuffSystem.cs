@@ -159,8 +159,7 @@ namespace Barotrauma.ElysianRealm
                 return false;
             }
 
-            object limb = character.AnimController == null ? null : character.AnimController.MainLimb;
-            return InvokeHealthMethod(character.CharacterHealth, "ApplyAffliction", limb, affliction);
+            return InvokeHealthMethod(character.CharacterHealth, "ApplyAffliction", null, affliction);
         }
 
         private static bool ReduceAffliction(Character character, string identifier, float strength)
@@ -210,6 +209,12 @@ namespace Barotrauma.ElysianRealm
             }
 
             object id = CreateIdentifier(identifier);
+            float byIdentifier = InvokeGetAfflictionStrengthByIdentifier(character.CharacterHealth, id);
+            if (byIdentifier > 0.0f)
+            {
+                return byIdentifier;
+            }
+
             foreach (MethodInfo method in character.CharacterHealth.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (!string.Equals(method.Name, "GetAfflictionStrength", StringComparison.Ordinal))
@@ -227,6 +232,47 @@ namespace Barotrauma.ElysianRealm
                 try
                 {
                     object result = method.Invoke(character.CharacterHealth, values);
+                    if (result is float)
+                    {
+                        return (float)result;
+                    }
+                    if (result is double)
+                    {
+                        return (float)(double)result;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return 0.0f;
+        }
+
+        private static float InvokeGetAfflictionStrengthByIdentifier(object health, object identifier)
+        {
+            if (health == null || identifier == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (MethodInfo method in health.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "GetAfflictionStrengthByIdentifier", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length == 0 || !CanPassIdentifier(parameters[0].ParameterType, identifier))
+                {
+                    continue;
+                }
+
+                object[] values = BuildMethodArguments(parameters, identifier, true);
+                try
+                {
+                    object result = method.Invoke(health, values);
                     if (result is float)
                     {
                         return (float)result;

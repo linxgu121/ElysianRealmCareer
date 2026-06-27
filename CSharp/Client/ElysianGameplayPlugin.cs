@@ -19,6 +19,8 @@ namespace Barotrauma.ElysianRealm
         private const string ProjectileShootHook = "elysianrealm.gameplay.projectile.shoot.after";
         private const string RangedWeaponBeforeHook = "elysianrealm.gameplay.rangedweapon.use.before";
         private const string RangedWeaponAfterHook = "elysianrealm.gameplay.rangedweapon.use.after";
+        private const string NightVisionLightMapBeforeHook = "elysianrealm.gameplay.lightmap.nightvision.before";
+        private const string NightVisionLightMapAfterHook = "elysianrealm.gameplay.lightmap.nightvision.after";
 
         private const string BowIdentifier = "pastflower";
         private const string ArrowIdentifier = "lovespears";
@@ -49,6 +51,11 @@ namespace Barotrauma.ElysianRealm
         private const float PastflowerSuperVoiceRange = 8000.0f;
         private const float PastflowerSuperVoiceVolume = 2.2f;
         private const int PendingSuperShotMilliseconds = 8000;
+        private const float NightVisionAfflictionThreshold = 0.1f;
+        private const float NightVisionAmbientBoost = 0.62f;
+        private const int NightVisionAmbientTargetR = 46;
+        private const int NightVisionAmbientTargetG = 52;
+        private const int NightVisionAmbientTargetB = 50;
 
         private static readonly Dictionary<Character, ChargeState> ChargeStates = new Dictionary<Character, ChargeState>();
         private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
@@ -60,6 +67,11 @@ namespace Barotrauma.ElysianRealm
         private static readonly List<BeamVisual> BeamVisuals = new List<BeamVisual>();
         private static readonly List<ExplosionVisual> ExplosionVisuals = new List<ExplosionVisual>();
         private static readonly List<DelayedItemRemoval> DelayedItemRemovals = new List<DelayedItemRemoval>();
+        private static readonly string[] NightVisionAfflictionIdentifiers = new[]
+        {
+            "elysian_slot_stigmata_mid_human_effect",
+            "elysiastigmata_mid_human_effect"
+        };
         private static readonly string[] PastflowerSuperVoiceAfflictions = new[]
         {
             "pastflower_super_voice_escape",
@@ -88,6 +100,10 @@ namespace Barotrauma.ElysianRealm
         private static bool toDisplayUnitsLookupFailed;
         private static bool soundPlayLookupFailed;
         private static bool directVoicePlayFailed;
+        private static bool nightVisionLightHookFailed;
+        private static bool nightVisionLightHookRegistered;
+        private static bool nightVisionAmbientRestorePending;
+        private static Color nightVisionOriginalAmbient;
         private static bool registered;
 
         public void PreInitPatching()
@@ -115,6 +131,7 @@ namespace Barotrauma.ElysianRealm
             HookBowHud(hookOwner);
             HookProjectileImpact(hookOwner);
             HookRangedWeaponUse(hookOwner);
+            HookNightVisionLightMap(hookOwner);
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Gameplay plugin registered. Package=" + packageDir);
@@ -126,6 +143,10 @@ namespace Barotrauma.ElysianRealm
 
         public void OnLoadCompleted()
         {
+            if (!nightVisionLightHookRegistered)
+            {
+                HookNightVisionLightMap(this);
+            }
         }
 
         public void Dispose()
@@ -144,6 +165,7 @@ namespace Barotrauma.ElysianRealm
             BeamVisuals.Clear();
             ExplosionVisuals.Clear();
             DelayedItemRemovals.Clear();
+            RestoreNightVisionAmbient(FindGameMainLightManager());
             LoggedOnce.Clear();
             RemoveSprite(ref chargeSprite);
             RemoveSprite(ref explosionSprite);
@@ -157,6 +179,9 @@ namespace Barotrauma.ElysianRealm
             toDisplayUnitsLookupFailed = false;
             soundPlayLookupFailed = false;
             directVoicePlayFailed = false;
+            nightVisionLightHookFailed = false;
+            nightVisionLightHookRegistered = false;
+            nightVisionAmbientRestorePending = false;
             ownerPackage = null;
             registered = false;
         }
@@ -290,6 +315,51 @@ namespace Barotrauma.ElysianRealm
             }
 
             LuaCsLogger.LogMessage("[ElysianRealm] Projectile hooks registered. impact=" + impactMethods.Count + ", shoot=" + shootMethods.Count);
+        }
+
+        private static void HookNightVisionLightMap(IAssemblyPlugin hookOwner)
+        {
+            if (nightVisionLightHookRegistered)
+            {
+                return;
+            }
+
+            object lightManager = FindGameMainLightManager();
+            if (lightManager == null)
+            {
+                nightVisionLightHookFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] LightManager was not found; stigmata night vision ambient boost disabled.");
+                return;
+            }
+
+            MethodInfo method = lightManager.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault(m => string.Equals(m.Name, "RenderLightMap", StringComparison.Ordinal) &&
+                                     m.GetParameters().Length >= 2);
+
+            if (method == null)
+            {
+                nightVisionLightHookFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] LightManager.RenderLightMap was not found; stigmata night vision ambient boost disabled.");
+                return;
+            }
+
+            LuaCsSetup.Instance.EventService.HookMethod(
+                NightVisionLightMapBeforeHook,
+                method,
+                NightVisionLightMapBefore,
+                ILuaCsHook.HookMethodType.Before,
+                owner: hookOwner);
+
+            LuaCsSetup.Instance.EventService.HookMethod(
+                NightVisionLightMapAfterHook,
+                method,
+                NightVisionLightMapAfter,
+                ILuaCsHook.HookMethodType.After,
+                owner: hookOwner);
+
+            nightVisionLightHookFailed = false;
+            nightVisionLightHookRegistered = true;
+            LuaCsLogger.LogMessage("[ElysianRealm] Night vision ambient hook registered.");
         }
 
         private static bool IsProjectileImpactMethod(MethodInfo method)
@@ -505,6 +575,50 @@ namespace Barotrauma.ElysianRealm
             return null;
         }
 
+        private static object NightVisionLightMapBefore(object self, Dictionary<string, object> args)
+        {
+            object lightManager = self ?? FindGameMainLightManager();
+            RestoreNightVisionAmbient(lightManager);
+
+            Character character = GetControlledCharacter();
+            if (!HasNightVisionAffliction(character))
+            {
+                return null;
+            }
+
+            Color currentAmbient;
+            if (!TryGetAmbientLight(lightManager, out currentAmbient))
+            {
+                if (!nightVisionLightHookFailed)
+                {
+                    nightVisionLightHookFailed = true;
+                    LuaCsLogger.LogError("[ElysianRealm] Could not read LightManager.AmbientLight; stigmata night vision ambient boost disabled.");
+                }
+                return null;
+            }
+
+            Color boostedAmbient = BuildNightVisionAmbient(currentAmbient);
+            if (boostedAmbient.PackedValue == currentAmbient.PackedValue)
+            {
+                return null;
+            }
+
+            nightVisionOriginalAmbient = currentAmbient;
+            if (TrySetMemberValue(lightManager, "AmbientLight", boostedAmbient))
+            {
+                nightVisionAmbientRestorePending = true;
+                LogOnce("nightvision_ambient_boost_active", "[ElysianRealm] Stigmata night vision ambient boost active.");
+            }
+
+            return null;
+        }
+
+        private static object NightVisionLightMapAfter(object self, Dictionary<string, object> args)
+        {
+            RestoreNightVisionAmbient(self ?? FindGameMainLightManager());
+            return null;
+        }
+
         private static object BowDrawHudAfter(object self, Dictionary<string, object> args)
         {
             object rangedWeapon = IsRangedWeapon(self) ? self : null;
@@ -554,6 +668,94 @@ namespace Barotrauma.ElysianRealm
             LogOnce("bow_charge_visuals", "[ElysianRealm] Pastflower charge visuals are drawing.");
             DrawBowChargeVisuals(spriteBatch, bow, character, state.ChargeSeconds);
             return null;
+        }
+
+        private static Character GetControlledCharacter()
+        {
+            return GetStaticMemberValue(typeof(Character), "Controlled") as Character;
+        }
+
+        private static bool HasNightVisionAffliction(Character character)
+        {
+            if (!IsUsableCharacter(character))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < NightVisionAfflictionIdentifiers.Length; i++)
+            {
+                if (GetAfflictionStrength(character, NightVisionAfflictionIdentifiers[i]) > NightVisionAfflictionThreshold)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static object FindGameMainLightManager()
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type gameMainType = assembly.GetType("Barotrauma.GameMain", false);
+                if (gameMainType == null)
+                {
+                    continue;
+                }
+
+                object lightManager = GetStaticMemberValue(gameMainType, "LightManager");
+                if (lightManager != null)
+                {
+                    return lightManager;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool TryGetAmbientLight(object lightManager, out Color ambientLight)
+        {
+            object value = GetMemberValue(lightManager, "AmbientLight");
+            if (value is Color)
+            {
+                ambientLight = (Color)value;
+                return true;
+            }
+
+            ambientLight = new Color(0, 0, 0, 0);
+            return false;
+        }
+
+        private static Color BuildNightVisionAmbient(Color current)
+        {
+            return new Color(
+                BuildNightVisionAmbientChannel(current.R, NightVisionAmbientTargetR),
+                BuildNightVisionAmbientChannel(current.G, NightVisionAmbientTargetG),
+                BuildNightVisionAmbientChannel(current.B, NightVisionAmbientTargetB),
+                current.A);
+        }
+
+        private static int BuildNightVisionAmbientChannel(byte current, int target)
+        {
+            int value = current;
+            if (value >= target)
+            {
+                return value;
+            }
+
+            float boosted = value + (target - value) * NightVisionAmbientBoost;
+            return Math.Max(value, Math.Min(target, (int)Math.Round(boosted)));
+        }
+
+        private static void RestoreNightVisionAmbient(object lightManager)
+        {
+            if (!nightVisionAmbientRestorePending)
+            {
+                return;
+            }
+
+            TrySetMemberValue(lightManager, "AmbientLight", nightVisionOriginalAmbient);
+            nightVisionAmbientRestorePending = false;
         }
 
         private static void UpdateBowCharge(Character character, float deltaTime)
@@ -2575,6 +2777,12 @@ namespace Barotrauma.ElysianRealm
             }
 
             object id = CreateIdentifier(identifier);
+            float byIdentifier = InvokeGetAfflictionStrengthByIdentifier(character.CharacterHealth, id);
+            if (byIdentifier > 0.0f)
+            {
+                return byIdentifier;
+            }
+
             foreach (MethodInfo method in character.CharacterHealth.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 if (!string.Equals(method.Name, "GetAfflictionStrength", StringComparison.Ordinal))
@@ -2592,6 +2800,47 @@ namespace Barotrauma.ElysianRealm
                 try
                 {
                     object result = method.Invoke(character.CharacterHealth, values);
+                    if (result is float)
+                    {
+                        return (float)result;
+                    }
+                    if (result is double)
+                    {
+                        return (float)(double)result;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return 0.0f;
+        }
+
+        private static float InvokeGetAfflictionStrengthByIdentifier(object health, object identifier)
+        {
+            if (health == null || identifier == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (MethodInfo method in health.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "GetAfflictionStrengthByIdentifier", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length == 0 || !CanPassIdentifier(parameters[0].ParameterType, identifier))
+                {
+                    continue;
+                }
+
+                object[] values = BuildMethodArguments(parameters, identifier, true);
+                try
+                {
+                    object result = method.Invoke(health, values);
                     if (result is float)
                     {
                         return (float)result;
@@ -3482,7 +3731,10 @@ namespace Barotrauma.ElysianRealm
             {
                 try
                 {
-                    property.SetValue(instance, Convert.ChangeType(value, property.PropertyType), null);
+                    object converted = value != null && property.PropertyType.IsInstanceOfType(value) ?
+                        value :
+                        Convert.ChangeType(value, property.PropertyType);
+                    property.SetValue(instance, converted, null);
                     return true;
                 }
                 catch
@@ -3495,7 +3747,10 @@ namespace Barotrauma.ElysianRealm
             {
                 try
                 {
-                    field.SetValue(instance, Convert.ChangeType(value, field.FieldType));
+                    object converted = value != null && field.FieldType.IsInstanceOfType(value) ?
+                        value :
+                        Convert.ChangeType(value, field.FieldType);
+                    field.SetValue(instance, converted);
                     return true;
                 }
                 catch
