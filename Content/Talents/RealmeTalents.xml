@@ -21,19 +21,19 @@
         <AbilityConditionNoCrewDied />
       </Conditions>
       <Abilities>
-        <CharacterAbilityApplyStatusEffectsToAllies allowself="true" requiresalive="true" allowclientsimulation="false">
+        <CharacterAbilityApplyStatusEffectsToAllies allowself="true" requiresalive="true" allowclientsimulation="true">
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
-              <Affliction identifier="asourcefromherrscherofhuman" amount="10.0" />
+              <Affliction identifier="asourcefromherrscherofhuman" strength="10.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffectsToAllies>
       </Abilities>
       <FallbackAbilities>
-        <CharacterAbilityApplyStatusEffectsToAllies allowself="true" requiresalive="true" allowclientsimulation="false">
+        <CharacterAbilityApplyStatusEffectsToAllies allowself="true" requiresalive="true" allowclientsimulation="true">
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
-              <Affliction identifier="ablessingfromherrscherofhuman" amount="10.0" />
+              <Affliction identifier="ablessingfromherrscherofhuman" strength="10.0" />
               <ReduceAffliction identifier="asourcefromherrscherofhuman" strength="10.0" />
             </StatusEffect>
           </StatusEffects>
@@ -45,7 +45,7 @@
         <CharacterAbilityApplyStatusEffectsToAllies maxdistance="1000" allowself="false">
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
-              <Affliction identifier="totheflawless" amount="1.0" />
+              <Affliction identifier="totheflawless" strength="1.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffectsToAllies>
@@ -70,7 +70,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
-              <Affliction identifier="asourcefromherrscheroforigin" amount="10.0" />
+              <Affliction identifier="asourcefromherrscheroforigin" strength="10.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffects>
@@ -79,7 +79,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" disabledeltatime="true">
-              <Affliction identifier="ablessingfromherrscheroforigin" amount="10.0" />
+              <Affliction identifier="ablessingfromherrscheroforigin" strength="10.0" />
               <ReduceAffliction identifier="asourcefromherrscheroforigin" strength="10.0" />
             </StatusEffect>
           </StatusEffects>
@@ -171,7 +171,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" disabledeltatime="true" multiplyafflictionsbymaxvitality="true">
-              <Affliction identifier="startwithmeandendwithme" amount="60.0" />
+              <Affliction identifier="startwithmeandendwithme" strength="60.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffects>
@@ -190,7 +190,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" multiplyafflictionsbymaxvitality="true" disabledeltatime="true">
-              <Affliction identifier="itseemstohavetobeserious" amount="60.0" />
+              <Affliction identifier="itseemstohavetobeserious" strength="60.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffects>
@@ -218,7 +218,7 @@
         <CharacterAbilityTandemFire tag="periscope">
           <StatusEffects>
             <StatusEffect type="OnAbility" target="Character" multiplyafflictionsbymaxvitality="true">
-              <Affliction identifier="adreamycoperformance" amount="10" />
+              <Affliction identifier="adreamycoperformance" strength="10" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityTandemFire>
@@ -266,7 +266,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="This" multiplyafflictionsbymaxvitality="true" disabledeltatime="true">
-              <Affliction identifier="sendyoualittlesurprise" amount="1.0" />
+              <Affliction identifier="sendyoualittlesurprise" strength="1.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffects>
@@ -322,7 +322,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="This" multiplyafflictionsbymaxvitality="true">
-              <Affliction identifier="youcannotescape" amount="10.0" />
+              <Affliction identifier="youcannotescape" strength="10.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffects>
@@ -338,7 +338,7 @@
         <CharacterAbilityApplyStatusEffects>
           <StatusEffects>
             <StatusEffect type="OnAbility" target="This" multiplyafflictionsbymaxvitality="true">
-              <Affliction identifier="cannotfight" amount="10.0" />
+              <Affliction identifier="cannotfight" strength="10.0" />
             </StatusEffect>
           </StatusEffects>
         </CharacterAbilityApplyStatusEffects>

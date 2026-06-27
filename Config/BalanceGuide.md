@@ -12,7 +12,7 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 | 天赋树结构、前置、分支 | `Content/Talents/TalentTrees.xml` | `TalentTree jobidentifier="realme"` |
 | 天赋触发条件、触发间隔、直接伤害倍率 | `Content/Talents/RealmeTalents.xml` | 天赋 identifier |
 | 大多数 buff 数值、持续时间、属性加成 | `Content/Afflictions/RealmeAfflictions.xml` | affliction identifier |
-| Buff系统规则、槽位映射、天赋标记映射 | `Config/ElysianBuffRules.xml` | `StigmataRule`、`TalentAfflictionRule` |
+| Buff系统规则、槽位映射、天赋标记映射、号角范围效果 | `Config/ElysianBuffRules.xml` | `StigmataRule`、`TalentAfflictionRule`、`HornRule` |
 | 爱矛伤害、爆炸、合成成本 | `Content/Items/LoveSpear.xml` | `Item identifier="lovespears"` |
 | 爱莉希雅服装价格、护甲、技能加成 | `Content/Items/ElysiaGear.xml` | `Item identifier="Elysiagear"` |
 | 显示文本里的百分比描述 | `Localization/SimplifiedChinese.xml` | `talentdescription.*` |
@@ -74,6 +74,11 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 - `TalentAfflictionRule source`：仲裁器来源 id；人律祝福/本源共用 `talent_human_path`，始源祝福/本源共用 `talent_origin_path`，用于互斥切换。
 - `TalentAfflictionRule effect`：正式数值效果。
 - `TalentAfflictionRule minstrength`：标记强度达到多少时视为生效。
+- `HornRules item`：号角物品 identifier，默认 `elysiahorn`。
+- `HornRules cooldown`：号角主动触发冷却，默认 `2.0` 秒。
+- `HornRules range`：号角范围，默认 `1000`。
+- `HornRule target="friendly"`：自己和友方获得的效果，默认 `elysiaencouragement`。
+- `HornRule target="enemyfallback"`：敌方 AI 嘲讽失败时的降级效果，默认 `psychosis`。
 
 槽位专属效果文件：`Content/Afflictions/RealmeAfflictions.xml`
 

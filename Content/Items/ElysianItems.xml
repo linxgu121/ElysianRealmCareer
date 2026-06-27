@@ -3,7 +3,7 @@
   <!--
   BALANCE:
   Core craft costs and XML-safe behavior for the new Elysian items live here.
-  LuaCs should extend pastflower charge shots and elysiahorn faction-aware taunt/buffs later.
+  LuaCs extends pastflower charge shots and elysiahorn faction-aware taunt/buffs.
   -->
 
   <!-- 湛蓝水晶 -->
@@ -96,7 +96,7 @@
     <Upgrade gameversion="0.10.0.0" scale="0.5" />
   </Item>
 
-  <!-- 爱莉希雅的喇叭：XML 基础版先提供物品/配方/自我鼓励，阵营嘲讽与范围友军筛选交给 LuaCs。 -->
+  <!-- 爱莉希雅的喇叭：XML 提供物品/配方/声音，范围鼓励与敌对嘲讽交给 LuaCs Buff 系统。 -->
   <Item name="" identifier="elysiahorn" category="Misc" tags="smallitem,tool,elysianitem" cargocontaineridentifier="metalcrate" scale="0.25" impactsoundtag="impact_metal_light" >
     <Price baseprice="900" sold="false" />
     <Deconstruct time="5">
@@ -108,11 +108,7 @@
     <InventoryIcon texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,120,100" origin="0.5,0.5" />
     <Sprite texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,120,100" depth="0.55" origin="0.5,0.5" />
     <Body width="50" height="20" density="20" />
-    <Holdable slots="Any,RightHand,LeftHand" aimpos="55,-10" handle1="-33,-34" handle2="-33,-34" aimangle="0" msg="ItemMsgPickUpSelect">
-      <StatusEffect type="OnUse" target="Character" disabledeltatime="true">
-        <Affliction identifier="elysiaencouragement" strength="10" />
-      </StatusEffect>
-    </Holdable>
+    <Holdable slots="Any,RightHand,LeftHand" aimpos="55,-10" handle1="-33,-34" handle2="-33,-34" aimangle="0" msg="ItemMsgPickUpSelect" />
     <RangedWeapon reload="2">
       <Sound file="%ModDir%/Assets/Audio/粉色妖精小姐♪.ogg" type="OnUse" range="1000" volume="3000" />
     </RangedWeapon>

@@ -14,4 +14,8 @@
     <TalentAfflictionRule conditionaffliction="ablessingfromherrscheroforigin" source="talent_origin_path" effect="elysian_talent_origin_blessing_effect" strength="100" minstrength="0.01" />
     <TalentAfflictionRule conditionaffliction="asourcefromherrscheroforigin" source="talent_origin_path" effect="elysian_talent_origin_source_effect" strength="100" minstrength="0.01" />
   </TalentAfflictionRules>
+  <HornRules item="elysiahorn" cooldown="2.0" range="1000">
+    <HornRule target="friendly" source="horn_encouragement" effect="elysiaencouragement" strength="10" />
+    <HornRule target="enemyfallback" source="horn_enemy_psychosis" effect="psychosis" strength="2" />
+  </HornRules>
 </ElysianBuffRules>

@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using Barotrauma;
+using Microsoft.Xna.Framework;
 
 namespace Barotrauma.ElysianRealm
 {
@@ -13,6 +14,7 @@ namespace Barotrauma.ElysianRealm
     {
         private const string StigmataSystemId = "stigmata_slot";
         private const string TalentAfflictionSystemId = "talent_affliction";
+        private const string HornSystemId = "horn";
 
         private readonly ElysianBuffGameApi api;
         private readonly BuffStateStore stateStore;
@@ -38,13 +40,16 @@ namespace Barotrauma.ElysianRealm
 
             StigmataRuleSet stigmataRuleSet = BuffRuleLoader.LoadStigmataRules(packageDir, api);
             TalentAfflictionRuleSet talentRuleSet = BuffRuleLoader.LoadTalentAfflictionRules(packageDir, api);
+            HornRuleSet hornRuleSet = BuffRuleLoader.LoadHornRules(packageDir, api);
             triggers.Add(new StigmataSlotTickTrigger(stigmataRuleSet));
             triggers.Add(new TalentAfflictionTickTrigger(talentRuleSet));
+            triggers.Add(new HornUseTrigger(hornRuleSet, api));
             conditions.Add(new StigmataSlotCondition(api));
             conditions.Add(new TalentAfflictionCondition(api));
+            conditions.Add(new HornTargetCondition());
 
             initialized = true;
-            api.Log("[ElysianRealm] Buff engine initialized. stigmataRules=" + stigmataRuleSet.Rules.Count + ", talentRules=" + talentRuleSet.Rules.Count);
+            api.Log("[ElysianRealm] Buff engine initialized. stigmataRules=" + stigmataRuleSet.Rules.Count + ", talentRules=" + talentRuleSet.Rules.Count + ", hornRules=" + hornRuleSet.Rules.Count);
         }
 
         public void UpdateCharacter(Character character, float deltaTime)
@@ -145,6 +150,31 @@ namespace Barotrauma.ElysianRealm
                 return ruleSet;
             }
 
+            public static HornRuleSet LoadHornRules(string packageDir, ElysianBuffGameApi api)
+            {
+                HornRuleSet ruleSet = new HornRuleSet();
+                XmlNode root = LoadRuleRoot(packageDir, api, "HornRules");
+                if (root == null)
+                {
+                    return ruleSet;
+                }
+
+                ruleSet.ItemIdentifier = ReadString(root, "item", "elysiahorn");
+                ruleSet.Cooldown = ReadFloat(root, "cooldown", 2.0f);
+                ruleSet.Range = ReadFloat(root, "range", 1000.0f);
+                foreach (XmlNode node in root.SelectNodes("./HornRule"))
+                {
+                    HornBuffRule rule;
+                    if (TryReadHornRule(node, out rule))
+                    {
+                        ruleSet.Rules.Add(rule);
+                    }
+                }
+
+                api.Log("[ElysianRealm] Horn buff rules loaded. rules=" + ruleSet.Rules.Count + ", cooldown=" + ruleSet.Cooldown.ToString(CultureInfo.InvariantCulture) + ", range=" + ruleSet.Range.ToString(CultureInfo.InvariantCulture));
+                return ruleSet;
+            }
+
             private static XmlNode LoadRuleRoot(string packageDir, ElysianBuffGameApi api, string nodeName)
             {
                 if (string.IsNullOrWhiteSpace(packageDir))
@@ -221,6 +251,27 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 rule = new TalentAfflictionRule(marker, source, effect, strength, minStrength);
+                return true;
+            }
+
+            private static bool TryReadHornRule(XmlNode node, out HornBuffRule rule)
+            {
+                rule = null;
+                if (node == null)
+                {
+                    return false;
+                }
+
+                string target = ReadString(node, "target", string.Empty);
+                string source = ReadString(node, "source", string.Empty);
+                string effect = ReadString(node, "effect", string.Empty);
+                float strength = ReadFloat(node, "strength", 1.0f);
+                if (string.IsNullOrWhiteSpace(target) || string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(effect))
+                {
+                    return false;
+                }
+
+                rule = new HornBuffRule(target, source, effect, strength);
                 return true;
             }
 
@@ -395,7 +446,108 @@ namespace Barotrauma.ElysianRealm
                     return false;
                 }
 
-                return api.GetAfflictionStrength(blackboard.Character, rule.ConditionAfflictionId) >= rule.MinStrength;
+                float markerStrength = api.GetAfflictionStrength(blackboard.Character, rule.ConditionAfflictionId);
+                if (markerStrength < rule.MinStrength)
+                {
+                    return false;
+                }
+
+                api.LogOnce(
+                    "buff_talent_marker_active_" + rule.ConditionAfflictionId,
+                    "[ElysianRealm] Talent marker active: " + rule.ConditionAfflictionId + " -> " + rule.EffectId + ", strength=" + markerStrength.ToString(CultureInfo.InvariantCulture));
+                return true;
+            }
+        }
+
+        private sealed class HornUseTrigger : IBuffTrigger
+        {
+            private readonly HornRuleSet ruleSet;
+            private readonly ElysianBuffGameApi api;
+            private readonly Dictionary<Character, float> cooldowns = new Dictionary<Character, float>();
+
+            public HornUseTrigger(HornRuleSet ruleSet, ElysianBuffGameApi api)
+            {
+                this.ruleSet = ruleSet;
+                this.api = api;
+            }
+
+            public BuffTriggerResult Evaluate(Character character, float deltaTime)
+            {
+                float cooldown;
+                cooldowns.TryGetValue(character, out cooldown);
+                cooldown = Math.Max(0.0f, cooldown - Math.Max(0.0f, deltaTime));
+                cooldowns[character] = cooldown;
+
+                if (cooldown > 0.0f || api.FindHeldItem(character, ruleSet.ItemIdentifier) == null)
+                {
+                    return BuffTriggerResult.Skip(HornSystemId);
+                }
+
+                if (!api.IsInputHit(character, "Shoot") && !api.IsInputHit(character, "Use"))
+                {
+                    return BuffTriggerResult.Skip(HornSystemId);
+                }
+
+                cooldowns[character] = Math.Max(0.0f, ruleSet.Cooldown);
+
+                List<BuffBlackboard> contexts = new List<BuffBlackboard>();
+                HornBuffRule friendlyRule = ruleSet.FindByTarget("friendly");
+                HornBuffRule enemyFallbackRule = ruleSet.FindByTarget("enemyfallback");
+                int buffed = 0;
+                int taunted = 0;
+
+                foreach (Character target in api.GetCharacters())
+                {
+                    if (!api.IsUsableCharacter(target))
+                    {
+                        continue;
+                    }
+
+                    if (Vector2.Distance(character.WorldPosition, target.WorldPosition) > ruleSet.Range)
+                    {
+                        continue;
+                    }
+
+                    if (ReferenceEquals(target, character) || api.IsFriendly(character, target))
+                    {
+                        if (friendlyRule != null)
+                        {
+                            contexts.Add(new BuffBlackboard(character, "OnUse", HornSystemId, null, null, -1, deltaTime, friendlyRule, target, "friendly"));
+                            buffed++;
+                        }
+                        continue;
+                    }
+
+                    if (api.TryForceAiTarget(target, character))
+                    {
+                        taunted++;
+                        continue;
+                    }
+
+                    if (enemyFallbackRule != null)
+                    {
+                        contexts.Add(new BuffBlackboard(character, "OnUse", HornSystemId, null, null, -1, deltaTime, enemyFallbackRule, target, "enemyfallback"));
+                    }
+                }
+
+                api.Log("[ElysianRealm] Horn used. buffed=" + buffed + ", taunted=" + taunted);
+                return BuffTriggerResult.Apply(HornSystemId, contexts);
+            }
+        }
+
+        private sealed class HornTargetCondition : IBuffCondition
+        {
+            public bool Supports(BuffBlackboard blackboard)
+            {
+                return blackboard != null && blackboard.Rule is HornBuffRule;
+            }
+
+            public bool IsMet(BuffBlackboard blackboard)
+            {
+                HornBuffRule rule = blackboard.Rule as HornBuffRule;
+                return rule != null &&
+                       blackboard.TargetCharacter != null &&
+                       string.Equals(rule.Target, blackboard.TargetKind, StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -420,6 +572,12 @@ namespace Barotrauma.ElysianRealm
                     BuffRule rule = context.Rule;
                     if (rule == null)
                     {
+                        continue;
+                    }
+
+                    if (!rule.TrackState)
+                    {
+                        applyEffect.Apply(context);
                         continue;
                     }
 
@@ -470,7 +628,8 @@ namespace Barotrauma.ElysianRealm
             public bool Apply(BuffBlackboard blackboard)
             {
                 BuffRule rule = blackboard == null ? null : blackboard.Rule;
-                return rule != null && api.ApplyAffliction(blackboard.Character, rule.EffectId, rule.Strength);
+                Character target = blackboard == null ? null : blackboard.TargetCharacter;
+                return rule != null && api.ApplyAffliction(target, rule.EffectId, rule.Strength);
             }
         }
 
@@ -486,7 +645,8 @@ namespace Barotrauma.ElysianRealm
             public bool Apply(BuffBlackboard blackboard)
             {
                 BuffRule rule = blackboard == null ? null : blackboard.Rule;
-                return rule != null && api.ReduceAffliction(blackboard.Character, rule.EffectId, 1000.0f);
+                Character target = blackboard == null ? null : blackboard.TargetCharacter;
+                return rule != null && api.ReduceAffliction(target, rule.EffectId, 1000.0f);
             }
         }
 
@@ -511,12 +671,19 @@ namespace Barotrauma.ElysianRealm
             public readonly string SourceId;
             public readonly string EffectId;
             public readonly float Strength;
+            public readonly bool TrackState;
 
             public BuffRule(string sourceId, string effectId, float strength)
+                : this(sourceId, effectId, strength, true)
+            {
+            }
+
+            public BuffRule(string sourceId, string effectId, float strength, bool trackState)
             {
                 SourceId = sourceId;
                 EffectId = effectId;
                 Strength = strength;
+                TrackState = trackState;
             }
         }
 
@@ -571,6 +738,38 @@ namespace Barotrauma.ElysianRealm
             public float RefreshInterval = 0.5f;
         }
 
+        private sealed class HornBuffRule : BuffRule
+        {
+            public readonly string Target;
+
+            public HornBuffRule(string target, string sourceId, string effectId, float strength)
+                : base(sourceId, effectId, strength, false)
+            {
+                Target = target;
+            }
+        }
+
+        private sealed class HornRuleSet
+        {
+            public readonly List<HornBuffRule> Rules = new List<HornBuffRule>();
+            public string ItemIdentifier = "elysiahorn";
+            public float Cooldown = 2.0f;
+            public float Range = 1000.0f;
+
+            public HornBuffRule FindByTarget(string target)
+            {
+                foreach (HornBuffRule rule in Rules)
+                {
+                    if (string.Equals(rule.Target, target, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return rule;
+                    }
+                }
+
+                return null;
+            }
+        }
+
         private sealed class BuffBlackboard
         {
             public readonly Character Character;
@@ -581,8 +780,15 @@ namespace Barotrauma.ElysianRealm
             public readonly int SlotIndex;
             public readonly float DeltaTime;
             public readonly BuffRule Rule;
+            public readonly Character TargetCharacter;
+            public readonly string TargetKind;
 
             public BuffBlackboard(Character character, string triggerId, string systemId, Item sourceItem, Item containedItem, int slotIndex, float deltaTime, BuffRule rule)
+                : this(character, triggerId, systemId, sourceItem, containedItem, slotIndex, deltaTime, rule, character, string.Empty)
+            {
+            }
+
+            public BuffBlackboard(Character character, string triggerId, string systemId, Item sourceItem, Item containedItem, int slotIndex, float deltaTime, BuffRule rule, Character targetCharacter, string targetKind)
             {
                 Character = character;
                 TriggerId = triggerId;
@@ -592,6 +798,8 @@ namespace Barotrauma.ElysianRealm
                 SlotIndex = slotIndex;
                 DeltaTime = Math.Max(0.0f, deltaTime);
                 Rule = rule;
+                TargetCharacter = targetCharacter ?? character;
+                TargetKind = targetKind ?? string.Empty;
             }
         }
 
@@ -969,6 +1177,12 @@ namespace Barotrauma.ElysianRealm
         private readonly Func<Character, string, float, bool> applyAffliction;
         private readonly Func<Character, string, float, bool> reduceAffliction;
         private readonly Func<Character, string, float> getAfflictionStrength;
+        private readonly Func<Character, string, bool> isInputHit;
+        private readonly Func<Character, string, Item> findHeldItem;
+        private readonly Func<Character, bool> isUsableCharacter;
+        private readonly Func<Character, Character, bool> isFriendly;
+        private readonly Func<Character, Character, bool> tryForceAiTarget;
+        private readonly Func<IEnumerable<Character>> getCharacters;
         private readonly Action<string> log;
         private readonly Action<string, string> logOnce;
 
@@ -976,12 +1190,24 @@ namespace Barotrauma.ElysianRealm
             Func<Character, string, float, bool> applyAffliction,
             Func<Character, string, float, bool> reduceAffliction,
             Func<Character, string, float> getAfflictionStrength,
+            Func<Character, string, bool> isInputHit,
+            Func<Character, string, Item> findHeldItem,
+            Func<Character, bool> isUsableCharacter,
+            Func<Character, Character, bool> isFriendly,
+            Func<Character, Character, bool> tryForceAiTarget,
+            Func<IEnumerable<Character>> getCharacters,
             Action<string> log,
             Action<string, string> logOnce)
         {
             this.applyAffliction = applyAffliction;
             this.reduceAffliction = reduceAffliction;
             this.getAfflictionStrength = getAfflictionStrength;
+            this.isInputHit = isInputHit;
+            this.findHeldItem = findHeldItem;
+            this.isUsableCharacter = isUsableCharacter;
+            this.isFriendly = isFriendly;
+            this.tryForceAiTarget = tryForceAiTarget;
+            this.getCharacters = getCharacters;
             this.log = log;
             this.logOnce = logOnce;
         }
@@ -1010,6 +1236,41 @@ namespace Barotrauma.ElysianRealm
             }
 
             return Math.Max(0.0f, getAfflictionStrength(character, identifier));
+        }
+
+        public bool IsInputHit(Character character, string inputName)
+        {
+            return character != null && isInputHit != null && isInputHit(character, inputName);
+        }
+
+        public Item FindHeldItem(Character character, string identifier)
+        {
+            return character == null || findHeldItem == null ? null : findHeldItem(character, identifier);
+        }
+
+        public bool IsUsableCharacter(Character character)
+        {
+            return character != null && (isUsableCharacter == null || isUsableCharacter(character));
+        }
+
+        public bool IsFriendly(Character source, Character target)
+        {
+            return source != null && target != null && isFriendly != null && isFriendly(source, target);
+        }
+
+        public bool TryForceAiTarget(Character target, Character source)
+        {
+            return target != null && source != null && tryForceAiTarget != null && tryForceAiTarget(target, source);
+        }
+
+        public IEnumerable<Character> GetCharacters()
+        {
+            if (getCharacters != null)
+            {
+                return getCharacters() ?? new List<Character>();
+            }
+
+            return Character.CharacterList;
         }
 
         public void Log(string message)

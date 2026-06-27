@@ -21,7 +21,6 @@ namespace Barotrauma.ElysianRealm
         private const string RangedWeaponAfterHook = "elysianrealm.gameplay.rangedweapon.use.after";
 
         private const string BowIdentifier = "pastflower";
-        private const string HornIdentifier = "elysiahorn";
         private const string ArrowIdentifier = "lovespears";
         private const string SuperArrowIdentifier = "lovespears_super";
         private const string HornBuffIdentifier = "elysiaencouragement";
@@ -49,13 +48,10 @@ namespace Barotrauma.ElysianRealm
         private const float BowNoAmmoHintCooldownSeconds = 0.75f;
         private const float PastflowerSuperVoiceRange = 8000.0f;
         private const float PastflowerSuperVoiceVolume = 2.2f;
-        private const float HornRange = 1000.0f;
-        private const float HornCooldownSeconds = 2.0f;
         private const int PendingSuperShotMilliseconds = 8000;
 
         private static readonly Dictionary<Character, ChargeState> ChargeStates = new Dictionary<Character, ChargeState>();
         private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
-        private static readonly Dictionary<Character, float> HornCooldowns = new Dictionary<Character, float>();
         private static readonly Dictionary<object, WeaponOverride> WeaponOverrides = new Dictionary<object, WeaponOverride>();
         private static readonly Dictionary<Item, SuperShotData> SuperProjectiles = new Dictionary<Item, SuperShotData>();
         private static readonly HashSet<Item> RemovedVolleyAmmo = new HashSet<Item>();
@@ -126,7 +122,6 @@ namespace Barotrauma.ElysianRealm
 
             ChargeStates.Clear();
             BowNoAmmoHintTicks.Clear();
-            HornCooldowns.Clear();
             WeaponOverrides.Clear();
             SuperProjectiles.Clear();
             RemovedVolleyAmmo.Clear();
@@ -156,6 +151,12 @@ namespace Barotrauma.ElysianRealm
                 ApplyAffliction,
                 ReduceAffliction,
                 GetAfflictionStrength,
+                IsInputHit,
+                FindHeldItem,
+                IsUsableCharacter,
+                IsFriendly,
+                TryForceAiTarget,
+                () => Character.CharacterList,
                 message => LuaCsLogger.LogMessage(message),
                 LogOnce));
             buffEngine.Initialize(ownerPackage == null ? null : ownerPackage.Dir);
@@ -343,7 +344,6 @@ namespace Barotrauma.ElysianRealm
 
             float deltaTime = GetFloatArg(args, "deltaTime", 1.0f / 60.0f);
             UpdateBowCharge(character, deltaTime);
-            UpdateHorn(character, deltaTime);
             UpdateBuffEngine(character, deltaTime);
             return null;
         }
@@ -611,62 +611,6 @@ namespace Barotrauma.ElysianRealm
                 state.WasFullyChargedLogged = true;
                 LuaCsLogger.LogMessage("[ElysianRealm] Pastflower bow super charge ready.");
             }
-        }
-
-        private static void UpdateHorn(Character character, float deltaTime)
-        {
-            float cooldown;
-            HornCooldowns.TryGetValue(character, out cooldown);
-            cooldown = Math.Max(0.0f, cooldown - Math.Max(0.0f, deltaTime));
-            HornCooldowns[character] = cooldown;
-
-            Item horn = FindHeldItem(character, HornIdentifier);
-            if (horn == null || cooldown > 0.0f)
-            {
-                return;
-            }
-
-            bool triggered = IsInputHit(character, "Shoot") || IsInputHit(character, "Use");
-            if (!triggered)
-            {
-                return;
-            }
-
-            HornCooldowns[character] = HornCooldownSeconds;
-            int buffed = 0;
-            int taunted = 0;
-
-            foreach (Character target in Character.CharacterList)
-            {
-                if (!IsUsableCharacter(target))
-                {
-                    continue;
-                }
-
-                float distance = Vector2.Distance(character.WorldPosition, target.WorldPosition);
-                if (distance > HornRange)
-                {
-                    continue;
-                }
-
-                if (target == character || IsFriendly(character, target))
-                {
-                    ApplyAffliction(target, HornBuffIdentifier, 10.0f);
-                    buffed++;
-                    continue;
-                }
-
-                if (TryForceAiTarget(target, character))
-                {
-                    taunted++;
-                }
-                else
-                {
-                    ApplyAffliction(target, "psychosis", 2.0f);
-                }
-            }
-
-            LuaCsLogger.LogMessage("[ElysianRealm] Horn used. buffed=" + buffed + ", taunted=" + taunted);
         }
 
         private static void ShowPastflowerNoAmmoHint(Character character)
