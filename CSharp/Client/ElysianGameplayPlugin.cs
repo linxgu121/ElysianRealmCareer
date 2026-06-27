@@ -28,6 +28,7 @@ namespace Barotrauma.ElysianRealm
         private const string HumanSourceIdentifier = "asourcefromherrscherofhuman";
         private const string OriginSourceIdentifier = "asourcefromherrscheroforigin";
         private const string ChargeSoundAfflictionIdentifier = "pastflower_charge_sound";
+        private const string StigmataSlotIdentifier = "stigmataslot";
         private const string BowNoAmmoHintText = "\u7231\u8389\u5e0c\u96c5\u7684\u6e29\u99a8\u63d0\u793a\uff1a\u9700\u8981\u7231\u77db";
         private const string ChargeSpriteRelativePath = "Assets/UI/Pillarofflame.png";
         private const string ExplosionSpriteRelativePath = "Assets/UI/\u771f\u62111.png";
@@ -54,12 +55,14 @@ namespace Barotrauma.ElysianRealm
         private const float HornRange = 1000.0f;
         private const float HornCooldownSeconds = 2.0f;
         private const float StigmataGateInterval = 0.5f;
+        private const float StigmataEffectStrength = 100.0f;
         private const int PendingSuperShotMilliseconds = 8000;
 
         private static readonly Dictionary<Character, ChargeState> ChargeStates = new Dictionary<Character, ChargeState>();
         private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
         private static readonly Dictionary<Character, float> HornCooldowns = new Dictionary<Character, float>();
         private static readonly Dictionary<Character, float> StigmataGateTimers = new Dictionary<Character, float>();
+        private static readonly Dictionary<Character, HashSet<string>> ActiveStigmataEffects = new Dictionary<Character, HashSet<string>>();
         private static readonly Dictionary<object, WeaponOverride> WeaponOverrides = new Dictionary<object, WeaponOverride>();
         private static readonly Dictionary<Item, SuperShotData> SuperProjectiles = new Dictionary<Item, SuperShotData>();
         private static readonly HashSet<Item> RemovedVolleyAmmo = new HashSet<Item>();
@@ -79,6 +82,15 @@ namespace Barotrauma.ElysianRealm
             "Assets/Audio/\u7231\u8389\u5e0c\u96c5-\u9003\u4e0d\u6389\u54e6~.ogg",
             "Assets/Audio/\u7231\u8389\u5e0c\u96c5-\u9001\u4f60\u4e00\u6735\u82b1~.ogg",
             "Assets/Audio/\u4eba\u4e4b\u5f8b\u8005-\u9001\u4f60\u4e00\u70b9\u60ca\u559c\u3002.ogg"
+        };
+        private static readonly StigmataMapping[] StigmataMappings = new[]
+        {
+            new StigmataMapping("elysiastigmata_top_human", "elysiastigmata_top_human_effect", 0),
+            new StigmataMapping("elysiastigmata_top_origin", "elysiastigmata_top_origin_effect", 0),
+            new StigmataMapping("elysiastigmata_mid_human", "elysiastigmata_mid_human_effect", 1),
+            new StigmataMapping("elysiastigmata_mid_origin", "elysiastigmata_mid_origin_effect", 1),
+            new StigmataMapping("elysiastigmata_bottom_human", "elysiastigmata_bottom_human_effect", 2),
+            new StigmataMapping("elysiastigmata_bottom_origin", "elysiastigmata_bottom_origin_effect", 2)
         };
 
         private static ContentPackage ownerPackage;
@@ -125,6 +137,7 @@ namespace Barotrauma.ElysianRealm
             BowNoAmmoHintTicks.Clear();
             HornCooldowns.Clear();
             StigmataGateTimers.Clear();
+            ActiveStigmataEffects.Clear();
             WeaponOverrides.Clear();
             SuperProjectiles.Clear();
             RemovedVolleyAmmo.Clear();
@@ -1459,22 +1472,102 @@ namespace Barotrauma.ElysianRealm
 
             StigmataGateTimers[character] = StigmataGateInterval;
 
-            bool hasHumanSource = GetAfflictionStrength(character, HumanSourceIdentifier) > 0.01f;
-            bool hasOriginSource = GetAfflictionStrength(character, OriginSourceIdentifier) > 0.01f;
+            HashSet<string> activeEffects = CollectEquippedStigmataEffects(character);
+            HashSet<string> trackedEffects = GetTrackedStigmataEffects(character);
 
-            if (!hasHumanSource)
+            foreach (string effect in activeEffects)
             {
-                ReduceAffliction(character, "elysiastigmata_top_human_effect", 1000.0f);
-                ReduceAffliction(character, "elysiastigmata_mid_human_effect", 1000.0f);
-                ReduceAffliction(character, "elysiastigmata_bottom_human_effect", 1000.0f);
+                if (ApplyAffliction(character, effect, StigmataEffectStrength))
+                {
+                    trackedEffects.Add(effect);
+                }
             }
 
-            if (!hasOriginSource)
+            List<string> effectsToRemove = new List<string>();
+            foreach (string effect in trackedEffects)
             {
-                ReduceAffliction(character, "elysiastigmata_top_origin_effect", 1000.0f);
-                ReduceAffliction(character, "elysiastigmata_mid_origin_effect", 1000.0f);
-                ReduceAffliction(character, "elysiastigmata_bottom_origin_effect", 1000.0f);
+                if (!activeEffects.Contains(effect))
+                {
+                    effectsToRemove.Add(effect);
+                }
             }
+
+            foreach (string effect in effectsToRemove)
+            {
+                ReduceAffliction(character, effect, 1000.0f);
+                trackedEffects.Remove(effect);
+            }
+        }
+
+        private static HashSet<string> CollectEquippedStigmataEffects(Character character)
+        {
+            HashSet<string> effects = new HashSet<string>();
+            object characterInventory = GetInventory(character);
+            if (characterInventory == null)
+            {
+                return effects;
+            }
+
+            foreach (Item item in EnumerateDirectInventoryItems(characterInventory))
+            {
+                if (!HasIdentifier(item, StigmataSlotIdentifier))
+                {
+                    continue;
+                }
+
+                object stigmataInventory = GetInventory(item);
+                foreach (Item containedItem in EnumerateInventoryItems(stigmataInventory))
+                {
+                    StigmataMapping mapping = FindStigmataMapping(containedItem);
+                    if (mapping == null)
+                    {
+                        continue;
+                    }
+
+                    int slotIndex = FindInventoryItemIndex(stigmataInventory, containedItem);
+                    if (slotIndex >= 0 && slotIndex != mapping.SlotIndex)
+                    {
+                        LogOnce(
+                            "stigmata_wrong_slot_" + mapping.ItemIdentifier,
+                            "[ElysianRealm] Stigmata " + mapping.ItemIdentifier + " is in slot " + (slotIndex + 1) + ", expected slot " + (mapping.SlotIndex + 1) + "; effect ignored.");
+                        continue;
+                    }
+
+                    if (slotIndex < 0)
+                    {
+                        LogOnce("stigmata_slot_index_unresolved", "[ElysianRealm] Could not resolve stigmata slot index; XML restrictions are used as fallback.");
+                    }
+
+                    effects.Add(mapping.EffectIdentifier);
+                }
+            }
+
+            return effects;
+        }
+
+        private static StigmataMapping FindStigmataMapping(Item item)
+        {
+            foreach (StigmataMapping mapping in StigmataMappings)
+            {
+                if (HasIdentifier(item, mapping.ItemIdentifier))
+                {
+                    return mapping;
+                }
+            }
+
+            return null;
+        }
+
+        private static HashSet<string> GetTrackedStigmataEffects(Character character)
+        {
+            HashSet<string> effects;
+            if (!ActiveStigmataEffects.TryGetValue(character, out effects))
+            {
+                effects = new HashSet<string>();
+                ActiveStigmataEffects[character] = effects;
+            }
+
+            return effects;
         }
 
         private static ChargeState GetChargeState(Character character)
@@ -2136,6 +2229,86 @@ namespace Barotrauma.ElysianRealm
                     yield return item;
                 }
             }
+        }
+
+        private static IEnumerable<Item> EnumerateDirectInventoryItems(object inventory)
+        {
+            foreach (Item item in EnumerateItems(GetMemberValue(inventory, "Items")))
+            {
+                yield return item;
+            }
+        }
+
+        private static int FindInventoryItemIndex(object inventory, Item item)
+        {
+            if (inventory == null || item == null)
+            {
+                return -1;
+            }
+
+            foreach (MethodInfo method in inventory.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "FindIndex", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length != 1 || !parameters[0].ParameterType.IsInstanceOfType(item))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object result = method.Invoke(inventory, new object[] { item });
+                    if (result is int)
+                    {
+                        return (int)result;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return FindInventoryItemIndexFromItems(GetMemberValue(inventory, "Items"), item);
+        }
+
+        private static int FindInventoryItemIndexFromItems(object value, Item targetItem)
+        {
+            IEnumerable enumerable = value as IEnumerable;
+            if (enumerable == null)
+            {
+                return -1;
+            }
+
+            int index = 0;
+            foreach (object entry in enumerable)
+            {
+                Item item = entry as Item;
+                if (ReferenceEquals(item, targetItem))
+                {
+                    return index;
+                }
+
+                IEnumerable nested = entry as IEnumerable;
+                if (nested != null && !(entry is string))
+                {
+                    foreach (object nestedEntry in nested)
+                    {
+                        Item nestedItem = nestedEntry as Item;
+                        if (ReferenceEquals(nestedItem, targetItem))
+                        {
+                            return index;
+                        }
+                    }
+                }
+
+                index++;
+            }
+
+            return -1;
         }
 
         private static IEnumerable<Item> EnumerateItems(object value)
@@ -3709,6 +3882,20 @@ namespace Barotrauma.ElysianRealm
                 LoadedArrow = loadedArrow;
                 ArrowCount = Math.Max(1, arrowCount);
                 CreatedTicks = createdTicks;
+            }
+        }
+
+        private sealed class StigmataMapping
+        {
+            public readonly string ItemIdentifier;
+            public readonly string EffectIdentifier;
+            public readonly int SlotIndex;
+
+            public StigmataMapping(string itemIdentifier, string effectIdentifier, int slotIndex)
+            {
+                ItemIdentifier = itemIdentifier;
+                EffectIdentifier = effectIdentifier;
+                SlotIndex = Math.Max(0, slotIndex);
             }
         }
 

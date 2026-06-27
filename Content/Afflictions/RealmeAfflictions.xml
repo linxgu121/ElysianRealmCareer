@@ -26,7 +26,7 @@
     <Icon texture="%ModDir%/Assets/UI/真我 · 人之律者.png" sheetindex="0,0" sheetelementsize="120,120" origin="0,0" />
   </Affliction>
   <!--来自人律的祝福-->
-  <Affliction identifier="ablessingfromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" showiconthreshold="1" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="ablessingfromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="10" strengthchange="-1">
       <StatValue stattype="RepairSpeed" value="0.3" />
       <StatValue stattype="RepairToolStructureRepairMultiplier" value="0.5" />
@@ -34,7 +34,7 @@
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--人律的本源-->
-  <Affliction identifier="asourcefromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="asourcefromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="10" strengthchange="-1">
       <StatValue stattype="RepairSpeed" value="0.6" />
       <StatValue stattype="RepairToolStructureRepairMultiplier" value="1.2" />
@@ -49,7 +49,7 @@
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="6,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--来自始源的祝福-->
-  <Affliction identifier="ablessingfromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1" maxstrength="10" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="ablessingfromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="10" strengthchange="-1">
       <StatValue stattype="MaximumHealthMultiplier" value="0.25" />
       <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
@@ -58,7 +58,7 @@
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--始源的本源-->
-  <Affliction identifier="asourcefromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1" maxstrength="10" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="asourcefromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="10" strengthchange="-1">
       <StatValue stattype="MaximumHealthMultiplier" value="0.5" />
       <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
