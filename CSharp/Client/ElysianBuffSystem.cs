@@ -1138,7 +1138,7 @@ namespace Barotrauma.ElysianRealm
             StigmataRuleSet stigmataRuleSet = BuffRuleLoader.LoadStigmataRules(packageDir, api);
             TalentAfflictionRuleSet talentRuleSet = BuffRuleLoader.LoadTalentAfflictionRules(packageDir, api);
             HornRuleSet hornRuleSet = BuffRuleLoader.LoadHornRules(packageDir, api);
-            triggers.Add(new StigmataSlotTickTrigger(stigmataRuleSet));
+            triggers.Add(new StigmataSlotTickTrigger(stigmataRuleSet, api));
             triggers.Add(new TalentAfflictionTickTrigger(talentRuleSet));
             triggers.Add(new HornUseTrigger(hornRuleSet, api));
             conditions.Add(new StigmataSlotCondition(api));
@@ -1423,11 +1423,13 @@ namespace Barotrauma.ElysianRealm
             private const string StigmataSlotIdentifier = "stigmataslot";
 
             private readonly StigmataRuleSet ruleSet;
+            private readonly ElysianBuffGameApi api;
             private readonly Dictionary<Character, float> timers = new Dictionary<Character, float>();
 
-            public StigmataSlotTickTrigger(StigmataRuleSet ruleSet)
+            public StigmataSlotTickTrigger(StigmataRuleSet ruleSet, ElysianBuffGameApi api)
             {
                 this.ruleSet = ruleSet;
+                this.api = api;
             }
 
             public BuffTriggerResult Evaluate(Character character, float deltaTime)
@@ -1444,15 +1446,16 @@ namespace Barotrauma.ElysianRealm
                 timers[character] = Math.Max(0.05f, ruleSet.RefreshInterval);
 
                 List<BuffBlackboard> contexts = new List<BuffBlackboard>();
-                object characterInventory = ReflectionInventory.GetInventory(character);
-                foreach (Item slotItem in ReflectionInventory.EnumerateDirectInventoryItems(characterInventory))
+                object characterInventory = ReflectionInventory.GetCharacterInventory(character);
+                foreach (Item slotItem in ReflectionInventory.EnumerateStigmataSlotItems(characterInventory, StigmataSlotIdentifier))
                 {
-                    if (!ReflectionInventory.HasIdentifier(slotItem, StigmataSlotIdentifier))
+                    object slotInventory = ReflectionInventory.GetItemContainerInventory(slotItem);
+                    if (slotInventory == null)
                     {
+                        api.LogOnce("buff_stigmata_slot_inventory_missing", "[ElysianRealm] Buff engine found stigmata slot but could not read its container inventory.");
                         continue;
                     }
 
-                    object slotInventory = ReflectionInventory.GetInventory(slotItem);
                     foreach (Item containedItem in ReflectionInventory.EnumerateInventoryItems(slotInventory))
                     {
                         StigmataBuffRule rule = ruleSet.FindByItem(containedItem);
@@ -1462,6 +1465,9 @@ namespace Barotrauma.ElysianRealm
                         }
 
                         int slotIndex = ReflectionInventory.FindInventoryItemIndex(slotInventory, containedItem);
+                        api.LogOnce(
+                            "buff_stigmata_rule_active_" + rule.ItemIdentifier,
+                            "[ElysianRealm] Stigmata rule active: " + rule.ItemIdentifier + " -> " + rule.EffectId + ", slot=" + (slotIndex + 1));
                         contexts.Add(new BuffBlackboard(character, "OnTick", StigmataSystemId, slotItem, containedItem, slotIndex, deltaTime, rule));
                     }
                 }
@@ -2128,20 +2134,30 @@ namespace Barotrauma.ElysianRealm
 
         private static class ReflectionInventory
         {
-            public static object GetInventory(object owner)
+            public static object GetCharacterInventory(Character character)
+            {
+                return GetInventory(character, false);
+            }
+
+            public static object GetItemContainerInventory(Item item)
+            {
+                return GetInventory(item, true);
+            }
+
+            private static object GetInventory(object owner, bool preferOwnInventory)
             {
                 if (owner == null)
                 {
                     return null;
                 }
 
-                object inventory = GetMemberValue(owner, "Inventory");
+                object inventory = preferOwnInventory ? GetMemberValue(owner, "OwnInventory") : GetMemberValue(owner, "Inventory");
                 if (inventory != null)
                 {
                     return inventory;
                 }
 
-                inventory = GetMemberValue(owner, "OwnInventory");
+                inventory = preferOwnInventory ? GetMemberValue(owner, "Inventory") : GetMemberValue(owner, "OwnInventory");
                 if (inventory != null)
                 {
                     return inventory;
@@ -2169,6 +2185,28 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 return null;
+            }
+
+            public static IEnumerable<Item> EnumerateStigmataSlotItems(object characterInventory, string slotIdentifier)
+            {
+                List<Item> yielded = new List<Item>();
+                foreach (Item item in EnumerateDirectInventoryItems(characterInventory))
+                {
+                    if (HasIdentifier(item, slotIdentifier) && !ContainsReference(yielded, item))
+                    {
+                        yielded.Add(item);
+                        yield return item;
+                    }
+                }
+
+                foreach (Item item in EnumerateInventoryItems(characterInventory))
+                {
+                    if (HasIdentifier(item, slotIdentifier) && !ContainsReference(yielded, item))
+                    {
+                        yielded.Add(item);
+                        yield return item;
+                    }
+                }
             }
 
             public static IEnumerable<Item> EnumerateInventoryItems(object inventory)
@@ -2311,6 +2349,19 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 return -1;
+            }
+
+            private static bool ContainsReference(List<Item> items, Item targetItem)
+            {
+                foreach (Item item in items)
+                {
+                    if (ReferenceEquals(item, targetItem))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             private static object GetMemberValue(object instance, string name)
