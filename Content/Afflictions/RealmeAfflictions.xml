@@ -267,12 +267,13 @@
 
   <!-- 圣痕槽位专属效果：由 LuaCs Buff 仲裁器管理，不和原版基因拼接器效果共用 identifier。 -->
   <Affliction identifier="elysian_slot_stigmata_top_human_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
-    <Effect minstrength="0" maxstrength="100">
+    <Effect minstrength="0" maxstrength="100" strengthchange="0">
       <StatValue stattype="SwimmingSpeed" value="0.5" />
     </Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <Affliction identifier="elysian_slot_stigmata_top_origin_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100" strengthchange="0" />
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
         <ReduceAffliction identifier="pressure" strength="1000" />
@@ -281,6 +282,7 @@
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <Affliction identifier="elysian_slot_stigmata_mid_human_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100" strengthchange="0" />
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
         <ReduceAffliction identifier="oxygenlow" strength="100" />
@@ -289,6 +291,7 @@
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <Affliction identifier="elysian_slot_stigmata_mid_origin_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100" strengthchange="0" />
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
         <ReduceAffliction identifier="stun" strength="0.5" />
@@ -297,6 +300,7 @@
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <Affliction identifier="elysian_slot_stigmata_bottom_human_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100" strengthchange="0" />
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
         <ReduceAffliction identifier="pressure" strength="1000" />
@@ -305,6 +309,7 @@
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <Affliction identifier="elysian_slot_stigmata_bottom_origin_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100" strengthchange="0" />
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
         <ReduceAffliction identifier="bleeding" strength="1" />

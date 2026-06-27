@@ -1448,13 +1448,8 @@ namespace Barotrauma.ElysianRealm
 
                 List<BuffBlackboard> contexts = new List<BuffBlackboard>();
                 object characterInventory = ReflectionInventory.GetCharacterInventory(character);
-                foreach (Item slotItem in ReflectionInventory.EnumerateDirectInventoryItems(characterInventory))
+                foreach (Item slotItem in ReflectionInventory.EnumerateStigmataSlotItems(characterInventory, StigmataSlotIdentifier))
                 {
-                    if (!ReflectionInventory.HasIdentifier(slotItem, StigmataSlotIdentifier))
-                    {
-                        continue;
-                    }
-
                     if (!ReflectionInventory.IsItemInLimbSlot(characterInventory, slotItem, StigmataWearSlot))
                     {
                         api.LogOnce("buff_stigmata_slot_not_equipped", "[ElysianRealm] Stigmata slot item found outside HealthInterface; slot buffs are ignored until equipped.");
@@ -2199,6 +2194,19 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
+            public static IEnumerable<Item> EnumerateStigmataSlotItems(object characterInventory, string slotIdentifier)
+            {
+                List<Item> yielded = new List<Item>();
+                foreach (Item item in EnumerateInventoryItems(characterInventory))
+                {
+                    if (HasIdentifier(item, slotIdentifier) && !ContainsReference(yielded, item))
+                    {
+                        yielded.Add(item);
+                        yield return item;
+                    }
+                }
+            }
+
             public static bool IsItemInLimbSlot(object inventory, Item item, string slotName)
             {
                 if (inventory == null || item == null || string.IsNullOrWhiteSpace(slotName))
@@ -2234,7 +2242,10 @@ namespace Barotrauma.ElysianRealm
                         object result = method.Invoke(inventory, new object[] { item, slotValue });
                         if (result is bool)
                         {
-                            return (bool)result;
+                            if ((bool)result)
+                            {
+                                return true;
+                            }
                         }
                     }
                     catch
@@ -2242,7 +2253,7 @@ namespace Barotrauma.ElysianRealm
                     }
                 }
 
-                return false;
+                return IsItemInInventorySlotType(inventory, item, slotName);
             }
 
             public static IEnumerable<Item> EnumerateInventoryItems(object inventory)
@@ -2385,6 +2396,90 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 return -1;
+            }
+
+            private static bool IsItemInInventorySlotType(object inventory, Item item, string slotName)
+            {
+                int index = FindInventoryItemIndex(inventory, item);
+                if (index < 0)
+                {
+                    return false;
+                }
+
+                object slotTypes = GetMemberValue(inventory, "SlotTypes");
+                object slotType = GetIndexedValue(slotTypes, index);
+                return SlotTypeContains(slotType, slotName);
+            }
+
+            private static object GetIndexedValue(object value, int index)
+            {
+                if (value == null || index < 0)
+                {
+                    return null;
+                }
+
+                Array array = value as Array;
+                if (array != null && index < array.Length)
+                {
+                    return array.GetValue(index);
+                }
+
+                IList list = value as IList;
+                if (list != null && index < list.Count)
+                {
+                    return list[index];
+                }
+
+                IEnumerable enumerable = value as IEnumerable;
+                if (enumerable == null || value is string)
+                {
+                    return null;
+                }
+
+                int currentIndex = 0;
+                foreach (object entry in enumerable)
+                {
+                    if (currentIndex == index)
+                    {
+                        return entry;
+                    }
+
+                    currentIndex++;
+                }
+
+                return null;
+            }
+
+            private static bool SlotTypeContains(object slotType, string slotName)
+            {
+                if (slotType == null || string.IsNullOrWhiteSpace(slotName))
+                {
+                    return false;
+                }
+
+                string text = slotType.ToString();
+                foreach (string part in text.Split(new[] { ',', '|', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (string.Equals(part.Trim(), slotName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private static bool ContainsReference(List<Item> items, Item targetItem)
+            {
+                foreach (Item item in items)
+                {
+                    if (ReferenceEquals(item, targetItem))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             private static object GetMemberValue(object instance, string name)
