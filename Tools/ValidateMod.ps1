@@ -20,7 +20,12 @@ $modConfigPath = Join-Path $rootPath "ModConfig.xml"
 if (Test-Path -LiteralPath $modConfigPath) {
     $xmlFiles += Get-Item -LiteralPath $modConfigPath
 }
-$xmlFiles += Get-ChildItem -Path (Join-Path $rootPath "Content"), (Join-Path $rootPath "Localization") -Filter *.xml -Recurse
+$xmlSearchRoots = @(
+    (Join-Path $rootPath "Config"),
+    (Join-Path $rootPath "Content"),
+    (Join-Path $rootPath "Localization")
+) | Where-Object { Test-Path -LiteralPath $_ }
+$xmlFiles += Get-ChildItem -Path $xmlSearchRoots -Filter *.xml -Recurse
 
 foreach ($file in $xmlFiles) {
     $relative = $file.FullName.Substring($rootPath.Length + 1)

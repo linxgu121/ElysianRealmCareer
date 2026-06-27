@@ -27,18 +27,12 @@
   </Affliction>
   <!--来自人律的祝福-->
   <Affliction identifier="ablessingfromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
-    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
-      <StatValue stattype="RepairSpeed" value="0.3" />
-      <StatValue stattype="RepairToolStructureRepairMultiplier" value="0.5" />
-    </Effect>
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1"></Effect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--人律的本源-->
   <Affliction identifier="asourcefromherrscherofhuman" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
-    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
-      <StatValue stattype="RepairSpeed" value="0.6" />
-      <StatValue stattype="RepairToolStructureRepairMultiplier" value="1.2" />
-    </Effect>
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1"></Effect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--致以无瑕之人-->
@@ -50,16 +44,39 @@
   </Affliction>
   <!--来自始源的祝福-->
   <Affliction identifier="ablessingfromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
-    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1"></Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!--始源的本源-->
+  <Affliction identifier="asourcefromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="10" strengthchange="-1"></Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <!-- Buff系统正式效果：人律/始源标记由天赋XML提供，正式数值由LuaCs仲裁器发放。 -->
+  <Affliction identifier="elysian_talent_human_blessing_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100">
+      <StatValue stattype="RepairSpeed" value="0.3" />
+      <StatValue stattype="RepairToolStructureRepairMultiplier" value="0.5" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_talent_human_source_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100">
+      <StatValue stattype="RepairSpeed" value="0.6" />
+      <StatValue stattype="RepairToolStructureRepairMultiplier" value="1.2" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_talent_origin_blessing_effect" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100">
       <StatValue stattype="MaximumHealthMultiplier" value="0.25" />
       <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
       <StatValue stattype="BuffItemApplyingMultiplier" value="1" />
     </Effect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
-  <!--始源的本源-->
-  <Affliction identifier="asourcefromherrscheroforigin" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="10" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
-    <Effect minstrength="0" maxstrength="10" strengthchange="-1">
+  <Affliction identifier="elysian_talent_origin_source_effect" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100">
       <StatValue stattype="MaximumHealthMultiplier" value="0.5" />
       <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
       <StatValue stattype="BuffItemApplyingMultiplier" value="2" />
@@ -233,6 +250,61 @@
   </Affliction>
   <!--爱莉希雅 · 无瑕之人(下)-->
   <Affliction identifier="elysiastigmata_bottom_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="bleeding" strength="1" />
+        <ReduceAffliction identifier="bloodloss" strength="1" />
+        <ReduceAffliction identifier="burn" strength="1" />
+        <ReduceAffliction identifier="internaldamage" strength="1" />
+        <ReduceAffliction identifier="lacerations" strength="1" />
+        <ReduceAffliction identifier="blunttrauma" strength="1" />
+        <ReduceAffliction identifier="bitewounds" strength="1" />
+        <ReduceAffliction identifier="gunshotwound" strength="1" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+
+  <!-- 圣痕槽位专属效果：由 LuaCs Buff 仲裁器管理，不和原版基因拼接器效果共用 identifier。 -->
+  <Affliction identifier="elysian_slot_stigmata_top_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <Effect minstrength="0" maxstrength="100">
+      <StatValue stattype="SwimmingSpeed" value="0.5" />
+    </Effect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_slot_stigmata_top_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="pressure" strength="1000" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_slot_stigmata_mid_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="oxygenlow" strength="100" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_slot_stigmata_mid_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="stun" strength="0.5" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_slot_stigmata_bottom_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
+    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
+      <StatusEffect target="Character" disabledeltatime="true">
+        <ReduceAffliction identifier="pressure" strength="1000" />
+      </StatusEffect>
+    </PeriodicEffect>
+    <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
+  </Affliction>
+  <Affliction identifier="elysian_slot_stigmata_bottom_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" maxstrength="100" treatmentthreshold="1000" iconcolors="255,86,217">
     <PeriodicEffect mininterval="0.5" maxinterval="0.5">
       <StatusEffect target="Character" disabledeltatime="true">
         <ReduceAffliction identifier="bleeding" strength="1" />

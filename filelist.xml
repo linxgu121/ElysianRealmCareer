@@ -2,8 +2,10 @@
 <contentpackage name="Elysian Realm Career Core / 乐土刻印职业核心" modversion="0.1.0" gameversion="1.0.21.0" corepackage="false">
   <!-- Core migration with recruitment baseline restored. Deprecated missions/random events remain archived under Deprecated/Recruitment. -->
   <Other file="%ModDir%/Lua/Autorun/ElysianDebug.lua" />
+  <Other file="%ModDir%/CSharp/Client/ElysianBuffSystem.cs" />
   <Other file="%ModDir%/CSharp/Client/ElysianGameplayPlugin.cs" />
   <Other file="%ModDir%/CSharp/Client/ElysianPortraitPlugin.cs" />
+  <Other file="%ModDir%/Config/ElysianBuffRules.xml" />
   <Text file="%ModDir%/Localization/SimplifiedChinese.xml" />
   <Jobs file="%ModDir%/Content/Jobs/Jobs.xml" />
   <TalentTrees file="%ModDir%/Content/Talents/TalentTrees.xml" />
