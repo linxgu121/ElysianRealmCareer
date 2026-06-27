@@ -882,10 +882,26 @@ namespace Barotrauma.ElysianRealm
         {
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                Type type = assembly.GetType("Barotrauma." + typeName, false);
-                if (type != null)
+                Type[] types;
+                try
                 {
-                    return type;
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    types = ex.Types;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                foreach (Type type in types)
+                {
+                    if (type != null && string.Equals(type.Name, typeName, StringComparison.Ordinal))
+                    {
+                        return type;
+                    }
                 }
             }
 
