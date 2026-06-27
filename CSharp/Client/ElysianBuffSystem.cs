@@ -20,14 +20,31 @@ namespace Barotrauma.ElysianRealm
         private static ContentPackage ownerPackage;
         private static ElysianBuffEngine buffEngine;
         private static MethodInfo characterIsKeyHitMethod;
+        private static bool registered;
 
         public void PreInitPatching()
         {
+            EnsureInitialized(this, null);
+        }
+
+        internal static void EnsureInitialized(IAssemblyPlugin hookOwner, ContentPackage packageOverride)
+        {
+            if (registered)
+            {
+                return;
+            }
+
+            registered = true;
             LuaCsLogger.LogMessage("[ElysianRealm] Buff plugin booting.");
-            LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianBuffPlugin>(out ownerPackage);
+            ownerPackage = packageOverride;
+            if (ownerPackage == null)
+            {
+                LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianBuffPlugin>(out ownerPackage);
+            }
+
             CacheInputMethods();
             InitializeBuffEngine();
-            HookCharacterControl(this);
+            HookCharacterControl(hookOwner);
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Buff plugin registered. Package=" + packageDir);
@@ -43,6 +60,11 @@ namespace Barotrauma.ElysianRealm
 
         public void Dispose()
         {
+            Shutdown();
+        }
+
+        internal static void Shutdown()
+        {
             if (buffEngine != null)
             {
                 buffEngine.Dispose();
@@ -52,6 +74,7 @@ namespace Barotrauma.ElysianRealm
             LoggedOnce.Clear();
             characterIsKeyHitMethod = null;
             ownerPackage = null;
+            registered = false;
         }
 
         private static void InitializeBuffEngine()

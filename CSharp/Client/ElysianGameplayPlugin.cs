@@ -88,15 +88,33 @@ namespace Barotrauma.ElysianRealm
         private static bool toDisplayUnitsLookupFailed;
         private static bool soundPlayLookupFailed;
         private static bool directVoicePlayFailed;
+        private static bool registered;
 
         public void PreInitPatching()
         {
-            LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianGameplayPlugin>(out ownerPackage);
+            EnsureInitialized(this, null);
+        }
+
+        internal static void EnsureInitialized(IAssemblyPlugin hookOwner, ContentPackage packageOverride)
+        {
+            if (registered)
+            {
+                return;
+            }
+
+            registered = true;
+            ownerPackage = packageOverride;
+            if (ownerPackage == null)
+            {
+                LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianGameplayPlugin>(out ownerPackage);
+            }
+
+            ElysianBuffPlugin.EnsureInitialized(hookOwner, ownerPackage);
             CacheInputMethods();
-            HookCharacterControl(this);
-            HookBowHud(this);
-            HookProjectileImpact(this);
-            HookRangedWeaponUse(this);
+            HookCharacterControl(hookOwner);
+            HookBowHud(hookOwner);
+            HookProjectileImpact(hookOwner);
+            HookRangedWeaponUse(hookOwner);
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Gameplay plugin registered. Package=" + packageDir);
@@ -111,6 +129,11 @@ namespace Barotrauma.ElysianRealm
         }
 
         public void Dispose()
+        {
+            Shutdown();
+        }
+
+        internal static void Shutdown()
         {
             ChargeStates.Clear();
             BowNoAmmoHintTicks.Clear();
@@ -135,6 +158,7 @@ namespace Barotrauma.ElysianRealm
             soundPlayLookupFailed = false;
             directVoicePlayFailed = false;
             ownerPackage = null;
+            registered = false;
         }
 
         private static void HookCharacterControl(IAssemblyPlugin hookOwner)

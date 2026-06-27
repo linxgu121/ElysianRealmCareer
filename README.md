@@ -22,6 +22,7 @@
 - `CSharp/Client/ElysianBuffSystem.cs`: 客户端 Buff 插件与框架，按状态、条件、触发器、数据黑板、仲裁器、效果拆分，当前管理圣痕槽位 Buff、人律/始源祝福 Buff 与号角范围效果。
 - `CSharp/Client/ElysianPortraitPlugin.cs`: 客户端 C# 脚本插件，已作为 `Other` 文件随包发布；它会拦截 `CharacterInfo.DrawIcon(...)`，将 `realme` 职业的生成头像替换为指定图片。
 - `CSharp/Client/ElysianGameplayPlugin.cs`: 客户端 C# 玩法脚本插件，负责往事的飞花蓄力射击/聚能粒子等武器逻辑；Buff 入口由 `ElysianBuffPlugin` 独立管理。
+- `ElysianPortraitPlugin` 同时作为保底总入口：如果 LuaCs 只实例化一个 C# 插件，头像插件会显式拉起 Buff 与 Gameplay 链路。
 - 默认头像图片是 `Assets/UI/elysia_portrait.png`。要改成其他图片，修改脚本里的 `PortraitRelativePath`。
 - 当前版本不使用 `ModConfig.xml`，依赖 LuaCs 对 `CSharp/Client` 与 `Lua/Autorun` 的旧式自动扫描；复制到游戏目录时请删除旧包残留的 `ModConfig.xml`。
 
@@ -139,7 +140,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\ItemVisualTuner.ps1 
 
 - 已安装并启用 Client-Side LuaCs。
 - LuaCs 已启用 C# 执行，并能扫描 Mod 根目录下的 `CSharp/Client` 与 `Lua/Autorun`；确认游戏目录中没有旧版残留的 `ModConfig.xml`。
-- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered`、`[ElysianRealm] Gameplay plugin registered`、`[ElysianRealm] Buff plugin registered`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Stigmata buff rules loaded`、`[ElysianRealm] Talent affliction buff rules loaded`、`[ElysianRealm] Horn buff rules loaded`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
+- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered` 后，应继续出现 `[ElysianRealm] Buff plugin registered`、`[ElysianRealm] Gameplay plugin registered`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Stigmata buff rules loaded`、`[ElysianRealm] Talent affliction buff rules loaded`、`[ElysianRealm] Horn buff rules loaded`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
 - 使用往事的飞花右键蓄力时，日志会出现 `[ElysianRealm] Pastflower charge visuals are drawing`；蓄力满 15 秒后会出现 `[ElysianRealm] Pastflower bow super charge ready`；随后左键射击会出现 `[ElysianRealm] Pastflower super shot prepared`。
 - 使用爱莉希雅的喇叭时，日志会出现 `[ElysianRealm] Horn used`，其中会统计本次鼓励和嘲讽尝试数量。
 - Mod 是否能被识别并启用。

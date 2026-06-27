@@ -49,6 +49,7 @@ namespace Barotrauma.ElysianRealm
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Client portrait patch registered. Package=" + packageDir);
+            EnsureCompanionPlugins();
         }
 
         public void Initialize()
@@ -61,6 +62,9 @@ namespace Barotrauma.ElysianRealm
 
         public void Dispose()
         {
+            ElysianGameplayPlugin.Shutdown();
+            ElysianBuffPlugin.Shutdown();
+
             if (portraitSprite != null)
             {
                 portraitSprite.Remove();
@@ -72,6 +76,20 @@ namespace Barotrauma.ElysianRealm
             loggedFirstTarget = false;
             loggedFirstOverlay = false;
             loggedArgumentFailure = false;
+        }
+
+        private void EnsureCompanionPlugins()
+        {
+            try
+            {
+                ElysianBuffPlugin.EnsureInitialized(this, ownerPackage);
+                ElysianGameplayPlugin.EnsureInitialized(this, ownerPackage);
+            }
+            catch (Exception ex)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] Failed to start companion plugins from portrait entry: " + ex.GetType().Name);
+                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
+            }
         }
 
         private static object DrawIconPostfix(object self, Dictionary<string, object> args)
