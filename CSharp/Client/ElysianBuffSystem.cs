@@ -90,6 +90,7 @@ namespace Barotrauma.ElysianRealm
                     IsUsableCharacter,
                     IsFriendly,
                     TryForceAiTarget,
+                    HasTalent,
                     () => Character.CharacterList,
                     message => LuaCsLogger.LogMessage(message),
                     LogOnce));
@@ -288,6 +289,76 @@ namespace Barotrauma.ElysianRealm
         private static bool IsFriendly(Character source, Character target)
         {
             return source != null && target != null && source.TeamID == target.TeamID;
+        }
+
+        private static bool HasTalent(Character character, string identifier)
+        {
+            if (character == null || string.IsNullOrWhiteSpace(identifier))
+            {
+                return false;
+            }
+
+            bool result;
+            object info = GetMemberValue(character, "Info");
+            if (TryInvokeHasTalent(info, identifier, out result) || TryInvokeHasTalent(character, identifier, out result))
+            {
+                return result;
+            }
+
+            foreach (object owner in new[] { info, character })
+            {
+                foreach (string memberName in new[] { "UnlockedTalents", "Talents", "TalentIdentifiers" })
+                {
+                    foreach (object entry in EnumerateObjects(GetMemberValue(owner, memberName)))
+                    {
+                        if (IdentifierMatches(entry, identifier))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryInvokeHasTalent(object owner, string identifier, out bool value)
+        {
+            value = false;
+            if (owner == null)
+            {
+                return false;
+            }
+
+            object id = CreateIdentifier(identifier);
+            foreach (MethodInfo method in owner.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "HasTalent", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length != 1 || !CanPassIdentifier(parameters[0].ParameterType, id))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object result = method.Invoke(owner, new[] { ConvertIdentifierForParameter(parameters[0].ParameterType, id) });
+                    if (result is bool)
+                    {
+                        value = (bool)result;
+                        return true;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
         }
 
         private static bool TryForceAiTarget(Character target, Character source)
@@ -533,6 +604,47 @@ namespace Barotrauma.ElysianRealm
                     yield return item;
                 }
             }
+        }
+
+        private static IEnumerable<object> EnumerateObjects(object value)
+        {
+            IEnumerable enumerable = value as IEnumerable;
+            if (enumerable == null || value is string)
+            {
+                yield break;
+            }
+
+            foreach (object entry in enumerable)
+            {
+                if (entry != null)
+                {
+                    yield return entry;
+                }
+            }
+        }
+
+        private static bool IdentifierMatches(object value, string identifier)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(identifier))
+            {
+                return false;
+            }
+
+            if (string.Equals(value.ToString(), identifier, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            foreach (string memberName in new[] { "Identifier", "TalentIdentifier", "Value" })
+            {
+                object memberValue = GetMemberValue(value, memberName);
+                if (memberValue != null && string.Equals(memberValue.ToString(), identifier, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool HasIdentifier(Item item, string identifier)
@@ -982,16 +1094,22 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 string marker = ReadString(node, "conditionaffliction", string.Empty);
+                List<string> requiredTalents = ReadCsv(node, "requiredtalents");
+                requiredTalents.AddRange(ReadCsv(node, "requiredtalent"));
+                List<string> blockedTalents = ReadCsv(node, "blockedtalents");
+                blockedTalents.AddRange(ReadCsv(node, "blockedtalent"));
                 string source = ReadString(node, "source", string.Empty);
                 string effect = ReadString(node, "effect", string.Empty);
                 float strength = ReadFloat(node, "strength", 100.0f);
                 float minStrength = ReadFloat(node, "minstrength", 0.01f);
-                if (string.IsNullOrWhiteSpace(marker) || string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(effect))
+                if ((string.IsNullOrWhiteSpace(marker) && requiredTalents.Count == 0 && blockedTalents.Count == 0) ||
+                    string.IsNullOrWhiteSpace(source) ||
+                    string.IsNullOrWhiteSpace(effect))
                 {
                     return false;
                 }
 
-                rule = new TalentAfflictionRule(marker, source, effect, strength, minStrength);
+                rule = new TalentAfflictionRule(marker, requiredTalents, blockedTalents, source, effect, strength, minStrength);
                 return true;
             }
 
@@ -1032,6 +1150,27 @@ namespace Barotrauma.ElysianRealm
             {
                 float value;
                 return float.TryParse(ReadString(node, name, string.Empty), NumberStyles.Float, CultureInfo.InvariantCulture, out value) ? value : fallback;
+            }
+
+            private static List<string> ReadCsv(XmlNode node, string name)
+            {
+                List<string> values = new List<string>();
+                string raw = ReadString(node, name, string.Empty);
+                if (string.IsNullOrWhiteSpace(raw))
+                {
+                    return values;
+                }
+
+                foreach (string part in raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string value = part.Trim();
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        values.Add(value);
+                    }
+                }
+
+                return values;
             }
         }
 
@@ -1185,6 +1324,30 @@ namespace Barotrauma.ElysianRealm
                 if (rule == null)
                 {
                     return false;
+                }
+
+                if (rule.HasTalentConditions)
+                {
+                    foreach (string requiredTalent in rule.RequiredTalents)
+                    {
+                        if (!api.HasTalent(blackboard.Character, requiredTalent))
+                        {
+                            return false;
+                        }
+                    }
+
+                    foreach (string blockedTalent in rule.BlockedTalents)
+                    {
+                        if (api.HasTalent(blackboard.Character, blockedTalent))
+                        {
+                            return false;
+                        }
+                    }
+
+                    api.LogOnce(
+                        "buff_talent_rule_active_" + rule.SourceId + "_" + rule.EffectId,
+                        "[ElysianRealm] Talent rule active: " + rule.EffectId);
+                    return true;
                 }
 
                 float markerStrength = api.GetAfflictionStrength(blackboard.Character, rule.ConditionAfflictionId);
@@ -1463,12 +1626,20 @@ namespace Barotrauma.ElysianRealm
         private sealed class TalentAfflictionRule : BuffRule
         {
             public readonly string ConditionAfflictionId;
+            public readonly List<string> RequiredTalents;
+            public readonly List<string> BlockedTalents;
             public readonly float MinStrength;
+            public bool HasTalentConditions
+            {
+                get { return RequiredTalents.Count > 0 || BlockedTalents.Count > 0; }
+            }
 
-            public TalentAfflictionRule(string conditionAfflictionId, string sourceId, string effectId, float strength, float minStrength)
+            public TalentAfflictionRule(string conditionAfflictionId, List<string> requiredTalents, List<string> blockedTalents, string sourceId, string effectId, float strength, float minStrength)
                 : base(sourceId, effectId, strength)
             {
                 ConditionAfflictionId = conditionAfflictionId;
+                RequiredTalents = requiredTalents ?? new List<string>();
+                BlockedTalents = blockedTalents ?? new List<string>();
                 MinStrength = Math.Max(0.0f, minStrength);
             }
         }
@@ -1923,6 +2094,7 @@ namespace Barotrauma.ElysianRealm
         private readonly Func<Character, bool> isUsableCharacter;
         private readonly Func<Character, Character, bool> isFriendly;
         private readonly Func<Character, Character, bool> tryForceAiTarget;
+        private readonly Func<Character, string, bool> hasTalent;
         private readonly Func<IEnumerable<Character>> getCharacters;
         private readonly Action<string> log;
         private readonly Action<string, string> logOnce;
@@ -1936,6 +2108,7 @@ namespace Barotrauma.ElysianRealm
             Func<Character, bool> isUsableCharacter,
             Func<Character, Character, bool> isFriendly,
             Func<Character, Character, bool> tryForceAiTarget,
+            Func<Character, string, bool> hasTalent,
             Func<IEnumerable<Character>> getCharacters,
             Action<string> log,
             Action<string, string> logOnce)
@@ -1948,6 +2121,7 @@ namespace Barotrauma.ElysianRealm
             this.isUsableCharacter = isUsableCharacter;
             this.isFriendly = isFriendly;
             this.tryForceAiTarget = tryForceAiTarget;
+            this.hasTalent = hasTalent;
             this.getCharacters = getCharacters;
             this.log = log;
             this.logOnce = logOnce;
@@ -2002,6 +2176,11 @@ namespace Barotrauma.ElysianRealm
         public bool TryForceAiTarget(Character target, Character source)
         {
             return target != null && source != null && tryForceAiTarget != null && tryForceAiTarget(target, source);
+        }
+
+        public bool HasTalent(Character character, string identifier)
+        {
+            return character != null && hasTalent != null && hasTalent(character, identifier);
         }
 
         public IEnumerable<Character> GetCharacters()

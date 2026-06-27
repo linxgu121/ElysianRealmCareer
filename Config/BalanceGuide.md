@@ -70,7 +70,9 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 - `StigmataRule source`：仲裁器来源 id，同一个来源同一时刻只保留一个槽位效果。
 - `StigmataRule effect`：槽位系统专属 affliction identifier。
 - `StigmataRule strength`：每次刷新时施加的强度。
-- `TalentAfflictionRule conditionaffliction`：天赋 XML 打上的隐藏标记。
+- `TalentAfflictionRule requiredtalents`：逗号分隔的必需天赋 identifier，全部点亮时规则才生效。
+- `TalentAfflictionRule blockedtalents`：逗号分隔的排除天赋 identifier，任意一个点亮时规则失效。
+- `TalentAfflictionRule conditionaffliction`：旧隐藏标记条件，仅作为兼容路径；当前人律/始源规则优先读取天赋本身。
 - `TalentAfflictionRule source`：仲裁器来源 id；人律祝福/本源共用 `talent_human_path`，始源祝福/本源共用 `talent_origin_path`，用于互斥切换。
 - `TalentAfflictionRule effect`：正式数值效果。
 - `TalentAfflictionRule minstrength`：标记强度达到多少时视为生效。
@@ -84,7 +86,7 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 
 - identifier 以 `elysian_slot_stigmata_` 开头的是圣痕槽位系统使用的效果。
 - identifier 以 `elysian_talent_` 开头的是人律/始源祝福系统使用的正式效果。
-- `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 现在只是隐藏标记，不建议在里面改数值。
+- `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 现在只是旧隐藏标记兼容内容，不建议在里面改数值；人律/始源实际触发条件以 `requiredtalents` / `blockedtalents` 为准。
 - 旧的 `elysiastigmata_*_effect` 保留给原版基因拼接器兼容，不建议在圣痕槽位规则中引用。
 
 ### Elysiagear

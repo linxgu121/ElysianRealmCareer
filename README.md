@@ -38,7 +38,7 @@
 - 可调规则在 `Config/ElysianBuffRules.xml`：`slot="0"` 是上位，`slot="1"` 是中位，`slot="2"` 是下位；`item` 是圣痕物品，`effect` 是槽位专属 Affliction，`strength` 是刷新强度。
 - 槽位专属 Affliction 位于 `Content/Afflictions/RealmeAfflictions.xml`，identifier 以 `elysian_slot_stigmata_` 开头。旧的 `elysiastigmata_*_effect` 仍保留给原版基因拼接器兼容。
 - 圣痕槽位物品定义在 `Content/Items/ElysianItems.xml` 的 `stigmataslot`，三个 `SubContainer` 分别限制上/中/下位圣痕，同时仍允许原版 `geneticmaterial`。
-- 人律/始源祝福现在也走 Buff 框架：`ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 只作为隐藏标记；正式数值效果使用 `elysian_talent_*_effect`。
+- 人律/始源祝福现在也走 Buff 框架：规则优先读取角色已点亮的天赋，旧的 `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 隐藏标记仅作为兼容内容保留；正式数值效果使用 `elysian_talent_*_effect`。
 - 爱莉希雅的喇叭也走 Buff 框架：`HornRules` 控制物品 identifier、冷却、范围、友方鼓励和敌方嘲讽失败时的降级效果；物品 XML 只保留声音和持握定义。
 - LuaCs 控制台应出现 `[ElysianRealm] Buff plugin booting`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Buff Character.Control hook registered`、`[ElysianRealm] Stigmata buff rules loaded`、`[ElysianRealm] Talent affliction buff rules loaded` 和 `[ElysianRealm] Horn buff rules loaded`。如果错槽，日志会出现 `Buff engine ignored ... expected slot ...`。
 
