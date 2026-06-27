@@ -53,21 +53,21 @@
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!-- Buff系统正式效果：人律/始源标记由天赋XML提供，正式数值由LuaCs仲裁器发放。 -->
-  <Affliction identifier="elysian_talent_human_blessing_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="elysian_talent_human_blessing_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="100">
       <StatValue stattype="RepairSpeed" value="0.3" />
       <StatValue stattype="RepairToolStructureRepairMultiplier" value="0.5" />
     </Effect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
-  <Affliction identifier="elysian_talent_human_source_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="true" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="elysian_talent_human_source_effect" type="talentbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="100">
       <StatValue stattype="RepairSpeed" value="0.6" />
       <StatValue stattype="RepairToolStructureRepairMultiplier" value="1.2" />
     </Effect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="4,1" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
-  <Affliction identifier="elysian_talent_origin_blessing_effect" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="elysian_talent_origin_blessing_effect" type="talentbuff" isbuff="true" hideiconafterdelay="false" limbspecific="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="100">
       <StatValue stattype="MaximumHealthMultiplier" value="0.25" />
       <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />
@@ -75,7 +75,7 @@
     </Effect>
     <Icon texture="Content/UI/TalentsIcons4.png" sheetindex="5,0" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
-  <Affliction identifier="elysian_talent_origin_source_effect" type="talentbuff" isbuff="true" hideiconafterdelay="true" limbspecific="false" showiconthreshold="1000" maxstrength="100" showbarinhealthmenu="false" treatmentthreshold="1000" iconcolors="255,86,217">
+  <Affliction identifier="elysian_talent_origin_source_effect" type="talentbuff" isbuff="true" hideiconafterdelay="false" limbspecific="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="100">
       <StatValue stattype="MaximumHealthMultiplier" value="0.5" />
       <StatValue stattype="MedicalItemEffectivenessMultiplier" value="0.25" />

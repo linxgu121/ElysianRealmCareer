@@ -536,7 +536,12 @@ namespace Barotrauma.ElysianRealm
 
                 try
                 {
-                    method.Invoke(health, values);
+                    object result = method.Invoke(health, values);
+                    if (result is bool && !(bool)result)
+                    {
+                        continue;
+                    }
+
                     return true;
                 }
                 catch
@@ -1533,7 +1538,29 @@ namespace Barotrauma.ElysianRealm
             {
                 BuffRule rule = blackboard == null ? null : blackboard.Rule;
                 Character target = blackboard == null ? null : blackboard.TargetCharacter;
-                return rule != null && api.ApplyAffliction(target, rule.EffectId, rule.Strength);
+                if (rule == null || target == null)
+                {
+                    return false;
+                }
+
+                bool applied = api.ApplyAffliction(target, rule.EffectId, rule.Strength);
+                string keySuffix = rule.SourceId + "_" + rule.EffectId;
+                if (!applied)
+                {
+                    api.LogOnce("buff_effect_apply_failed_" + keySuffix, "[ElysianRealm] Buff effect apply failed: " + rule.EffectId);
+                    return false;
+                }
+
+                float currentStrength = api.GetAfflictionStrength(target, rule.EffectId);
+                api.LogOnce(
+                    "buff_effect_applied_" + keySuffix,
+                    "[ElysianRealm] Buff effect applied: " + rule.EffectId + ", current=" + currentStrength.ToString(CultureInfo.InvariantCulture));
+                if (currentStrength <= 0.0f)
+                {
+                    api.LogOnce("buff_effect_readback_zero_" + keySuffix, "[ElysianRealm] Buff effect applied but readback is zero: " + rule.EffectId);
+                }
+
+                return true;
             }
         }
 

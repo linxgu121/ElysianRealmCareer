@@ -41,6 +41,7 @@
 - 人律/始源祝福现在也走 Buff 框架：规则优先读取角色已点亮的天赋，旧的 `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 隐藏标记仅作为兼容内容保留；正式数值效果使用 `elysian_talent_*_effect`。
 - 爱莉希雅的喇叭也走 Buff 框架：`HornRules` 控制物品 identifier、冷却、范围、友方鼓励和敌方嘲讽失败时的降级效果；物品 XML 只保留声音和持握定义。
 - LuaCs 控制台应出现 `[ElysianRealm] Buff plugin booting`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Buff Character.Control hook registered`、`[ElysianRealm] Stigmata buff rules loaded`、`[ElysianRealm] Talent affliction buff rules loaded` 和 `[ElysianRealm] Horn buff rules loaded`。如果错槽，日志会出现 `Buff engine ignored ... expected slot ...`。
+- 天赋 Buff 条件成立后会出现 `[ElysianRealm] Talent rule active`；正式效果成功施加后会出现 `[ElysianRealm] Buff effect applied`。如果出现 `apply failed` 或 `readback is zero`，说明问题在最终 Affliction 施加链路。
 
 ## 往事的飞花弓机制
 
