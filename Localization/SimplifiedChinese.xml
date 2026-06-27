@@ -44,6 +44,10 @@
   <afflictionname.asourcefromherrscherofhuman>人律的本源</afflictionname.asourcefromherrscherofhuman>
   <afflictionname.ablessingfromherrscheroforigin>来自始源的祝福</afflictionname.ablessingfromherrscheroforigin>
   <afflictionname.asourcefromherrscheroforigin>始源的本源</afflictionname.asourcefromherrscheroforigin>
+  <afflictionname.elysian_talent_human_blessing_effect>来自人律的祝福</afflictionname.elysian_talent_human_blessing_effect>
+  <afflictionname.elysian_talent_human_source_effect>人律的本源</afflictionname.elysian_talent_human_source_effect>
+  <afflictionname.elysian_talent_origin_blessing_effect>来自始源的祝福</afflictionname.elysian_talent_origin_blessing_effect>
+  <afflictionname.elysian_talent_origin_source_effect>始源的本源</afflictionname.elysian_talent_origin_source_effect>
   <afflictionname.totheflawless>致以无瑕之人</afflictionname.totheflawless>
   <!--<afflictionname.startwithmeandendwithme>以我为始，以我为终</afflictionname.startwithmeandendwithme>-->
   <afflictionname.brilliantlightshiningontheearth>璀璨光芒，照耀大地</afflictionname.brilliantlightshiningontheearth>
@@ -56,6 +60,12 @@
   <afflictionname.elysiastigmata_mid_origin_effect>爱莉希雅 · 无瑕之人(中)</afflictionname.elysiastigmata_mid_origin_effect>
   <afflictionname.elysiastigmata_bottom_human_effect>爱莉希雅(下)</afflictionname.elysiastigmata_bottom_human_effect>
   <afflictionname.elysiastigmata_bottom_origin_effect>爱莉希雅 · 无瑕之人(下)</afflictionname.elysiastigmata_bottom_origin_effect>
+  <afflictionname.elysian_slot_stigmata_top_human_effect>爱莉希雅(上)</afflictionname.elysian_slot_stigmata_top_human_effect>
+  <afflictionname.elysian_slot_stigmata_top_origin_effect>爱莉希雅 · 无瑕之人(上)</afflictionname.elysian_slot_stigmata_top_origin_effect>
+  <afflictionname.elysian_slot_stigmata_mid_human_effect>爱莉希雅(中)</afflictionname.elysian_slot_stigmata_mid_human_effect>
+  <afflictionname.elysian_slot_stigmata_mid_origin_effect>爱莉希雅 · 无瑕之人(中)</afflictionname.elysian_slot_stigmata_mid_origin_effect>
+  <afflictionname.elysian_slot_stigmata_bottom_human_effect>爱莉希雅(下)</afflictionname.elysian_slot_stigmata_bottom_human_effect>
+  <afflictionname.elysian_slot_stigmata_bottom_origin_effect>爱莉希雅 · 无瑕之人(下)</afflictionname.elysian_slot_stigmata_bottom_origin_effect>
   <!--爱莉希雅-->
   <talentdescription.Elysia>这是名为‖color:255,86,217,255‖爱莉希雅‖end‖的核心技能
 ‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！“如果选错分支，可是无法后悔的哦‖color:255,86,217,255‖♪‖end‖”</talentdescription.Elysia>
