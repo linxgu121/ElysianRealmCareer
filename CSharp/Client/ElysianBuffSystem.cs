@@ -1421,6 +1421,7 @@ namespace Barotrauma.ElysianRealm
         private sealed class StigmataSlotTickTrigger : IBuffTrigger
         {
             private const string StigmataSlotIdentifier = "stigmataslot";
+            private const string StigmataWearSlot = "HealthInterface";
 
             private readonly StigmataRuleSet ruleSet;
             private readonly ElysianBuffGameApi api;
@@ -1447,8 +1448,19 @@ namespace Barotrauma.ElysianRealm
 
                 List<BuffBlackboard> contexts = new List<BuffBlackboard>();
                 object characterInventory = ReflectionInventory.GetCharacterInventory(character);
-                foreach (Item slotItem in ReflectionInventory.EnumerateStigmataSlotItems(characterInventory, StigmataSlotIdentifier))
+                foreach (Item slotItem in ReflectionInventory.EnumerateDirectInventoryItems(characterInventory))
                 {
+                    if (!ReflectionInventory.HasIdentifier(slotItem, StigmataSlotIdentifier))
+                    {
+                        continue;
+                    }
+
+                    if (!ReflectionInventory.IsItemInLimbSlot(characterInventory, slotItem, StigmataWearSlot))
+                    {
+                        api.LogOnce("buff_stigmata_slot_not_equipped", "[ElysianRealm] Stigmata slot item found outside HealthInterface; slot buffs are ignored until equipped.");
+                        continue;
+                    }
+
                     object slotInventory = ReflectionInventory.GetItemContainerInventory(slotItem);
                     if (slotInventory == null)
                     {
@@ -2187,26 +2199,50 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
-            public static IEnumerable<Item> EnumerateStigmataSlotItems(object characterInventory, string slotIdentifier)
+            public static bool IsItemInLimbSlot(object inventory, Item item, string slotName)
             {
-                List<Item> yielded = new List<Item>();
-                foreach (Item item in EnumerateDirectInventoryItems(characterInventory))
+                if (inventory == null || item == null || string.IsNullOrWhiteSpace(slotName))
                 {
-                    if (HasIdentifier(item, slotIdentifier) && !ContainsReference(yielded, item))
+                    return false;
+                }
+
+                foreach (MethodInfo method in inventory.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (!string.Equals(method.Name, "IsInLimbSlot", StringComparison.Ordinal))
                     {
-                        yielded.Add(item);
-                        yield return item;
+                        continue;
+                    }
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    if (parameters.Length != 2 || !parameters[0].ParameterType.IsInstanceOfType(item) || !parameters[1].ParameterType.IsEnum)
+                    {
+                        continue;
+                    }
+
+                    object slotValue;
+                    try
+                    {
+                        slotValue = Enum.Parse(parameters[1].ParameterType, slotName, true);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        object result = method.Invoke(inventory, new object[] { item, slotValue });
+                        if (result is bool)
+                        {
+                            return (bool)result;
+                        }
+                    }
+                    catch
+                    {
                     }
                 }
 
-                foreach (Item item in EnumerateInventoryItems(characterInventory))
-                {
-                    if (HasIdentifier(item, slotIdentifier) && !ContainsReference(yielded, item))
-                    {
-                        yielded.Add(item);
-                        yield return item;
-                    }
-                }
+                return false;
             }
 
             public static IEnumerable<Item> EnumerateInventoryItems(object inventory)
@@ -2349,19 +2385,6 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 return -1;
-            }
-
-            private static bool ContainsReference(List<Item> items, Item targetItem)
-            {
-                foreach (Item item in items)
-                {
-                    if (ReferenceEquals(item, targetItem))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
             }
 
             private static object GetMemberValue(object instance, string name)
