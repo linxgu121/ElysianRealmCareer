@@ -119,7 +119,9 @@
   </Item>
 
   <!-- 圣痕槽位：三格圣痕/遗传物质容器。 -->
-  <Item name="" identifier="stigmataslot" category="Equipment" tags="smallitem,geneticmaterialcontainer,elysianitem" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="stigmataslot" scale="0.4" category="Equipment" tags="smallitem,geneticmaterialcontainer,geneticdevice,elysianitem" cargocontaineridentifier="metalcrate" impactsoundtag="impact_metal_light">
+    <PreferredContainer primary="medcab" secondary="medcab"/>
+    <PreferredContainer secondary="abandonedmedcab,piratemedcab,wreckmedcab,outpostmedcab,researchcontainer" spawnprobability="0.01"/>
     <Price baseprice="2500" sold="false" />
     <Deconstruct time="10" />
     <Fabricate suitablefabricators="fabricator" requiredtime="20">
@@ -128,8 +130,11 @@
     <InventoryIcon texture="%ModDir%/Assets/Items/圣痕槽位（缩略）.png" sourcerect="0,0,64,64" origin="0.5,0.5" />
     <Sprite texture="%ModDir%/Assets/Items/圣痕槽位（手持）.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="35" height="35" density="15" />
-    <ItemContainer capacity="3" maxstacksize="1" slotsperrow="3" hideitems="true" drawinventory="true" containableitems="geneticmaterial,elysiastigmata" />
+    <ItemContainer capacity="3" maxstacksize="1" slotsperrow="3" autoinject="true" autoinjectthreshold="Infinity" allowswappingcontaineditems="false" hideitems="true" drawinventory="true" >
+      <Containable items="geneticmaterial,elysiastigmata" />
+    </ItemContainer>
     <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
+    <Wearable limbtype="Head" slots="Any,HealthInterface" msg="ItemMsgPickUpSelect" displaycontainedstatus="true" />
   </Item>
 
   <!-- 圣痕：遗传物质式物品，可放入原版基因拼接器，也可放入圣痕槽位。 -->
