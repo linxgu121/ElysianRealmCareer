@@ -73,7 +73,6 @@ namespace Barotrauma.ElysianRealm
             "Assets/Audio/\u4eba\u4e4b\u5f8b\u8005-\u9001\u4f60\u4e00\u70b9\u60ca\u559c\u3002.ogg"
         };
         private static ContentPackage ownerPackage;
-        private static ElysianBuffEngine buffEngine;
         private static MethodInfo characterIsKeyDownMethod;
         private static MethodInfo characterIsKeyHitMethod;
         private static MethodInfo guiDrawStringMethod;
@@ -93,7 +92,6 @@ namespace Barotrauma.ElysianRealm
         public void PreInitPatching()
         {
             LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianGameplayPlugin>(out ownerPackage);
-            InitializeBuffEngine();
             CacheInputMethods();
             HookCharacterControl(this);
             HookBowHud(this);
@@ -114,12 +112,6 @@ namespace Barotrauma.ElysianRealm
 
         public void Dispose()
         {
-            if (buffEngine != null)
-            {
-                buffEngine.Dispose();
-                buffEngine = null;
-            }
-
             ChargeStates.Clear();
             BowNoAmmoHintTicks.Clear();
             WeaponOverrides.Clear();
@@ -143,31 +135,6 @@ namespace Barotrauma.ElysianRealm
             soundPlayLookupFailed = false;
             directVoicePlayFailed = false;
             ownerPackage = null;
-        }
-
-        private static void InitializeBuffEngine()
-        {
-            buffEngine = new ElysianBuffEngine(new ElysianBuffGameApi(
-                ApplyAffliction,
-                ReduceAffliction,
-                GetAfflictionStrength,
-                IsInputHit,
-                FindHeldItem,
-                IsUsableCharacter,
-                IsFriendly,
-                TryForceAiTarget,
-                () => Character.CharacterList,
-                message => LuaCsLogger.LogMessage(message),
-                LogOnce));
-            buffEngine.Initialize(ownerPackage == null ? null : ownerPackage.Dir);
-        }
-
-        private static void UpdateBuffEngine(Character character, float deltaTime)
-        {
-            if (buffEngine != null)
-            {
-                buffEngine.UpdateCharacter(character, deltaTime);
-            }
         }
 
         private static void HookCharacterControl(IAssemblyPlugin hookOwner)
@@ -344,7 +311,6 @@ namespace Barotrauma.ElysianRealm
 
             float deltaTime = GetFloatArg(args, "deltaTime", 1.0f / 60.0f);
             UpdateBowCharge(character, deltaTime);
-            UpdateBuffEngine(character, deltaTime);
             return null;
         }
 

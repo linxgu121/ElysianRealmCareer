@@ -3,13 +3,731 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml;
 using Barotrauma;
+using Barotrauma.LuaCs;
 using Microsoft.Xna.Framework;
 
 namespace Barotrauma.ElysianRealm
 {
+    public sealed class ElysianBuffPlugin : IAssemblyPlugin
+    {
+        private const string CharacterControlHook = "elysianrealm.buff.character.control";
+
+        private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
+        private static ContentPackage ownerPackage;
+        private static ElysianBuffEngine buffEngine;
+        private static MethodInfo characterIsKeyHitMethod;
+
+        public void PreInitPatching()
+        {
+            LuaCsLogger.LogMessage("[ElysianRealm] Buff plugin booting.");
+            LuaCsSetup.Instance.PluginManagementService.TryGetPackageForPlugin<ElysianBuffPlugin>(out ownerPackage);
+            CacheInputMethods();
+            InitializeBuffEngine();
+            HookCharacterControl(this);
+
+            string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
+            LuaCsLogger.LogMessage("[ElysianRealm] Buff plugin registered. Package=" + packageDir);
+        }
+
+        public void Initialize()
+        {
+        }
+
+        public void OnLoadCompleted()
+        {
+        }
+
+        public void Dispose()
+        {
+            if (buffEngine != null)
+            {
+                buffEngine.Dispose();
+                buffEngine = null;
+            }
+
+            LoggedOnce.Clear();
+            characterIsKeyHitMethod = null;
+            ownerPackage = null;
+        }
+
+        private static void InitializeBuffEngine()
+        {
+            try
+            {
+                buffEngine = new ElysianBuffEngine(new ElysianBuffGameApi(
+                    ApplyAffliction,
+                    ReduceAffliction,
+                    GetAfflictionStrength,
+                    IsInputHit,
+                    FindHeldItem,
+                    IsUsableCharacter,
+                    IsFriendly,
+                    TryForceAiTarget,
+                    () => Character.CharacterList,
+                    message => LuaCsLogger.LogMessage(message),
+                    LogOnce));
+                buffEngine.Initialize(ownerPackage == null ? null : ownerPackage.Dir);
+            }
+            catch (Exception ex)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] Buff engine initialization failed: " + ex.GetType().Name);
+                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
+                buffEngine = null;
+            }
+        }
+
+        private static void HookCharacterControl(IAssemblyPlugin hookOwner)
+        {
+            MethodInfo method = typeof(Character).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault(m => string.Equals(m.Name, "Control", StringComparison.Ordinal) &&
+                                     m.GetParameters().Any(p => string.Equals(p.Name, "deltaTime", StringComparison.OrdinalIgnoreCase)));
+
+            if (method == null)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] Character.Control was not found; Buff engine updates disabled.");
+                return;
+            }
+
+            LuaCsSetup.Instance.EventService.HookMethod(
+                CharacterControlHook,
+                method,
+                CharacterControlAfter,
+                ILuaCsHook.HookMethodType.After,
+                owner: hookOwner);
+            LuaCsLogger.LogMessage("[ElysianRealm] Buff Character.Control hook registered.");
+        }
+
+        private static object CharacterControlAfter(object self, Dictionary<string, object> args)
+        {
+            Character character = self as Character;
+            if (character == null || buffEngine == null)
+            {
+                return null;
+            }
+
+            float deltaTime = GetFloatArg(args, "deltaTime", 1.0f / 60.0f);
+            buffEngine.UpdateCharacter(character, deltaTime);
+            return null;
+        }
+
+        private static bool ApplyAffliction(Character character, string identifier, float strength)
+        {
+            if (character == null || character.CharacterHealth == null)
+            {
+                return false;
+            }
+
+            object prefab = GetAfflictionPrefab(identifier);
+            if (prefab == null)
+            {
+                LogOnce("buff_affliction_prefab_" + identifier, "[ElysianRealm] Buff affliction prefab not found: " + identifier);
+                return false;
+            }
+
+            object affliction;
+            if (!TryInstantiateAffliction(prefab, strength, character, out affliction))
+            {
+                LogOnce("buff_affliction_instantiate_" + identifier, "[ElysianRealm] Buff affliction instantiate method not found: " + identifier);
+                return false;
+            }
+
+            object limb = character.AnimController == null ? null : character.AnimController.MainLimb;
+            return InvokeHealthMethod(character.CharacterHealth, "ApplyAffliction", limb, affliction);
+        }
+
+        private static bool ReduceAffliction(Character character, string identifier, float strength)
+        {
+            if (character == null || character.CharacterHealth == null)
+            {
+                return false;
+            }
+
+            object id = CreateIdentifier(identifier);
+            foreach (string methodName in new[] { "ReduceAfflictionOnAllLimbs", "ReduceAffliction" })
+            {
+                foreach (MethodInfo method in character.CharacterHealth.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (!string.Equals(method.Name, methodName, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    if (parameters.Length < 2 || !CanPassIdentifier(parameters[0].ParameterType, id))
+                    {
+                        continue;
+                    }
+
+                    object[] values = BuildMethodArguments(parameters, id, strength);
+                    try
+                    {
+                        method.Invoke(character.CharacterHealth, values);
+                        return true;
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            LogOnce("buff_reduce_affliction_failed", "[ElysianRealm] Buff engine could not find a compatible ReduceAffliction method.");
+            return false;
+        }
+
+        private static float GetAfflictionStrength(Character character, string identifier)
+        {
+            if (character == null || character.CharacterHealth == null)
+            {
+                return 0.0f;
+            }
+
+            object id = CreateIdentifier(identifier);
+            foreach (MethodInfo method in character.CharacterHealth.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "GetAfflictionStrength", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length == 0 || !CanPassIdentifier(parameters[0].ParameterType, id))
+                {
+                    continue;
+                }
+
+                object[] values = BuildMethodArguments(parameters, id, true);
+                try
+                {
+                    object result = method.Invoke(character.CharacterHealth, values);
+                    if (result is float)
+                    {
+                        return (float)result;
+                    }
+                    if (result is double)
+                    {
+                        return (float)(double)result;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return 0.0f;
+        }
+
+        private static bool IsInputHit(Character character, string inputTypeName)
+        {
+            if (character == null || characterIsKeyHitMethod == null)
+            {
+                return false;
+            }
+
+            object inputType = ParseInputType(inputTypeName);
+            if (inputType == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                object result = characterIsKeyHitMethod.Invoke(character, new[] { inputType });
+                return result is bool && (bool)result;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static Item FindHeldItem(Character character, string identifier)
+        {
+            foreach (Item item in EnumerateHeldItems(character))
+            {
+                if (HasIdentifier(item, identifier))
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool IsUsableCharacter(Character character)
+        {
+            return character != null && !character.Removed && !character.IsDead;
+        }
+
+        private static bool IsFriendly(Character source, Character target)
+        {
+            return source != null && target != null && source.TeamID == target.TeamID;
+        }
+
+        private static bool TryForceAiTarget(Character target, Character source)
+        {
+            object aiController = GetMemberValue(target, "AIController");
+            if (aiController == null)
+            {
+                return false;
+            }
+
+            foreach (string methodName in new[] { "SetTarget", "SelectTarget", "AddTarget", "ForceTarget" })
+            {
+                foreach (MethodInfo method in aiController.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (!string.Equals(method.Name, methodName, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    ParameterInfo[] parameters = method.GetParameters();
+                    if (parameters.Length == 0 || !parameters[0].ParameterType.IsInstanceOfType(source))
+                    {
+                        continue;
+                    }
+
+                    object[] values = BuildMethodArguments(parameters, source, null);
+                    try
+                    {
+                        method.Invoke(aiController, values);
+                        return true;
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static object GetAfflictionPrefab(string identifier)
+        {
+            object prefabs = GetStaticMemberValue(typeof(AfflictionPrefab), "Prefabs");
+            if (prefabs == null)
+            {
+                return null;
+            }
+
+            object id = CreateIdentifier(identifier);
+            foreach (MethodInfo method in prefabs.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "get_Item", StringComparison.Ordinal) &&
+                    !string.Equals(method.Name, "Get", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length != 1 || !CanPassIdentifier(parameters[0].ParameterType, id))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    return method.Invoke(prefabs, new[] { ConvertIdentifierForParameter(parameters[0].ParameterType, id) });
+                }
+                catch
+                {
+                }
+            }
+
+            return null;
+        }
+
+        private static bool TryInstantiateAffliction(object prefab, float strength, Character source, out object affliction)
+        {
+            affliction = null;
+            if (prefab == null)
+            {
+                return false;
+            }
+
+            foreach (MethodInfo method in prefab.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, "Instantiate", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                object[] values;
+                if (!TryBuildAfflictionInstantiateArguments(parameters, strength, source, out values))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    affliction = method.Invoke(prefab, values);
+                    if (affliction != null)
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryBuildAfflictionInstantiateArguments(ParameterInfo[] parameters, float strength, Character source, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool strengthAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                if (!strengthAssigned && (type == typeof(float) || type == typeof(double) || type == typeof(int)))
+                {
+                    strengthAssigned = true;
+                    if (type == typeof(float))
+                    {
+                        values[i] = strength;
+                    }
+                    else if (type == typeof(double))
+                    {
+                        values[i] = (double)strength;
+                    }
+                    else
+                    {
+                        values[i] = (int)Math.Round(strength);
+                    }
+                }
+                else if (source != null && type.IsInstanceOfType(source))
+                {
+                    values[i] = source;
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return strengthAssigned || parameters.Length == 0;
+        }
+
+        private static bool InvokeHealthMethod(object health, string methodName, object limb, object affliction)
+        {
+            foreach (MethodInfo method in health.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (!string.Equals(method.Name, methodName, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length < 2)
+                {
+                    continue;
+                }
+
+                object[] values;
+                if (!TryBuildApplyAfflictionArguments(parameters, limb, affliction, out values))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    method.Invoke(health, values);
+                    return true;
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryBuildApplyAfflictionArguments(ParameterInfo[] parameters, object limb, object affliction, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool limbAssigned = false;
+            bool afflictionAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                if (!afflictionAssigned && affliction != null && type.IsInstanceOfType(affliction))
+                {
+                    values[i] = affliction;
+                    afflictionAssigned = true;
+                }
+                else if (!limbAssigned && limb != null && type.IsInstanceOfType(limb))
+                {
+                    values[i] = limb;
+                    limbAssigned = true;
+                }
+                else if (type == typeof(bool))
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+                else
+                {
+                    values[i] = GetDefaultValue(type);
+                }
+            }
+
+            return afflictionAssigned;
+        }
+
+        private static IEnumerable<Item> EnumerateHeldItems(Character character)
+        {
+            object heldItems = GetMemberValue(character, "HeldItems");
+            foreach (Item item in EnumerateItems(heldItems))
+            {
+                yield return item;
+            }
+        }
+
+        private static IEnumerable<Item> EnumerateItems(object value)
+        {
+            IEnumerable enumerable = value as IEnumerable;
+            if (enumerable == null)
+            {
+                yield break;
+            }
+
+            foreach (object entry in enumerable)
+            {
+                Item item = entry as Item;
+                if (item != null)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        private static bool HasIdentifier(Item item, string identifier)
+        {
+            if (item == null)
+            {
+                return false;
+            }
+
+            if (item.Prefab != null && string.Equals(item.Prefab.Identifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            object itemIdentifier = GetMemberValue(item, "Identifier");
+            return itemIdentifier != null &&
+                   string.Equals(itemIdentifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static void CacheInputMethods()
+        {
+            characterIsKeyHitMethod = typeof(Character).GetMethod("IsKeyHit", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(InputType) }, null);
+        }
+
+        private static object ParseInputType(string name)
+        {
+            try
+            {
+                return Enum.Parse(typeof(InputType), name, true);
+            }
+            catch
+            {
+                LogOnce("buff_input_missing_" + name, "[ElysianRealm] Buff InputType not found: " + name);
+                return null;
+            }
+        }
+
+        private static float GetFloatArg(Dictionary<string, object> args, string key, float fallback)
+        {
+            if (args == null)
+            {
+                return fallback;
+            }
+
+            object value;
+            if (!args.TryGetValue(key, out value))
+            {
+                return fallback;
+            }
+
+            if (value is float)
+            {
+                return (float)value;
+            }
+            if (value is double)
+            {
+                return (float)(double)value;
+            }
+            if (value is int)
+            {
+                return (int)value;
+            }
+
+            return fallback;
+        }
+
+        private static object GetMemberValue(object instance, string name)
+        {
+            if (instance == null)
+            {
+                return null;
+            }
+
+            Type type = instance.GetType();
+            PropertyInfo property = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (property != null)
+            {
+                try
+                {
+                    return property.GetValue(instance, null);
+                }
+                catch
+                {
+                }
+            }
+
+            FieldInfo field = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field != null)
+            {
+                try
+                {
+                    return field.GetValue(instance);
+                }
+                catch
+                {
+                }
+            }
+
+            return null;
+        }
+
+        private static object GetStaticMemberValue(Type type, string name)
+        {
+            PropertyInfo property = type.GetProperty(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            if (property != null)
+            {
+                return property.GetValue(null, null);
+            }
+
+            FieldInfo field = type.GetField(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            return field == null ? null : field.GetValue(null);
+        }
+
+        private static object CreateIdentifier(string value)
+        {
+            Type identifierType = typeof(Identifier);
+            ConstructorInfo constructor = identifierType.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new[] { typeof(string) }, null);
+            if (constructor != null)
+            {
+                return constructor.Invoke(new object[] { value });
+            }
+
+            return value;
+        }
+
+        private static bool CanPassIdentifier(Type parameterType, object identifier)
+        {
+            if (identifier == null)
+            {
+                return false;
+            }
+
+            return parameterType.IsInstanceOfType(identifier) || parameterType == typeof(string);
+        }
+
+        private static object ConvertIdentifierForParameter(Type parameterType, object identifier)
+        {
+            if (identifier != null && parameterType.IsInstanceOfType(identifier))
+            {
+                return identifier;
+            }
+
+            return identifier == null ? null : identifier.ToString();
+        }
+
+        private static object[] BuildMethodArguments(ParameterInfo[] parameters, object first, object second)
+        {
+            object[] values = new object[parameters.Length];
+            values[0] = ConvertValueForParameter(parameters[0].ParameterType, first);
+            if (parameters.Length > 1)
+            {
+                values[1] = ConvertValueForParameter(parameters[1].ParameterType, second);
+            }
+
+            for (int i = 2; i < values.Length; i++)
+            {
+                values[i] = GetDefaultValue(parameters[i].ParameterType);
+            }
+
+            return values;
+        }
+
+        private static object ConvertValueForParameter(Type parameterType, object value)
+        {
+            if (value == null)
+            {
+                return GetDefaultValue(parameterType);
+            }
+
+            if (parameterType.IsInstanceOfType(value))
+            {
+                return value;
+            }
+
+            if (parameterType == typeof(string))
+            {
+                return value.ToString();
+            }
+
+            if (parameterType == typeof(float) && value is double)
+            {
+                return (float)(double)value;
+            }
+
+            try
+            {
+                return Convert.ChangeType(value, parameterType);
+            }
+            catch
+            {
+                return GetDefaultValue(parameterType);
+            }
+        }
+
+        private static object GetParameterDefault(ParameterInfo parameter)
+        {
+            if (parameter.DefaultValue != DBNull.Value)
+            {
+                return parameter.DefaultValue;
+            }
+
+            return GetDefaultValue(parameter.ParameterType);
+        }
+
+        private static object GetDefaultValue(Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+
+        private static void LogOnce(string key, string message)
+        {
+            if (LoggedOnce.Add(key))
+            {
+                LuaCsLogger.LogMessage(message);
+            }
+        }
+    }
+
     internal sealed class ElysianBuffEngine
     {
         private const string StigmataSystemId = "stigmata_slot";
