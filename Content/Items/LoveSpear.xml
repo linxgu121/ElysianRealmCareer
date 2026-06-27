@@ -18,6 +18,7 @@
     <InventoryIcon texture="%ModDir%/Assets/Items/loversarrow-tini.png" sourcerect="0,0,131,115" origin="0.5,0.5" />
     <Sprite texture="%ModDir%/Assets/Items/loversarrow.png" sourcerect="0,0,168,19" depth="0.55" origin="0.5,0.5" />
     <Body width="160" height="10" density="30" />
+    <Pickable slots="Any" msg="ItemMsgPickUpSelect" />
     <Projectile characterusable="false" launchimpulse="20.0" severlimbsprobability="0.5" penetration="1.0">
       <Attack itemdamage="200" targetforce="10" penetration="1.0">
         <Affliction identifier="internaldamage" strength="75" />
