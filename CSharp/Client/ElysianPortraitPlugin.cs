@@ -17,8 +17,10 @@ namespace Barotrauma.ElysianRealm
 
         private static ContentPackage ownerPackage;
         private static Sprite portraitSprite;
+        private static MethodInfo drawIconHookMethod;
         private static string portraitFullPath;
         private static bool portraitLoadFailed;
+        private static bool drawIconHookRegistered;
         private static bool loggedFirstTarget;
         private static bool loggedFirstOverlay;
         private static bool loggedArgumentFailure;
@@ -46,6 +48,8 @@ namespace Barotrauma.ElysianRealm
                 DrawIconPostfix,
                 ILuaCsHook.HookMethodType.After,
                 owner: this);
+            drawIconHookMethod = drawIcon;
+            drawIconHookRegistered = true;
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Client portrait patch registered. Package=" + packageDir);
@@ -62,6 +66,7 @@ namespace Barotrauma.ElysianRealm
 
         public void Dispose()
         {
+            UnhookDrawIconPatch();
             ElysianGameplayPlugin.Shutdown();
             ElysianBuffPlugin.Shutdown();
 
@@ -70,12 +75,37 @@ namespace Barotrauma.ElysianRealm
                 portraitSprite.Remove();
             }
             portraitSprite = null;
+            drawIconHookMethod = null;
             portraitFullPath = null;
             portraitLoadFailed = false;
+            drawIconHookRegistered = false;
             ownerPackage = null;
             loggedFirstTarget = false;
             loggedFirstOverlay = false;
             loggedArgumentFailure = false;
+        }
+
+        private static void UnhookDrawIconPatch()
+        {
+            if (!drawIconHookRegistered || drawIconHookMethod == null)
+            {
+                return;
+            }
+
+            try
+            {
+                LuaCsSetup.Instance.EventService.UnhookMethod(
+                    PatchIdentifier,
+                    drawIconHookMethod,
+                    ILuaCsHook.HookMethodType.After);
+            }
+            catch (Exception ex)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] Failed to unhook portrait patch: " + ex.GetType().Name);
+            }
+
+            drawIconHookRegistered = false;
+            drawIconHookMethod = null;
         }
 
         private void EnsureCompanionPlugins()

@@ -67,11 +67,8 @@ namespace Barotrauma.ElysianRealm
         private static readonly List<BeamVisual> BeamVisuals = new List<BeamVisual>();
         private static readonly List<ExplosionVisual> ExplosionVisuals = new List<ExplosionVisual>();
         private static readonly List<DelayedItemRemoval> DelayedItemRemovals = new List<DelayedItemRemoval>();
-        private static readonly string[] NightVisionAfflictionIdentifiers = new[]
-        {
-            "elysian_slot_stigmata_mid_human_effect",
-            "elysiastigmata_mid_human_effect"
-        };
+        private static readonly List<RegisteredHook> RegisteredHooks = new List<RegisteredHook>();
+        private const string NightVisionAfflictionIdentifier = "elysian_slot_stigmata_mid_human_effect";
         private static readonly string[] PastflowerSuperVoiceAfflictions = new[]
         {
             "pastflower_super_voice_escape",
@@ -105,6 +102,20 @@ namespace Barotrauma.ElysianRealm
         private static bool nightVisionAmbientRestorePending;
         private static Color nightVisionOriginalAmbient;
         private static bool registered;
+
+        private sealed class RegisteredHook
+        {
+            public RegisteredHook(string identifier, MethodBase method, ILuaCsHook.HookMethodType hookType)
+            {
+                Identifier = identifier;
+                Method = method;
+                HookType = hookType;
+            }
+
+            public readonly string Identifier;
+            public readonly MethodBase Method;
+            public readonly ILuaCsHook.HookMethodType HookType;
+        }
 
         public void PreInitPatching()
         {
@@ -156,6 +167,7 @@ namespace Barotrauma.ElysianRealm
 
         internal static void Shutdown()
         {
+            UnhookRegisteredMethods();
             ChargeStates.Clear();
             BowNoAmmoHintTicks.Clear();
             WeaponOverrides.Clear();
@@ -186,6 +198,35 @@ namespace Barotrauma.ElysianRealm
             registered = false;
         }
 
+        private static void RememberHook(string identifier, MethodBase method, ILuaCsHook.HookMethodType hookType)
+        {
+            RegisteredHooks.Add(new RegisteredHook(identifier, method, hookType));
+        }
+
+        private static void UnhookRegisteredMethods()
+        {
+            bool loggedFailure = false;
+
+            for (int i = RegisteredHooks.Count - 1; i >= 0; i--)
+            {
+                RegisteredHook hook = RegisteredHooks[i];
+                try
+                {
+                    LuaCsSetup.Instance.EventService.UnhookMethod(hook.Identifier, hook.Method, hook.HookType);
+                }
+                catch (Exception ex)
+                {
+                    if (!loggedFailure)
+                    {
+                        loggedFailure = true;
+                        LuaCsLogger.LogError("[ElysianRealm] Failed to unhook one or more gameplay methods: " + ex.GetType().Name);
+                    }
+                }
+            }
+
+            RegisteredHooks.Clear();
+        }
+
         private static void HookCharacterControl(IAssemblyPlugin hookOwner)
         {
             MethodInfo method = typeof(Character).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -204,6 +245,7 @@ namespace Barotrauma.ElysianRealm
                 CharacterControlAfter,
                 ILuaCsHook.HookMethodType.After,
                 owner: hookOwner);
+            RememberHook(CharacterControlHook, method, ILuaCsHook.HookMethodType.After);
         }
 
         private static void HookRangedWeaponUse(IAssemblyPlugin hookOwner)
@@ -231,6 +273,7 @@ namespace Barotrauma.ElysianRealm
                 RangedWeaponUseBefore,
                 ILuaCsHook.HookMethodType.Before,
                 owner: hookOwner);
+            RememberHook(RangedWeaponBeforeHook, method, ILuaCsHook.HookMethodType.Before);
 
             LuaCsSetup.Instance.EventService.HookMethod(
                 RangedWeaponAfterHook,
@@ -238,6 +281,7 @@ namespace Barotrauma.ElysianRealm
                 RangedWeaponUseAfter,
                 ILuaCsHook.HookMethodType.After,
                 owner: hookOwner);
+            RememberHook(RangedWeaponAfterHook, method, ILuaCsHook.HookMethodType.After);
         }
 
         private static void HookBowHud(IAssemblyPlugin hookOwner)
@@ -266,6 +310,7 @@ namespace Barotrauma.ElysianRealm
                 BowDrawHudAfter,
                 ILuaCsHook.HookMethodType.After,
                 owner: hookOwner);
+            RememberHook(BowDrawHudHook, method, ILuaCsHook.HookMethodType.After);
         }
 
         private static void HookProjectileImpact(IAssemblyPlugin hookOwner)
@@ -290,12 +335,14 @@ namespace Barotrauma.ElysianRealm
 
             foreach (MethodInfo method in impactMethods)
             {
+                string hookIdentifier = ProjectileImpactHook + "." + method.Name + "." + method.MetadataToken;
                 LuaCsSetup.Instance.EventService.HookMethod(
-                    ProjectileImpactHook + "." + method.Name + "." + method.MetadataToken,
+                    hookIdentifier,
                     method,
                     ProjectileImpactAfter,
                     ILuaCsHook.HookMethodType.After,
                     owner: hookOwner);
+                RememberHook(hookIdentifier, method, ILuaCsHook.HookMethodType.After);
             }
 
             List<MethodInfo> shootMethods = projectileType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -306,12 +353,14 @@ namespace Barotrauma.ElysianRealm
 
             foreach (MethodInfo method in shootMethods)
             {
+                string hookIdentifier = ProjectileShootHook + "." + method.Name + "." + method.MetadataToken;
                 LuaCsSetup.Instance.EventService.HookMethod(
-                    ProjectileShootHook + "." + method.Name + "." + method.MetadataToken,
+                    hookIdentifier,
                     method,
                     ProjectileShootAfter,
                     ILuaCsHook.HookMethodType.After,
                     owner: hookOwner);
+                RememberHook(hookIdentifier, method, ILuaCsHook.HookMethodType.After);
             }
 
             LuaCsLogger.LogMessage("[ElysianRealm] Projectile hooks registered. impact=" + impactMethods.Count + ", shoot=" + shootMethods.Count);
@@ -349,6 +398,7 @@ namespace Barotrauma.ElysianRealm
                 NightVisionLightMapBefore,
                 ILuaCsHook.HookMethodType.Before,
                 owner: hookOwner);
+            RememberHook(NightVisionLightMapBeforeHook, method, ILuaCsHook.HookMethodType.Before);
 
             LuaCsSetup.Instance.EventService.HookMethod(
                 NightVisionLightMapAfterHook,
@@ -356,6 +406,7 @@ namespace Barotrauma.ElysianRealm
                 NightVisionLightMapAfter,
                 ILuaCsHook.HookMethodType.After,
                 owner: hookOwner);
+            RememberHook(NightVisionLightMapAfterHook, method, ILuaCsHook.HookMethodType.After);
 
             nightVisionLightHookFailed = false;
             nightVisionLightHookRegistered = true;
@@ -682,15 +733,7 @@ namespace Barotrauma.ElysianRealm
                 return false;
             }
 
-            for (int i = 0; i < NightVisionAfflictionIdentifiers.Length; i++)
-            {
-                if (GetAfflictionStrength(character, NightVisionAfflictionIdentifiers[i]) > NightVisionAfflictionThreshold)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return GetAfflictionStrength(character, NightVisionAfflictionIdentifier) > NightVisionAfflictionThreshold;
         }
 
         private static object FindGameMainLightManager()
@@ -2893,7 +2936,7 @@ namespace Barotrauma.ElysianRealm
                 }
             }
 
-            LogOnce("reduce_affliction_failed", "[ElysianRealm] Could not find a compatible ReduceAffliction method; stigmata gate fallback disabled.");
+            LogOnce("reduce_affliction_failed", "[ElysianRealm] Could not find a compatible ReduceAffliction method.");
             return false;
         }
 

@@ -15,11 +15,18 @@ namespace Barotrauma.ElysianRealm
     public sealed class ElysianBuffPlugin : IAssemblyPlugin
     {
         private const string CharacterControlHook = "elysianrealm.buff.character.control";
+        private const string GeneticMaterialEquipHook = "elysianrealm.buff.geneticmaterial.equip.before";
+        private const string StigmataSlotIdentifier = "stigmataslot";
+        private const string StigmataItemIdentifierPrefix = "elysiastigmata_";
 
         private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
         private static ContentPackage ownerPackage;
         private static ElysianBuffEngine buffEngine;
         private static MethodInfo characterIsKeyHitMethod;
+        private static MethodInfo characterControlHookMethod;
+        private static MethodInfo geneticMaterialEquipHookMethod;
+        private static bool characterControlHookRegistered;
+        private static bool geneticMaterialEquipHookRegistered;
         private static bool registered;
 
         public void PreInitPatching()
@@ -45,6 +52,7 @@ namespace Barotrauma.ElysianRealm
             CacheInputMethods();
             InitializeBuffEngine();
             HookCharacterControl(hookOwner);
+            HookGeneticMaterialEquip(hookOwner);
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Buff plugin registered. Package=" + packageDir);
@@ -65,6 +73,9 @@ namespace Barotrauma.ElysianRealm
 
         internal static void Shutdown()
         {
+            UnhookCharacterControl();
+            UnhookGeneticMaterialEquip();
+
             if (buffEngine != null)
             {
                 buffEngine.Dispose();
@@ -73,6 +84,10 @@ namespace Barotrauma.ElysianRealm
 
             LoggedOnce.Clear();
             characterIsKeyHitMethod = null;
+            characterControlHookMethod = null;
+            geneticMaterialEquipHookMethod = null;
+            characterControlHookRegistered = false;
+            geneticMaterialEquipHookRegistered = false;
             ownerPackage = null;
             registered = false;
         }
@@ -122,7 +137,103 @@ namespace Barotrauma.ElysianRealm
                 CharacterControlAfter,
                 ILuaCsHook.HookMethodType.After,
                 owner: hookOwner);
+            characterControlHookMethod = method;
+            characterControlHookRegistered = true;
             LuaCsLogger.LogMessage("[ElysianRealm] Buff Character.Control hook registered.");
+        }
+
+        private static void UnhookCharacterControl()
+        {
+            if (!characterControlHookRegistered || characterControlHookMethod == null)
+            {
+                return;
+            }
+
+            try
+            {
+                LuaCsSetup.Instance.EventService.UnhookMethod(
+                    CharacterControlHook,
+                    characterControlHookMethod,
+                    ILuaCsHook.HookMethodType.After);
+            }
+            catch (Exception ex)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] Failed to unhook Buff Character.Control: " + ex.GetType().Name);
+            }
+
+            characterControlHookRegistered = false;
+            characterControlHookMethod = null;
+        }
+
+        private static void HookGeneticMaterialEquip(IAssemblyPlugin hookOwner)
+        {
+            Type geneticMaterialType = FindTypeByName("GeneticMaterial");
+            if (geneticMaterialType == null)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial type was not found; legacy stigmata suppression disabled.");
+                return;
+            }
+
+            MethodInfo method = geneticMaterialType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault(m => string.Equals(m.Name, "Equip", StringComparison.Ordinal) &&
+                                     m.GetParameters().Any(p => p.ParameterType == typeof(Character)));
+
+            if (method == null)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial.Equip was not found; legacy stigmata suppression disabled.");
+                return;
+            }
+
+            LuaCsSetup.Instance.EventService.HookMethod(
+                GeneticMaterialEquipHook,
+                method,
+                GeneticMaterialEquipBefore,
+                ILuaCsHook.HookMethodType.Before,
+                owner: hookOwner);
+            geneticMaterialEquipHookMethod = method;
+            geneticMaterialEquipHookRegistered = true;
+            LuaCsLogger.LogMessage("[ElysianRealm] Legacy stigmata GeneticMaterial suppression hook registered.");
+        }
+
+        private static void UnhookGeneticMaterialEquip()
+        {
+            if (!geneticMaterialEquipHookRegistered || geneticMaterialEquipHookMethod == null)
+            {
+                return;
+            }
+
+            try
+            {
+                LuaCsSetup.Instance.EventService.UnhookMethod(
+                    GeneticMaterialEquipHook,
+                    geneticMaterialEquipHookMethod,
+                    ILuaCsHook.HookMethodType.Before);
+            }
+            catch (Exception ex)
+            {
+                LuaCsLogger.LogError("[ElysianRealm] Failed to unhook GeneticMaterial.Equip: " + ex.GetType().Name);
+            }
+
+            geneticMaterialEquipHookRegistered = false;
+            geneticMaterialEquipHookMethod = null;
+        }
+
+        private static object GeneticMaterialEquipBefore(object self, Dictionary<string, object> args)
+        {
+            Item item = GetComponentItem(self);
+            if (!IsStigmataItem(item))
+            {
+                return null;
+            }
+
+            Item rootContainer = item.RootContainer;
+            if (!HasIdentifier(rootContainer, StigmataSlotIdentifier))
+            {
+                return null;
+            }
+
+            LogOnce("buff_suppress_legacy_stigmata_geneticmaterial", "[ElysianRealm] Legacy GeneticMaterial stigmata effect suppressed in stigmata slot.");
+            return false;
         }
 
         private static object CharacterControlAfter(object self, Dictionary<string, object> args)
@@ -713,6 +824,53 @@ namespace Barotrauma.ElysianRealm
             object itemIdentifier = GetMemberValue(item, "Identifier");
             return itemIdentifier != null &&
                    string.Equals(itemIdentifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsStigmataItem(Item item)
+        {
+            if (item == null || item.Prefab == null)
+            {
+                return false;
+            }
+
+            string identifier = item.Prefab.Identifier.ToString();
+            return identifier.StartsWith(StigmataItemIdentifierPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static Item GetComponentItem(object component)
+        {
+            if (component == null)
+            {
+                return null;
+            }
+
+            Item directItem = component as Item;
+            if (directItem != null)
+            {
+                return directItem;
+            }
+
+            Item item = GetMemberValue(component, "Item") as Item;
+            if (item != null)
+            {
+                return item;
+            }
+
+            return GetMemberValue(component, "item") as Item;
+        }
+
+        private static Type FindTypeByName(string typeName)
+        {
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type type = assembly.GetType("Barotrauma." + typeName, false);
+                if (type != null)
+                {
+                    return type;
+                }
+            }
+
+            return null;
         }
 
         private static void CacheInputMethods()
