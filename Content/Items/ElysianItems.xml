@@ -79,8 +79,8 @@
       <Item identifier="iron" amount="2" />
       <Item identifier="crystal" amount="6" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/xiaodao(缩略).png" sourcerect="0,0,131,115" origin="0.5,0.5" />
-    <Sprite texture="Content/Items/Weapons/xiaodao.png" sourcerect="183,203,66,16" depth="0.55" origin="0.5,0.5" />
+    <InventoryIcon texture="%ModDir%/Assets/Items/xiaodao(缩略).png" sourcerect="0,0,64,64" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/xiaodao.png" sourcerect="0,0,69,20" depth="0.55" origin="0.5,0.5" />
     <Body width="65" height="15" density="25" />
     <MeleeWeapon slots="Any,RightHand,LeftHand" aimpos="50,0" handle1="-10,0" holdangle="30" reload="0.75" range="50" combatpriority="25" msg="ItemMsgPickUpSelect">
       <Attack targetimpulse="2" severlimbsprobability="0.1" itemdamage="3" structuredamage="2" structuresoundtype="StructureSlash">
@@ -97,7 +97,7 @@
   </Item>
 
   <!-- 爱莉希雅的喇叭：XML 基础版先提供物品/配方/自我鼓励，阵营嘲讽与范围友军筛选交给 LuaCs。 -->
-  <Item name="" identifier="elysiahorn" category="Misc" tags="smallitem,tool,elysianitem" cargocontaineridentifier="metalcrate" scale="0.45" impactsoundtag="impact_metal_light">
+  <Item name="" identifier="elysiahorn" category="Misc" tags="smallitem,tool,elysianitem" cargocontaineridentifier="metalcrate" scale="0.25" impactsoundtag="impact_metal_light" >
     <Price baseprice="900" sold="false" />
     <Deconstruct time="5">
       <Item identifier="crystal" amount="4" />
@@ -105,15 +105,17 @@
     <Fabricate suitablefabricators="fabricator" requiredtime="10" requiresrecipe="true">
       <Item identifier="crystal" amount="6" />
     </Fabricate>
-    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,351,300" origin="0.5,0.5" />
-    <Sprite texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,351,300" depth="0.55" origin="0.5,0.5" />
-    <Body width="40" height="25" density="20" />
-    <Holdable slots="Any,RightHand,LeftHand" msg="ItemMsgPickUpSelect" handle1="0,0">
+    <InventoryIcon texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,120,100" origin="0.5,0.5" />
+    <Sprite texture="%ModDir%/Assets/Items/stigmata(new).png" sourcerect="0,0,120,100" depth="0.55" origin="0.5,0.5" />
+    <Body width="50" height="20" density="20" />
+    <Holdable slots="Any,RightHand,LeftHand" aimpos="55,-10" handle1="-33,-34" handle2="-33,-34" aimangle="0" msg="ItemMsgPickUpSelect">
       <StatusEffect type="OnUse" target="Character" disabledeltatime="true">
         <Affliction identifier="elysiaencouragement" strength="10" />
-        <Sound file="%ModDir%/Assets/Audio/粉色妖精小姐♪.ogg" range="1000" />
       </StatusEffect>
     </Holdable>
+    <RangedWeapon reload="2">
+      <Sound file="%ModDir%/Assets/Audio/粉色妖精小姐♪.ogg" type="OnUse" range="1000" volume="3000" />
+    </RangedWeapon>
   </Item>
 
   <!-- 圣痕槽位：三格圣痕/遗传物质容器。 -->
