@@ -167,7 +167,7 @@ namespace Barotrauma.ElysianRealm
             Type geneticMaterialType = FindTypeByName("GeneticMaterial");
             if (geneticMaterialType == null)
             {
-                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial type was not found; legacy stigmata suppression disabled.");
+                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial type was not found; stigmata genetic bridge disabled.");
                 return;
             }
 
@@ -177,7 +177,7 @@ namespace Barotrauma.ElysianRealm
 
             if (method == null)
             {
-                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial.Equip was not found; legacy stigmata suppression disabled.");
+                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial.Equip was not found; stigmata genetic bridge disabled.");
                 return;
             }
 
@@ -189,7 +189,7 @@ namespace Barotrauma.ElysianRealm
                 owner: hookOwner);
             geneticMaterialEquipHookMethod = method;
             geneticMaterialEquipHookRegistered = true;
-            LuaCsLogger.LogMessage("[ElysianRealm] Legacy stigmata GeneticMaterial suppression hook registered.");
+            LuaCsLogger.LogMessage("[ElysianRealm] Stigmata GeneticMaterial bridge hook registered.");
         }
 
         private static void UnhookGeneticMaterialEquip()
@@ -251,8 +251,8 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
-            LogOnce("buff_suppress_legacy_stigmata_geneticmaterial", "[ElysianRealm] Legacy GeneticMaterial stigmata effect suppressed in stigmata slot.");
-            return false;
+            LogOnce("buff_allow_stigmata_geneticmaterial", "[ElysianRealm] Stigmata GeneticMaterial effect allowed in stigmata slot.");
+            return null;
         }
 
         private static object CharacterControlAfter(object self, Dictionary<string, object> args)

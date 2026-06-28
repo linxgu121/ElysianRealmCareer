@@ -84,10 +84,10 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 
 槽位专属效果文件：`Content/Afflictions/RealmeAfflictions.xml`
 
-- identifier 以 `elysian_slot_stigmata_` 开头的是圣痕槽位系统使用的效果。
+- identifier 以 `elysian_slot_stigmata_` 开头的是圣痕槽位系统使用的 UI 显示/仲裁标记，不负责真实数值。
 - identifier 以 `elysian_talent_` 开头的是人律/始源祝福系统使用的正式效果。
 - `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 现在只是旧隐藏标记兼容内容，不建议在里面改数值；人律/始源实际触发条件以 `requiredtalents` / `blockedtalents` 为准。
-- 旧的 `elysiastigmata_*_effect` 保留给原版基因拼接器兼容，不建议在圣痕槽位规则中引用。
+- `elysiastigmata_*_effect` 是圣痕物品的原版 `GeneticMaterial` 真实数值效果，调整水压、缺氧、游速等实际效果时改这里；不建议在圣痕槽位规则中直接引用它们。
 
 ### Elysiagear
 
