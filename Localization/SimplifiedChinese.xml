@@ -224,6 +224,8 @@
   <entitydescription.elysiastigmata_bottom_human>圣痕。持续清除水压伤害。</entitydescription.elysiastigmata_bottom_human>
   <entityname.elysiastigmata_bottom_origin>爱莉希雅 · 无瑕之人(下)</entityname.elysiastigmata_bottom_origin>
   <entitydescription.elysiastigmata_bottom_origin>圣痕。轻微治疗自身负面伤害。</entitydescription.elysiastigmata_bottom_origin>
+  <entityname.Elysia_coalitionmedal>‖color:255,86,217,255‖爱莉的奖章‖end‖</entityname.Elysia_coalitionmedal>
+  <entitydescription.Elysia_coalitionmedal>真是一场浪漫的共演呢♪</entitydescription.Elysia_coalitionmedal>
   <!--  招募相关  -->
   <locationname.ElysianRealm>往世乐土哨站</locationname.ElysianRealm>
   <faction.ElysianRealm>逐火之蛾</faction.ElysianRealm>

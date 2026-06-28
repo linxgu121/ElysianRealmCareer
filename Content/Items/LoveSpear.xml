@@ -49,7 +49,7 @@
           <Affliction identifier="internaldamage" strength="300" />
           <Affliction identifier="stun" strength="1.5" />
         </Explosion>
-        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" range="6000" volume="100" />
+        <Sound file="%ModDir%/Assets/Audio/人之律者-送你一点惊喜。.ogg" range="1000" volume="500" />
         <Remove delay="3.0" />
       </StatusEffect>
     </Projectile>
