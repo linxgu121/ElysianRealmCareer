@@ -15,18 +15,13 @@ namespace Barotrauma.ElysianRealm
     public sealed class ElysianBuffPlugin : IAssemblyPlugin
     {
         private const string CharacterControlHook = "elysianrealm.buff.character.control";
-        private const string GeneticMaterialEquipHook = "elysianrealm.buff.geneticmaterial.equip.before";
-        private const string StigmataSlotIdentifier = "stigmataslot";
-        private const string StigmataItemIdentifierPrefix = "elysiastigmata_";
 
         private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
         private static ContentPackage ownerPackage;
         private static ElysianBuffEngine buffEngine;
         private static MethodInfo characterIsKeyHitMethod;
         private static MethodInfo characterControlHookMethod;
-        private static MethodInfo geneticMaterialEquipHookMethod;
         private static bool characterControlHookRegistered;
-        private static bool geneticMaterialEquipHookRegistered;
         private static bool registered;
 
         public void PreInitPatching()
@@ -52,7 +47,6 @@ namespace Barotrauma.ElysianRealm
             CacheInputMethods();
             InitializeBuffEngine();
             HookCharacterControl(hookOwner);
-            HookGeneticMaterialEquip(hookOwner);
 
             string packageDir = ownerPackage == null ? "<unresolved>" : ownerPackage.Dir;
             LuaCsLogger.LogMessage("[ElysianRealm] Buff plugin registered. Package=" + packageDir);
@@ -74,7 +68,6 @@ namespace Barotrauma.ElysianRealm
         internal static void Shutdown()
         {
             UnhookCharacterControl();
-            UnhookGeneticMaterialEquip();
 
             if (buffEngine != null)
             {
@@ -85,9 +78,7 @@ namespace Barotrauma.ElysianRealm
             LoggedOnce.Clear();
             characterIsKeyHitMethod = null;
             characterControlHookMethod = null;
-            geneticMaterialEquipHookMethod = null;
             characterControlHookRegistered = false;
-            geneticMaterialEquipHookRegistered = false;
             ownerPackage = null;
             registered = false;
         }
@@ -162,56 +153,6 @@ namespace Barotrauma.ElysianRealm
             characterControlHookMethod = null;
         }
 
-        private static void HookGeneticMaterialEquip(IAssemblyPlugin hookOwner)
-        {
-            Type geneticMaterialType = FindTypeByName("GeneticMaterial");
-            if (geneticMaterialType == null)
-            {
-                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial type was not found; stigmata genetic bridge disabled.");
-                return;
-            }
-
-            MethodInfo method = geneticMaterialType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .FirstOrDefault(m => string.Equals(m.Name, "Equip", StringComparison.Ordinal) &&
-                                     m.GetParameters().Any(p => p.ParameterType == typeof(Character)));
-
-            if (method == null)
-            {
-                LuaCsLogger.LogError("[ElysianRealm] GeneticMaterial.Equip was not found; stigmata genetic bridge disabled.");
-                return;
-            }
-
-            LuaCsSetup.Instance.EventService.HookMethod(
-                GeneticMaterialEquipHook,
-                method,
-                GeneticMaterialEquipBefore,
-                ILuaCsHook.HookMethodType.Before,
-                owner: hookOwner);
-            geneticMaterialEquipHookMethod = method;
-            geneticMaterialEquipHookRegistered = true;
-            LuaCsLogger.LogMessage("[ElysianRealm] Stigmata GeneticMaterial bridge hook registered.");
-        }
-
-        private static void UnhookGeneticMaterialEquip()
-        {
-            if (!geneticMaterialEquipHookRegistered || geneticMaterialEquipHookMethod == null)
-            {
-                return;
-            }
-
-            try
-            {
-                TryUnhookLuaCsMethod(GeneticMaterialEquipHook, geneticMaterialEquipHookMethod, ILuaCsHook.HookMethodType.Before);
-            }
-            catch (Exception ex)
-            {
-                LuaCsLogger.LogError("[ElysianRealm] Failed to unhook GeneticMaterial.Equip: " + ex.GetType().Name);
-            }
-
-            geneticMaterialEquipHookRegistered = false;
-            geneticMaterialEquipHookMethod = null;
-        }
-
         private static bool TryUnhookLuaCsMethod(string identifier, MethodBase method, ILuaCsHook.HookMethodType hookType)
         {
             object eventService = LuaCsSetup.Instance.EventService;
@@ -235,24 +176,6 @@ namespace Barotrauma.ElysianRealm
 
             unhookMethod.Invoke(patcher, new object[] { identifier, method, hookType });
             return true;
-        }
-
-        private static object GeneticMaterialEquipBefore(object self, Dictionary<string, object> args)
-        {
-            Item item = GetComponentItem(self);
-            if (!IsStigmataItem(item))
-            {
-                return null;
-            }
-
-            Item rootContainer = item.RootContainer;
-            if (!HasIdentifier(rootContainer, StigmataSlotIdentifier))
-            {
-                return null;
-            }
-
-            LogOnce("buff_allow_stigmata_geneticmaterial", "[ElysianRealm] Stigmata GeneticMaterial effect allowed in stigmata slot.");
-            return null;
         }
 
         private static object CharacterControlAfter(object self, Dictionary<string, object> args)
@@ -845,17 +768,6 @@ namespace Barotrauma.ElysianRealm
                    string.Equals(itemIdentifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool IsStigmataItem(Item item)
-        {
-            if (item == null || item.Prefab == null)
-            {
-                return false;
-            }
-
-            string identifier = item.Prefab.Identifier.ToString();
-            return identifier.StartsWith(StigmataItemIdentifierPrefix, StringComparison.OrdinalIgnoreCase);
-        }
-
         private static Item GetComponentItem(object component)
         {
             if (component == null)
@@ -1109,7 +1021,6 @@ namespace Barotrauma.ElysianRealm
 
     internal sealed class ElysianBuffEngine
     {
-        private const string StigmataSystemId = "stigmata_slot";
         private const string TalentAfflictionSystemId = "talent_affliction";
         private const string HornSystemId = "horn";
 
@@ -1135,18 +1046,15 @@ namespace Barotrauma.ElysianRealm
             conditions.Clear();
             stateStore.Clear();
 
-            StigmataRuleSet stigmataRuleSet = BuffRuleLoader.LoadStigmataRules(packageDir, api);
             TalentAfflictionRuleSet talentRuleSet = BuffRuleLoader.LoadTalentAfflictionRules(packageDir, api);
             HornRuleSet hornRuleSet = BuffRuleLoader.LoadHornRules(packageDir, api);
-            triggers.Add(new StigmataSlotTickTrigger(stigmataRuleSet, api));
             triggers.Add(new TalentAfflictionTickTrigger(talentRuleSet));
             triggers.Add(new HornUseTrigger(hornRuleSet, api));
-            conditions.Add(new StigmataSlotCondition(api));
             conditions.Add(new TalentAfflictionCondition(api));
             conditions.Add(new HornTargetCondition());
 
             initialized = true;
-            api.Log("[ElysianRealm] Buff engine initialized. stigmataRules=" + stigmataRuleSet.Rules.Count + ", talentRules=" + talentRuleSet.Rules.Count + ", hornRules=" + hornRuleSet.Rules.Count);
+            api.Log("[ElysianRealm] Buff engine initialized. stigmata=xml-only, talentRules=" + talentRuleSet.Rules.Count + ", hornRules=" + hornRuleSet.Rules.Count);
         }
 
         public void UpdateCharacter(Character character, float deltaTime)
@@ -1201,29 +1109,6 @@ namespace Barotrauma.ElysianRealm
 
         private sealed class BuffRuleLoader
         {
-            public static StigmataRuleSet LoadStigmataRules(string packageDir, ElysianBuffGameApi api)
-            {
-                StigmataRuleSet ruleSet = new StigmataRuleSet();
-                XmlNode root = LoadRuleRoot(packageDir, api, "StigmataSlotRules");
-                if (root == null)
-                {
-                    return ruleSet;
-                }
-
-                ruleSet.RefreshInterval = ReadFloat(root, "refreshinterval", 0.5f);
-                foreach (XmlNode node in root.SelectNodes("./StigmataRule"))
-                {
-                    StigmataBuffRule rule;
-                    if (TryReadStigmataRule(node, out rule))
-                    {
-                        ruleSet.Rules.Add(rule);
-                    }
-                }
-
-                api.Log("[ElysianRealm] Stigmata buff rules loaded. rules=" + ruleSet.Rules.Count + ", refresh=" + ruleSet.RefreshInterval.ToString(CultureInfo.InvariantCulture));
-                return ruleSet;
-            }
-
             public static TalentAfflictionRuleSet LoadTalentAfflictionRules(string packageDir, ElysianBuffGameApi api)
             {
                 TalentAfflictionRuleSet ruleSet = new TalentAfflictionRuleSet();
@@ -1307,28 +1192,6 @@ namespace Barotrauma.ElysianRealm
                 }
             }
 
-            private static bool TryReadStigmataRule(XmlNode node, out StigmataBuffRule rule)
-            {
-                rule = null;
-                if (node == null)
-                {
-                    return false;
-                }
-
-                string item = ReadString(node, "item", string.Empty);
-                string source = ReadString(node, "source", string.Empty);
-                string effect = ReadString(node, "effect", string.Empty);
-                int slot = ReadInt(node, "slot", -1);
-                float strength = ReadFloat(node, "strength", 100.0f);
-                if (string.IsNullOrWhiteSpace(item) || string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(effect) || slot < 0)
-                {
-                    return false;
-                }
-
-                rule = new StigmataBuffRule(item, slot, source, effect, strength);
-                return true;
-            }
-
             private static bool TryReadTalentAfflictionRule(XmlNode node, out TalentAfflictionRule rule)
             {
                 rule = null;
@@ -1384,12 +1247,6 @@ namespace Barotrauma.ElysianRealm
                 return attribute == null ? fallback : attribute.Value;
             }
 
-            private static int ReadInt(XmlNode node, string name, int fallback)
-            {
-                int value;
-                return int.TryParse(ReadString(node, name, string.Empty), NumberStyles.Integer, CultureInfo.InvariantCulture, out value) ? value : fallback;
-            }
-
             private static float ReadFloat(XmlNode node, string name, float fallback)
             {
                 float value;
@@ -1415,116 +1272,6 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 return values;
-            }
-        }
-
-        private sealed class StigmataSlotTickTrigger : IBuffTrigger
-        {
-            private const string StigmataSlotIdentifier = "stigmataslot";
-            private const string StigmataWearSlot = "HealthInterface";
-
-            private readonly StigmataRuleSet ruleSet;
-            private readonly ElysianBuffGameApi api;
-            private readonly Dictionary<Character, float> timers = new Dictionary<Character, float>();
-
-            public StigmataSlotTickTrigger(StigmataRuleSet ruleSet, ElysianBuffGameApi api)
-            {
-                this.ruleSet = ruleSet;
-                this.api = api;
-            }
-
-            public BuffTriggerResult Evaluate(Character character, float deltaTime)
-            {
-                float timer;
-                timers.TryGetValue(character, out timer);
-                timer -= Math.Max(0.0f, deltaTime);
-                if (timer > 0.0f)
-                {
-                    timers[character] = timer;
-                    return BuffTriggerResult.Skip(StigmataSystemId);
-                }
-
-                timers[character] = Math.Max(0.05f, ruleSet.RefreshInterval);
-
-                List<BuffBlackboard> contexts = new List<BuffBlackboard>();
-                object characterInventory = ReflectionInventory.GetCharacterInventory(character);
-                foreach (Item slotItem in ReflectionInventory.EnumerateStigmataSlotItems(characterInventory, StigmataSlotIdentifier))
-                {
-                    if (!ReflectionInventory.IsItemInLimbSlot(characterInventory, slotItem, StigmataWearSlot))
-                    {
-                        api.LogOnce("buff_stigmata_slot_not_equipped", "[ElysianRealm] Stigmata slot item found outside HealthInterface; slot buffs are ignored until equipped.");
-                        continue;
-                    }
-
-                    object slotInventory = ReflectionInventory.GetItemContainerInventory(slotItem);
-                    if (slotInventory == null)
-                    {
-                        api.LogOnce("buff_stigmata_slot_inventory_missing", "[ElysianRealm] Buff engine found stigmata slot but could not read its container inventory.");
-                        continue;
-                    }
-
-                    foreach (Item containedItem in ReflectionInventory.EnumerateInventoryItems(slotInventory))
-                    {
-                        StigmataBuffRule rule = ruleSet.FindByItem(containedItem);
-                        if (rule == null)
-                        {
-                            continue;
-                        }
-
-                        int slotIndex = ReflectionInventory.FindInventoryItemIndex(slotInventory, containedItem);
-                        api.LogOnce(
-                            "buff_stigmata_rule_active_" + rule.ItemIdentifier,
-                            "[ElysianRealm] Stigmata rule active: " + rule.ItemIdentifier + " -> " + rule.EffectId + ", slot=" + (slotIndex + 1));
-                        contexts.Add(new BuffBlackboard(character, "OnTick", StigmataSystemId, slotItem, containedItem, slotIndex, deltaTime, rule));
-                    }
-                }
-
-                return BuffTriggerResult.Apply(StigmataSystemId, contexts);
-            }
-        }
-
-        private sealed class StigmataSlotCondition : IBuffCondition
-        {
-            private readonly ElysianBuffGameApi api;
-
-            public StigmataSlotCondition(ElysianBuffGameApi api)
-            {
-                this.api = api;
-            }
-
-            public bool Supports(BuffBlackboard blackboard)
-            {
-                return blackboard != null && blackboard.Rule is StigmataBuffRule;
-            }
-
-            public bool IsMet(BuffBlackboard blackboard)
-            {
-                StigmataBuffRule rule = blackboard.Rule as StigmataBuffRule;
-                if (rule == null || blackboard.ContainedItem == null)
-                {
-                    return false;
-                }
-
-                if (!ReflectionInventory.HasIdentifier(blackboard.ContainedItem, rule.ItemIdentifier))
-                {
-                    return false;
-                }
-
-                if (blackboard.SlotIndex < 0)
-                {
-                    api.LogOnce("buff_stigmata_slot_index_unresolved", "[ElysianRealm] Buff engine could not resolve stigmata slot index; XML restrictions are used as fallback.");
-                    return true;
-                }
-
-                if (blackboard.SlotIndex != rule.SlotIndex)
-                {
-                    api.LogOnce(
-                        "buff_stigmata_wrong_slot_" + rule.ItemIdentifier,
-                        "[ElysianRealm] Buff engine ignored " + rule.ItemIdentifier + " in slot " + (blackboard.SlotIndex + 1) + ", expected slot " + (rule.SlotIndex + 1) + ".");
-                    return false;
-                }
-
-                return true;
             }
         }
 
@@ -1870,38 +1617,6 @@ namespace Barotrauma.ElysianRealm
             }
         }
 
-        private sealed class StigmataBuffRule : BuffRule
-        {
-            public readonly string ItemIdentifier;
-            public readonly int SlotIndex;
-
-            public StigmataBuffRule(string itemIdentifier, int slotIndex, string sourceId, string effectId, float strength)
-                : base(sourceId, effectId, strength)
-            {
-                ItemIdentifier = itemIdentifier;
-                SlotIndex = Math.Max(0, slotIndex);
-            }
-        }
-
-        private sealed class StigmataRuleSet
-        {
-            public readonly List<StigmataBuffRule> Rules = new List<StigmataBuffRule>();
-            public float RefreshInterval = 0.5f;
-
-            public StigmataBuffRule FindByItem(Item item)
-            {
-                foreach (StigmataBuffRule rule in Rules)
-                {
-                    if (ReflectionInventory.HasIdentifier(item, rule.ItemIdentifier))
-                    {
-                        return rule;
-                    }
-                }
-
-                return null;
-            }
-        }
-
         private sealed class TalentAfflictionRule : BuffRule
         {
             public readonly string ConditionAfflictionId;
@@ -2192,19 +1907,6 @@ namespace Barotrauma.ElysianRealm
                 }
 
                 return null;
-            }
-
-            public static IEnumerable<Item> EnumerateStigmataSlotItems(object characterInventory, string slotIdentifier)
-            {
-                List<Item> yielded = new List<Item>();
-                foreach (Item item in EnumerateInventoryItems(characterInventory))
-                {
-                    if (HasIdentifier(item, slotIdentifier) && !ContainsReference(yielded, item))
-                    {
-                        yielded.Add(item);
-                        yield return item;
-                    }
-                }
             }
 
             public static bool IsItemInLimbSlot(object inventory, Item item, string slotName)

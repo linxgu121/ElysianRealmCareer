@@ -12,7 +12,7 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 | 天赋树结构、前置、分支 | `Content/Talents/TalentTrees.xml` | `TalentTree jobidentifier="realme"` |
 | 天赋触发条件、触发间隔、直接伤害倍率 | `Content/Talents/RealmeTalents.xml` | 天赋 identifier |
 | 大多数 buff 数值、持续时间、属性加成 | `Content/Afflictions/RealmeAfflictions.xml` | affliction identifier |
-| Buff系统规则、槽位映射、天赋标记映射、号角范围效果 | `Config/ElysianBuffRules.xml` | `StigmataRule`、`TalentAfflictionRule`、`HornRule` |
+| Buff系统规则、天赋标记映射、号角范围效果 | `Config/ElysianBuffRules.xml` | `TalentAfflictionRule`、`HornRule` |
 | 爱矛伤害、爆炸、合成成本 | `Content/Items/LoveSpear.xml` | `Item identifier="lovespears"` |
 | 爱莉希雅服装价格、护甲、技能加成 | `Content/Items/ElysiaGear.xml` | `Item identifier="Elysiagear"` |
 | 显示文本里的百分比描述 | `Localization/SimplifiedChinese.xml` | `talentdescription.*` |
@@ -62,14 +62,12 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 
 ### 圣痕槽位 Buff
 
-规则文件：`Config/ElysianBuffRules.xml`
+圣痕槽位 Buff 已改为纯 XML，不再使用 `Config/ElysianBuffRules.xml` 的 `StigmataRule`。
 
-- `StigmataSlotRules refreshinterval`：圣痕槽位扫描和刷新间隔，默认 `0.5` 秒。
-- `StigmataRule item`：圣痕物品 identifier。
-- `StigmataRule slot`：允许槽位，`0` 是上位，`1` 是中位，`2` 是下位。
-- `StigmataRule source`：仲裁器来源 id，同一个来源同一时刻只保留一个槽位效果。
-- `StigmataRule effect`：槽位系统专属 affliction identifier。
-- `StigmataRule strength`：每次刷新时施加的强度。
+- 槽位容器和上/中/下限制：`Content/Items/ElysianItems.xml` 的 `stigmataslot`。
+- 触发方式：三个 `SubContainer` 使用原版 `autoinject`，触发圣痕物品自身的 `GeneticMaterial effect`。
+- 真实数值和唯一 UI 图标：`Content/Afflictions/RealmeAfflictions.xml` 的 `elysiastigmata_*_effect`。
+- 旧的 `elysian_slot_stigmata_*` 仅用于清理旧存档残留图标，不再作为正式 Buff。
 - `TalentAfflictionRule requiredtalents`：逗号分隔的必需天赋 identifier，全部点亮时规则才生效。
 - `TalentAfflictionRule blockedtalents`：逗号分隔的排除天赋 identifier，任意一个点亮时规则失效。
 - `TalentAfflictionRule conditionaffliction`：旧隐藏标记条件，仅作为兼容路径；当前人律/始源规则优先读取天赋本身。
@@ -84,10 +82,10 @@ Barotrauma 的普通 XML Mod 没有全局变量机制，游戏不会读取独立
 
 槽位专属效果文件：`Content/Afflictions/RealmeAfflictions.xml`
 
-- identifier 以 `elysian_slot_stigmata_` 开头的是圣痕槽位系统使用的 UI 显示/仲裁标记，不负责真实数值。
+- identifier 以 `elysian_slot_stigmata_` 开头的是旧 LuaCs 圣痕槽位标记，只用于清理旧存档残留图标，不负责真实数值。
 - identifier 以 `elysian_talent_` 开头的是人律/始源祝福系统使用的正式效果。
 - `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 现在只是旧隐藏标记兼容内容，不建议在里面改数值；人律/始源实际触发条件以 `requiredtalents` / `blockedtalents` 为准。
-- `elysiastigmata_*_effect` 是圣痕物品的原版 `GeneticMaterial` 真实数值效果，调整水压、缺氧、游速等实际效果时改这里；不建议在圣痕槽位规则中直接引用它们。
+- `elysiastigmata_*_effect` 是圣痕物品的原版 `GeneticMaterial` 真实数值和唯一 UI 图标，调整水压、缺氧、游速等实际效果时改这里。
 
 ### Elysiagear
 

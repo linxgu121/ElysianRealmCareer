@@ -7,7 +7,7 @@
 - `Content/Talents/TalentTrees.xml`: `realme` 天赋树，不覆盖原版职业树。
 - `Content/Talents/RealmeTalents.xml`: 真我天赋效果。
 - `Content/Afflictions/RealmeAfflictions.xml`: 天赋 buff 和数值效果。
-- `Config/ElysianBuffRules.xml`: LuaCs Buff 系统规则，当前用于圣痕槽位映射、人律/始源祝福标记映射和号角范围效果。
+- `Config/ElysianBuffRules.xml`: LuaCs Buff 系统规则，当前用于人律/始源祝福标记映射和号角范围效果；圣痕 Buff 由 XML 物品与 Affliction 直接控制。
 - `Content/Items/ElysiaGear.xml`: `Elysiagear` 真我职业服装。
 - `Content/Items/ElysianItems.xml`: `pastflower` 往事的飞花、爱莉希雅的喇叭、圣痕槽位等物品。
 - `Content/Items/LoveSpear.xml`: `lovespears` 爱矛物品。
@@ -19,7 +19,7 @@
 ## 必需 LuaCs 客户端前置
 
 - `Lua/Autorun/ElysianDebug.lua`: LuaCs 自动运行探针，用于确认 Lua 自动加载链路已经进入本 Mod。
-- `CSharp/Client/ElysianBuffSystem.cs`: 客户端 Buff 插件与框架，按状态、条件、触发器、数据黑板、仲裁器、效果拆分，当前管理圣痕槽位 Buff、人律/始源祝福 Buff 与号角范围效果。
+- `CSharp/Client/ElysianBuffSystem.cs`: 客户端 Buff 插件与框架，按状态、条件、触发器、数据黑板、仲裁器、效果拆分，当前管理人律/始源祝福 Buff 与号角范围效果；圣痕不再走 C#。
 - `CSharp/Client/ElysianPortraitPlugin.cs`: 客户端 C# 脚本插件，已作为 `Other` 文件随包发布；它会拦截 `CharacterInfo.DrawIcon(...)`，将 `realme` 职业的生成头像替换为指定图片。
 - `CSharp/Client/ElysianGameplayPlugin.cs`: 客户端 C# 玩法脚本插件，负责往事的飞花蓄力射击/聚能粒子等武器逻辑；Buff 入口由 `ElysianBuffPlugin` 独立管理。
 - `ElysianPortraitPlugin` 同时作为保底总入口：如果 LuaCs 只实例化一个 C# 插件，头像插件会显式拉起 Buff 与 Gameplay 链路。
@@ -34,13 +34,13 @@
 
 ## LuaCs Buff 框架
 
-- 圣痕槽位 Buff 由 `CSharp/Client/ElysianBuffSystem.cs` 管理，旧的圣痕直连逻辑已经移除，避免重复刷新和卸下后残留。
-- 可调规则在 `Config/ElysianBuffRules.xml`：`slot="0"` 是上位，`slot="1"` 是中位，`slot="2"` 是下位；`item` 是圣痕物品，`effect` 是槽位专属 Affliction，`strength` 是刷新强度。
-- 槽位专属 Affliction 位于 `Content/Afflictions/RealmeAfflictions.xml`，identifier 以 `elysian_slot_stigmata_` 开头，只负责 UI 显示和仲裁器状态；真实数值沿用圣痕物品里的原版 `GeneticMaterial effect="elysiastigmata_*_effect"`。
+- 圣痕槽位 Buff 现在使用纯 XML：`stigmataslot` 的三个 `SubContainer` 通过原版 `autoinject` 触发圣痕物品上的 `GeneticMaterial effect`。
+- `Config/ElysianBuffRules.xml` 不再包含圣痕规则；圣痕不再由 LuaCs Buff 仲裁器施加，避免 UI 图标重复。
+- 圣痕真实数值与唯一显示图标位于 `Content/Afflictions/RealmeAfflictions.xml` 的 `elysiastigmata_*_effect`。旧的 `elysian_slot_stigmata_*` 仅用于清理旧存档残留图标，不再作为正式 Buff。
 - 圣痕槽位物品定义在 `Content/Items/ElysianItems.xml` 的 `stigmataslot`，三个 `SubContainer` 分别限制上/中/下位圣痕，同时仍允许原版 `geneticmaterial`。
 - 人律/始源祝福现在也走 Buff 框架：规则优先读取角色已点亮的天赋，旧的 `ablessingfromherrscherofhuman`、`asourcefromherrscherofhuman`、`ablessingfromherrscheroforigin`、`asourcefromherrscheroforigin` 隐藏标记仅作为兼容内容保留；正式数值效果使用 `elysian_talent_*_effect`。
 - 爱莉希雅的喇叭也走 Buff 框架：`HornRules` 控制物品 identifier、冷却、范围、友方鼓励和敌方嘲讽失败时的降级效果；物品 XML 只保留声音和持握定义。
-- LuaCs 控制台应出现 `[ElysianRealm] Buff plugin booting`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Buff Character.Control hook registered`、`[ElysianRealm] Stigmata buff rules loaded`、`[ElysianRealm] Talent affliction buff rules loaded` 和 `[ElysianRealm] Horn buff rules loaded`。如果错槽，日志会出现 `Buff engine ignored ... expected slot ...`。
+- LuaCs 控制台应出现 `[ElysianRealm] Buff plugin booting`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Buff Character.Control hook registered`、`[ElysianRealm] Talent affliction buff rules loaded` 和 `[ElysianRealm] Horn buff rules loaded`。圣痕为纯 XML，不会再出现 `Stigmata rule active` 或错槽扫描日志。
 - 天赋 Buff 条件成立后会出现 `[ElysianRealm] Talent rule active`；正式效果成功施加后会出现 `[ElysianRealm] Buff effect applied`。如果出现 `apply failed` 或 `readback is zero`，说明问题在最终 Affliction 施加链路。
 
 ## 往事的飞花弓机制
@@ -141,7 +141,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\ItemVisualTuner.ps1 
 
 - 已安装并启用 Client-Side LuaCs。
 - LuaCs 已启用 C# 执行，并能扫描 Mod 根目录下的 `CSharp/Client` 与 `Lua/Autorun`；确认游戏目录中没有旧版残留的 `ModConfig.xml`。
-- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered` 后，应继续出现 `[ElysianRealm] Buff plugin registered`、`[ElysianRealm] Gameplay plugin registered`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Stigmata buff rules loaded`、`[ElysianRealm] Talent affliction buff rules loaded`、`[ElysianRealm] Horn buff rules loaded`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
+- LuaCs 日志中出现 `[ElysianRealm] Client portrait patch registered` 后，应继续出现 `[ElysianRealm] Buff plugin registered`、`[ElysianRealm] Gameplay plugin registered`、`[ElysianRealm] Buff engine initialized`、`[ElysianRealm] Talent affliction buff rules loaded`、`[ElysianRealm] Horn buff rules loaded`、`[ElysianRealm] Portrait loaded` 和 `[ElysianRealm] Realme portrait overlay drawn`。
 - 使用往事的飞花右键蓄力时，日志会出现 `[ElysianRealm] Pastflower charge visuals are drawing`；蓄力满 15 秒后会出现 `[ElysianRealm] Pastflower bow super charge ready`；随后左键射击会出现 `[ElysianRealm] Pastflower super shot prepared`。
 - 使用爱莉希雅的喇叭时，日志会出现 `[ElysianRealm] Horn used`，其中会统计本次鼓励和嘲讽尝试数量。
 - Mod 是否能被识别并启用。

@@ -126,16 +126,16 @@
     <InventoryIcon texture="%ModDir%/Assets/Items/圣痕槽位（缩略）.png" sourcerect="0,0,64,64" origin="0.5,0.5" />
     <Sprite texture="%ModDir%/Assets/Items/圣痕槽位（手持）.png" sourcerect="0,0,128,128" depth="0.55" origin="0.5,0.5" />
     <Body width="35" height="35" density="15" />
-    <ItemContainer capacity="0" maxstacksize="1" slotsperrow="3" autoinject="true" autoinjectthreshold="Infinity" allowswappingcontaineditems="false" hideitems="true" drawinventory="true" >
-      <SubContainer capacity="1" maxstacksize="1">
+    <ItemContainer capacity="0" maxstacksize="1" slotsperrow="3" autoinject="false" autoinjectthreshold="1.0" allowswappingcontaineditems="false" hideitems="true" drawinventory="true" >
+      <SubContainer capacity="1" maxstacksize="1" autoinject="true">
         <Containable items="geneticmaterial" excludedtags="elysiastigmata" />
         <Containable items="elysiastigmata_top_human,elysiastigmata_top_origin" />
       </SubContainer>
-      <SubContainer capacity="1" maxstacksize="1">
+      <SubContainer capacity="1" maxstacksize="1" autoinject="true">
         <Containable items="geneticmaterial" excludedtags="elysiastigmata" />
         <Containable items="elysiastigmata_mid_human,elysiastigmata_mid_origin" />
       </SubContainer>
-      <SubContainer capacity="1" maxstacksize="1">
+      <SubContainer capacity="1" maxstacksize="1" autoinject="true">
         <Containable items="geneticmaterial" excludedtags="elysiastigmata" />
         <Containable items="elysiastigmata_bottom_human,elysiastigmata_bottom_origin" />
       </SubContainer>

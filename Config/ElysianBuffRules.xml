@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ElysianBuffRules>
-  <StigmataSlotRules refreshinterval="0.5">
-    <StigmataRule item="elysiastigmata_top_human" slot="0" source="stigmata_slot_top" effect="elysian_slot_stigmata_top_human_effect" strength="100" />
-    <StigmataRule item="elysiastigmata_top_origin" slot="0" source="stigmata_slot_top" effect="elysian_slot_stigmata_top_origin_effect" strength="100" />
-    <StigmataRule item="elysiastigmata_mid_human" slot="1" source="stigmata_slot_mid" effect="elysian_slot_stigmata_mid_human_effect" strength="100" />
-    <StigmataRule item="elysiastigmata_mid_origin" slot="1" source="stigmata_slot_mid" effect="elysian_slot_stigmata_mid_origin_effect" strength="100" />
-    <StigmataRule item="elysiastigmata_bottom_human" slot="2" source="stigmata_slot_bottom" effect="elysian_slot_stigmata_bottom_human_effect" strength="100" />
-    <StigmataRule item="elysiastigmata_bottom_origin" slot="2" source="stigmata_slot_bottom" effect="elysian_slot_stigmata_bottom_origin_effect" strength="100" />
-  </StigmataSlotRules>
   <TalentAfflictionRules refreshinterval="0.5">
     <TalentAfflictionRule requiredtalents="AnOdetoLoveandCompassion" blockedtalents="BlessingofBeauty" source="talent_human_path" effect="elysian_talent_human_blessing_effect" strength="100" />
     <TalentAfflictionRule requiredtalents="AnOdetoLoveandCompassion,BlessingofBeauty" source="talent_human_path" effect="elysian_talent_human_source_effect" strength="100" />
