@@ -10,11 +10,11 @@
   <Item name="" identifier="crystal" category="Material" tags="smallitem,ore,elysianmaterial" maxstacksize="64" canbepicked="true" cargocontaineridentifier="metalcrate" scale="0.5" impactsoundtag="impact_metal_light">
     <PreferredContainer primary="mineralcab" secondary="storagecab" />
     <Price baseprice="128" sold="true">
-      <Price storeidentifier="merchantoutpost" multiplier="1.1" />
-      <Price storeidentifier="merchantcity" multiplier="1.25" />
-      <Price storeidentifier="merchantresearch" />
-      <Price storeidentifier="merchantmilitary" />
-      <Price storeidentifier="merchantmine" multiplier="0.75" />
+      <Price storeidentifier="merchantoutpost" multiplier="1.1" minavailable="10" maxavailable="40" />
+      <Price storeidentifier="merchantcity" multiplier="1.25" minavailable="40" maxavailable="75" />
+      <Price storeidentifier="merchantresearch" minavailable="30" maxavailable="60" />
+      <Price storeidentifier="merchantmilitary" minavailable="30" maxavailable="60" />
+      <Price storeidentifier="merchantmine" multiplier="0.75" minavailable="35" maxavailable="80"/>
     </Price>
     <Deconstruct time="20" />
     <LightComponent lightcolor="150,240,250,225" range="100" powerconsumption="0" flicker="0.0" flickerspeed="0.4" pulsefrequency="0.4" pulseamount="0" ison="true" drawbehindsubs="true">
