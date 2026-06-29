@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<contentpackage name="Elysian Realm Career Core / 乐土刻印职业核心" modversion="0.1.0" gameversion="1.0.21.0" corepackage="false">
+<contentpackage name="【崩坏三】乐土刻印职业篇/Elysian Realm Career Core" modversion="0.1.0" gameversion="1.0.21.0" corepackage="false">
   <!-- Core migration with recruitment baseline restored. Deprecated missions/random events remain archived under Deprecated/Recruitment. -->
   <Other file="%ModDir%/Lua/Autorun/ElysianDebug.lua" />
   <Other file="%ModDir%/CSharp/Client/ElysianBuffSystem.cs" />
