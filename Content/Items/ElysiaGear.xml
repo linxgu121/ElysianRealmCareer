@@ -39,7 +39,12 @@
       <SkillModifier skillidentifier="mechanical" skillvalue="+11" />
       <SkillModifier skillidentifier="medical" skillvalue="+11" />
       <SkillModifier skillidentifier="weapons" skillvalue="+11" />
-      <StatusEffect type="OnWearing" target="Character" HideFace="false" ObstructVision="false" PressureProtection="6000.0" LowPassMultiplier="0" setvalue="true" />
+      <StatusEffect type="OnWearing" target="Character" HideFace="false" ObstructVision="false" PressureProtection="6000.0" LowPassMultiplier="0" setvalue="true" disabledeltatime="true">
+        <Conditional elysiastigmata_bottom_human_effect="gt 0" />
+      </StatusEffect>
+      <StatusEffect type="OnWearing" target="Character" HideFace="false" ObstructVision="false" PressureProtection="6000.0" LowPassMultiplier="0" setvalue="true" disabledeltatime="true">
+        <Conditional elysiastigmata_top_origin_effect="gt 0" />
+      </StatusEffect>
       <ItemContainer capacity="6" keepopenwhenequipped="false" hideitems="true" movableframe="true" maxstacksize="64">
         <Containable items="smallitem,mediumitem,largeitem,railgunammo,railgunammosource,coilgunammo,ammobox,container,diving,crate,artifactholder,alienartifact,reactorfuel,weapon,pulselaserammo,flakcannonammo,chaingunammo,deepdivinglarge,diving,deepdiving,mobilecontainer,despawncontainer" />
       </ItemContainer>
