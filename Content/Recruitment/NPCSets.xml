@@ -23,10 +23,18 @@
       </ItemSet>
     </npc>
 
-    <npc identifier="Kevin" job="securityofficer" tags="securitynpc" spawnpointtags="security" healthmultiplier="2" behavior="Patrol">
-      <Character name="凯文" speciesname="human" gender="male" race="White" headspriteid="0" hairindex="0" beardindex="0" moustacheindex="0" healthmultiplier="2" />
+    <npc identifier="Kevin" job="outpostsecurityofficer" tags="securitynpc" spawnpointtags="security" healthmultiplier="2" behavior="Patrol">
+      <Character name="凯文" speciesname="human" gender="male" race="White" headspriteid="0" hairindex="0" beardindex="0" moustacheindex="0" healthmultiplier="2">
+        <job name="Kevin" identifier="outpostsecurityofficer">
+          <skill identifier="weapons" level="60" />
+          <skill identifier="medical" level="35" />
+          <skill identifier="mechanical" level="25" />
+          <skill identifier="electrical" level="25" />
+          <skill identifier="helm" level="10" />
+        </job>
+      </Character>
       <ItemSet>
-        <Item identifier="securityofficerclothes" equip="true" />
+        <Item identifier="securitypatrolclothes" equip="true" />
         <Item identifier="idcard" equip="true" tags="id_outpostsecurity" />
         <Item identifier="stunbaton">
           <Item identifier="batterycell" />
