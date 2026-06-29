@@ -175,24 +175,26 @@
   <talentdescription.ShatteredTransience>‖color:255,86,217,255‖希翼，如星火熠熠‖end‖
 鱼叉与爱矛类弹药伤害‖color:gui.green‖+200%‖end‖</talentdescription.ShatteredTransience>
   <!--你与我之始-->
-  <talentdescription.TheBeginningofYouandI>解锁配方：‖color:255,86,217,255‖爱莉希雅的小刀‖end‖</talentdescription.TheBeginningofYouandI>
+  <talentdescription.TheBeginningofYouandI>‖color:255,86,217,255‖这把小刀，改造一下，说不定会好不少♪‖end‖
+解锁配方：‖color:255,86,217,255‖爱莉希雅的小刀‖end‖</talentdescription.TheBeginningofYouandI>
   <!--命定此身，璀璨永恒-->
-  <talentdescription.RadiantDestiny>解锁配方：‖color:255,86,217,255‖爱莉希雅的喇叭‖end‖</talentdescription.RadiantDestiny>
+  <talentdescription.RadiantDestiny>‖color:255,86,217,255‖喂喂喂，一二三，喂喂喂，一二三……♪‖end‖
+解锁配方：‖color:255,86,217,255‖爱莉希雅的喇叭‖end‖</talentdescription.RadiantDestiny>
   <!--如弓矢般凛冽-->
   <talentdescription.BitingArrows>解锁配方：‖color:255,86,217,255‖爱莉希雅(上)‖end‖
-圣痕效果：游泳速度‖color:gui.green‖+50%‖end‖</talentdescription.BitingArrows>
+圣痕效果：游泳速度‖color:gui.green‖+100%‖end‖</talentdescription.BitingArrows>
   <!--愿海洋辽阔-->
   <talentdescription.WishforSea>解锁配方：‖color:255,86,217,255‖爱莉希雅 · 无瑕之人(上)‖end‖
-圣痕效果：持续清除水压伤害</talentdescription.WishforSea>
+圣痕效果：如果是‖color:255,86,217,255‖爱莉希雅‖end‖的话肯定可以无视水压</talentdescription.WishforSea>
   <!--如精灵般灵动-->
   <talentdescription.ElvenAgility>解锁配方：‖color:255,86,217,255‖爱莉希雅(中)‖end‖
 圣痕效果：夜视，并持续清除缺氧</talentdescription.ElvenAgility>
   <!--愿大地丰饶-->
   <talentdescription.WishforEarth>解锁配方：‖color:255,86,217,255‖爱莉希雅 · 无瑕之人(中)‖end‖
-圣痕效果：持续削减眩晕</talentdescription.WishforEarth>
+圣痕效果：眩晕抵抗‖color:gui.green‖+50%‖end‖</talentdescription.WishforEarth>
   <!--如飞花般绚丽-->
   <talentdescription.FloralSplendor>解锁配方：‖color:255,86,217,255‖爱莉希雅(下)‖end‖
-圣痕效果：持续清除水压伤害</talentdescription.FloralSplendor>
+圣痕效果：如果是‖color:255,86,217,255‖爱莉希雅‖end‖的话肯定可以无视水压</talentdescription.FloralSplendor>
   <!--愿群星闪耀-->
   <talentdescription.WishforStars>解锁配方：‖color:255,86,217,255‖爱莉希雅 · 无瑕之人(下)‖end‖
 圣痕效果：轻微治疗自身负面伤害</talentdescription.WishforStars>
@@ -204,12 +206,16 @@
 使用鱼叉发射</entitydescription.lovespears>
   <entityname.crystal>湛蓝水晶</entityname.crystal>
   <entitydescription.crystal>不知道为什么，你的肝忽然疼了起来。</entitydescription.crystal>
-  <entityname.pastflower>‖color:255,86,217,255‖往事的飞花‖end‖</entityname.pastflower>
-  <entitydescription.pastflower>双手持握的弓。物品栏内携带爱矛即可发射：右键蓄力超过0.5秒后左键射出一根爱矛；满15秒后会消耗物品栏内所有爱矛，发射一记强化箭。</entitydescription.pastflower>
+  <entityname.pastflower>‖color:255,86,217,255‖往世的飞花 · 爱之诗‖end‖</entityname.pastflower>
+  <entitydescription.pastflower>‖color:255,86,217,255‖这是我最喜欢的一把弓，静似飞花、动若燕雀，就和这美丽的我一样。可不要盯着看太久哦，不然目光就再也无法从它身上移开了。还是说，你其实是在看我呢？‖end‖
+‖color:255,86,217,255‖爱莉希雅‖end‖的贴心提示！
+物品栏内携带爱矛即可发射：右键蓄力超过0.5秒后左键射出一根爱矛；满15秒后会消耗物品栏内所有爱矛，发射一记强化箭。‖color:255,86,217,255‖当然手里可不要拿着奇奇怪怪的东西‖end‖</entitydescription.pastflower>
   <entityname.elysiaknife>爱莉希雅的小刀</entityname.elysiaknife>
-  <entitydescription.elysiaknife>轻巧锋利的小刀。</entitydescription.elysiaknife>
+  <entitydescription.elysiaknife>‖color:255,86,217,255‖这把小刀，改造一下，说不定会好不少♪‖end‖</entitydescription.elysiaknife>
   <entityname.elysiahorn>爱莉希雅的喇叭</entityname.elysiahorn>
-  <entitydescription.elysiahorn>吹响后给予附近友方短暂的爱莉希雅的鼓励，并通过 LuaCs 尝试嘲讽附近敌对 AI。</entitydescription.elysiahorn>
+  <entitydescription.elysiahorn>‖color:255,86,217,255‖喂喂喂，一二三，喂喂喂，一二三……♪‖end‖
+‖color:255,86,217,255‖这是我从菲利斯那换来的，用了三朵水晶花呢。‖end‖
+‖color:255,86,217,255‖持久耐用，音质清晰，声音也超级甜美。用它来为我们强大可爱的船员做宣传，再合适不过。‖end‖</entitydescription.elysiahorn>
   <entityname.stigmataslot>圣痕槽位</entityname.stigmataslot>
   <entitydescription.stigmataslot>可放入三枚圣痕或遗传物质的特殊槽位。</entitydescription.stigmataslot>
   <entityname.elysiastigmata_top_human>爱莉希雅(上)</entityname.elysiastigmata_top_human>
