@@ -16,6 +16,7 @@ namespace Barotrauma.ElysianRealm
     {
         private const string CharacterControlHook = "elysianrealm.gameplay.character.control";
         private const string BowDrawHudHook = "elysianrealm.gameplay.rangedweapon.drawhud.after";
+        private const string GameplayDrawHook = "elysianrealm.gameplay.draw.after";
         private const string ProjectileImpactHook = "elysianrealm.gameplay.projectile.impact.after";
         private const string ProjectileShootHook = "elysianrealm.gameplay.projectile.shoot.after";
         private const string RangedWeaponBeforeHook = "elysianrealm.gameplay.rangedweapon.use.before";
@@ -121,11 +122,13 @@ namespace Barotrauma.ElysianRealm
         private static bool directVoicePlayFailed;
         private static bool nightVisionLightHookFailed;
         private static bool nightVisionLightHookRegistered;
+        private static bool activeShotDrawHookRegistered;
         private static bool nightVisionAmbientRestorePending;
         private static Color nightVisionOriginalAmbient;
         private static Character npcRadioSpeaker;
         private static float npcRadioTimer;
         private static float npcRadioLineTimer;
+        private static int lastActiveShotVisualDrawTick;
         private static bool registered;
 
         private sealed class RegisteredHook
@@ -167,6 +170,7 @@ namespace Barotrauma.ElysianRealm
             CacheInputMethods();
             HookCharacterControl(hookOwner);
             HookBowHud(hookOwner);
+            HookActiveShotDraw(hookOwner);
             HookProjectileImpact(hookOwner);
             HookRangedWeaponUse(hookOwner);
             HookNightVisionLightMap(hookOwner);
@@ -230,10 +234,12 @@ namespace Barotrauma.ElysianRealm
             directVoicePlayFailed = false;
             nightVisionLightHookFailed = false;
             nightVisionLightHookRegistered = false;
+            activeShotDrawHookRegistered = false;
             nightVisionAmbientRestorePending = false;
             npcRadioSpeaker = null;
             npcRadioTimer = 0.0f;
             npcRadioLineTimer = 0.0f;
+            lastActiveShotVisualDrawTick = 0;
             ownerPackage = null;
             registered = false;
         }
@@ -379,6 +385,62 @@ namespace Barotrauma.ElysianRealm
                 ILuaCsHook.HookMethodType.After,
                 owner: hookOwner);
             RememberHook(BowDrawHudHook, method, ILuaCsHook.HookMethodType.After);
+        }
+
+        private static void HookActiveShotDraw(IAssemblyPlugin hookOwner)
+        {
+            if (activeShotDrawHookRegistered)
+            {
+                return;
+            }
+
+            foreach (string typeName in new[] { "GameScreen", "Screen" })
+            {
+                Type type = FindTypeByName(typeName);
+                if (type == null)
+                {
+                    continue;
+                }
+
+                List<MethodInfo> drawMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Where(IsSpriteBatchDrawMethod)
+                    .GroupBy(m => m.MetadataToken)
+                    .Select(g => g.First())
+                    .ToList();
+
+                foreach (MethodInfo method in drawMethods)
+                {
+                    string hookIdentifier = GameplayDrawHook + "." + type.Name + "." + method.MetadataToken;
+                    LuaCsSetup.Instance.EventService.HookMethod(
+                        hookIdentifier,
+                        method,
+                        GameplayDrawAfter,
+                        ILuaCsHook.HookMethodType.After,
+                        owner: hookOwner);
+                    RememberHook(hookIdentifier, method, ILuaCsHook.HookMethodType.After);
+                    activeShotDrawHookRegistered = true;
+                }
+
+                if (activeShotDrawHookRegistered)
+                {
+                    LuaCsLogger.LogMessage("[ElysianRealm] Pastflower active shot draw hook registered. type=" + type.Name + ", methods=" + drawMethods.Count);
+                    return;
+                }
+            }
+
+            LuaCsLogger.LogError("[ElysianRealm] Game draw method was not found; pastflower impact icon falls back to bow HUD.");
+        }
+
+        private static bool IsSpriteBatchDrawMethod(MethodInfo method)
+        {
+            if (method == null ||
+                method.IsAbstract ||
+                !string.Equals(method.Name, "Draw", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return method.GetParameters().Any(p => p.ParameterType == typeof(SpriteBatch));
         }
 
         private static void HookProjectileImpact(IAssemblyPlugin hookOwner)
@@ -683,18 +745,12 @@ namespace Barotrauma.ElysianRealm
                 return null;
             }
 
-            Vector2 position;
-            if (!TryGetProjectileImpactWorldPosition(args, projectileItem, out position) &&
-                !TryGetWorldPosition(projectileItem, out position))
-            {
-                position = data.Attacker == null ? Vector2.Zero : data.Attacker.WorldPosition;
-            }
-
-            ApplyPastflowerExplosion(data.Attacker, position);
-            ApplyPastflowerSuperDirectDamage(data.Attacker, position, data.ArrowCount);
-            AddPastflowerExplosionVisual(position);
+            Vector2 explosionPosition = ResolvePastflowerExplosionPosition(args, projectileItem, data.Attacker);
+            ApplyPastflowerExplosion(data.Attacker, explosionPosition);
+            ApplyPastflowerSuperDirectDamage(data.Attacker, explosionPosition, data.ArrowCount);
+            AddPastflowerExplosionVisual(explosionPosition);
             ScheduleDelayedItemRemoval(projectileItem, PastflowerExplosionVisualSeconds);
-            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount);
+            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount + ", position=" + FormatVector(explosionPosition));
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile removal scheduled.");
             return null;
         }
@@ -740,6 +796,23 @@ namespace Barotrauma.ElysianRealm
         private static object NightVisionLightMapAfter(object self, Dictionary<string, object> args)
         {
             RestoreNightVisionAmbient(self ?? FindGameMainLightManager());
+            return null;
+        }
+
+        private static object GameplayDrawAfter(object self, Dictionary<string, object> args)
+        {
+            if (!HasPastflowerActiveShotVisuals())
+            {
+                return null;
+            }
+
+            SpriteBatch spriteBatch = GetArgByType<SpriteBatch>(args, "spriteBatch");
+            if (spriteBatch == null || GUI.WhiteTexture == null)
+            {
+                return null;
+            }
+
+            DrawPastflowerActiveShotVisuals(spriteBatch);
             return null;
         }
 
@@ -1611,8 +1684,18 @@ namespace Barotrauma.ElysianRealm
 
         private static void DrawPastflowerActiveShotVisuals(SpriteBatch spriteBatch)
         {
+            if (!HasPastflowerActiveShotVisuals())
+            {
+                return;
+            }
+
             TryLoadPastflowerVisualSprites();
             int now = Environment.TickCount;
+            if (lastActiveShotVisualDrawTick == now)
+            {
+                return;
+            }
+            lastActiveShotVisualDrawTick = now;
 
             for (int i = BeamVisuals.Count - 1; i >= 0; i--)
             {
@@ -1669,6 +1752,11 @@ namespace Barotrauma.ElysianRealm
             }
         }
 
+        private static bool HasPastflowerActiveShotVisuals()
+        {
+            return BeamVisuals.Count > 0 || ExplosionVisuals.Count > 0;
+        }
+
         private static void AddPastflowerBeamVisual(Character character, Item bow)
         {
             Vector2 start;
@@ -1694,6 +1782,7 @@ namespace Barotrauma.ElysianRealm
         private static void AddPastflowerExplosionVisual(Vector2 worldPosition)
         {
             ExplosionVisuals.Add(new ExplosionVisual(worldPosition, Environment.TickCount, PastflowerExplosionVisualSeconds));
+            LuaCsLogger.LogMessage("[ElysianRealm] Pastflower explosion icon queued. position=" + FormatVector(worldPosition));
         }
 
         private static void ScheduleDelayedItemRemoval(Item item, float delaySeconds)
@@ -3765,6 +3854,31 @@ namespace Barotrauma.ElysianRealm
         private static bool IsPastflowerArrow(Item item)
         {
             return HasIdentifier(item, ArrowIdentifier) || HasIdentifier(item, SuperArrowIdentifier);
+        }
+
+        private static Vector2 ResolvePastflowerExplosionPosition(Dictionary<string, object> args, Item projectileItem, Character attacker)
+        {
+            Vector2 explosionPosition;
+            if (TryGetProjectileImpactWorldPosition(args, projectileItem, out explosionPosition))
+            {
+                return explosionPosition;
+            }
+
+            if (TryGetWorldPosition(projectileItem, out explosionPosition))
+            {
+                return explosionPosition;
+            }
+
+            return attacker == null ? Vector2.Zero : attacker.WorldPosition;
+        }
+
+        private static string FormatVector(Vector2 value)
+        {
+            return string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                "{0:0.0},{1:0.0}",
+                value.X,
+                value.Y);
         }
 
         private static Type FindTypeByName(string typeName)
