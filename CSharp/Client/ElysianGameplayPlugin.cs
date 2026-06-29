@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Xml;
 using Barotrauma;
 using Barotrauma.LuaCs;
 using Microsoft.Xna.Framework;
@@ -30,6 +31,9 @@ namespace Barotrauma.ElysianRealm
         private const string BowNoAmmoHintText = "\u7231\u8389\u5e0c\u96c5\u7684\u6e29\u99a8\u63d0\u793a\uff1a\u9700\u8981\u7231\u77db";
         private const string ChargeSpriteRelativePath = "Assets/UI/Pillarofflame.png";
         private const string ExplosionSpriteRelativePath = "Assets/UI/\u771f\u62111.png";
+        private const string NpcRadioConversationRelativePath = "Config/NpcRadioConversations.xml";
+        private const string RealmeJobIdentifier = "realme";
+        private const string NpcRadioMessageIdentifier = "elysianrealm_npc_radio";
 
         private const float BowSuperChargeSeconds = 15.0f;
         private const float BowMinChargeSeconds = 0.5f;
@@ -56,6 +60,13 @@ namespace Barotrauma.ElysianRealm
         private const int NightVisionAmbientTargetR = 46;
         private const int NightVisionAmbientTargetG = 52;
         private const int NightVisionAmbientTargetB = 50;
+        private const float NpcRadioInitialMinInterval = 35.0f;
+        private const float NpcRadioInitialMaxInterval = 90.0f;
+        private const float NpcRadioMinInterval = 90.0f;
+        private const float NpcRadioMaxInterval = 180.0f;
+        private const float NpcRadioNoSpeakerRetryInterval = 15.0f;
+        private const float NpcRadioLineInterval = 4.0f;
+        private const float NpcRadioRange = 8000.0f;
 
         private static readonly Dictionary<Character, ChargeState> ChargeStates = new Dictionary<Character, ChargeState>();
         private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
@@ -68,6 +79,9 @@ namespace Barotrauma.ElysianRealm
         private static readonly List<ExplosionVisual> ExplosionVisuals = new List<ExplosionVisual>();
         private static readonly List<DelayedItemRemoval> DelayedItemRemovals = new List<DelayedItemRemoval>();
         private static readonly List<RegisteredHook> RegisteredHooks = new List<RegisteredHook>();
+        private static readonly List<RadioConversationNode> NpcRadioConversations = new List<RadioConversationNode>();
+        private static readonly Queue<string> NpcRadioPendingLines = new Queue<string>();
+        private static readonly Random NpcRadioRandom = new Random();
         private const string NightVisionAfflictionIdentifier = "elysian_slot_stigmata_mid_human_effect";
         private static readonly string[] PastflowerSuperVoiceAfflictions = new[]
         {
@@ -86,8 +100,11 @@ namespace Barotrauma.ElysianRealm
         private static MethodInfo characterIsKeyHitMethod;
         private static MethodInfo guiDrawStringMethod;
         private static MethodInfo toDisplayUnitsMethod;
+        private static List<MethodInfo> characterSpeakMethods;
         private static List<MethodInfo> soundPlayMethods;
         private static Type rangedWeaponType;
+        private static Type chatMessageType;
+        private static object radioChatMessageType;
         private static Sprite chargeSprite;
         private static Sprite explosionSprite;
         private static bool chargeSpriteLoadFailed;
@@ -95,12 +112,20 @@ namespace Barotrauma.ElysianRealm
         private static bool guiDrawStringLookupFailed;
         private static bool guiDrawStringInvokeFailed;
         private static bool toDisplayUnitsLookupFailed;
+        private static bool characterSpeakLookupFailed;
+        private static bool chatMessageTypeLookupFailed;
+        private static bool npcRadioConversationsLoaded;
+        private static bool npcRadioConversationLoadFailed;
+        private static bool npcRadioSpeakFailed;
         private static bool soundPlayLookupFailed;
         private static bool directVoicePlayFailed;
         private static bool nightVisionLightHookFailed;
         private static bool nightVisionLightHookRegistered;
         private static bool nightVisionAmbientRestorePending;
         private static Color nightVisionOriginalAmbient;
+        private static Character npcRadioSpeaker;
+        private static float npcRadioTimer;
+        private static float npcRadioLineTimer;
         private static bool registered;
 
         private sealed class RegisteredHook
@@ -137,6 +162,8 @@ namespace Barotrauma.ElysianRealm
             }
 
             ElysianBuffPlugin.EnsureInitialized(hookOwner, ownerPackage);
+            LoadNpcRadioConversations();
+            ResetNpcRadioTimer(NpcRadioInitialMinInterval, NpcRadioInitialMaxInterval);
             CacheInputMethods();
             HookCharacterControl(hookOwner);
             HookBowHud(hookOwner);
@@ -177,23 +204,36 @@ namespace Barotrauma.ElysianRealm
             BeamVisuals.Clear();
             ExplosionVisuals.Clear();
             DelayedItemRemovals.Clear();
+            NpcRadioConversations.Clear();
+            NpcRadioPendingLines.Clear();
             RestoreNightVisionAmbient(FindGameMainLightManager());
             LoggedOnce.Clear();
             RemoveSprite(ref chargeSprite);
             RemoveSprite(ref explosionSprite);
             guiDrawStringMethod = null;
             toDisplayUnitsMethod = null;
+            characterSpeakMethods = null;
             soundPlayMethods = null;
+            chatMessageType = null;
+            radioChatMessageType = null;
             chargeSpriteLoadFailed = false;
             explosionSpriteLoadFailed = false;
             guiDrawStringLookupFailed = false;
             guiDrawStringInvokeFailed = false;
             toDisplayUnitsLookupFailed = false;
+            characterSpeakLookupFailed = false;
+            chatMessageTypeLookupFailed = false;
+            npcRadioConversationsLoaded = false;
+            npcRadioConversationLoadFailed = false;
+            npcRadioSpeakFailed = false;
             soundPlayLookupFailed = false;
             directVoicePlayFailed = false;
             nightVisionLightHookFailed = false;
             nightVisionLightHookRegistered = false;
             nightVisionAmbientRestorePending = false;
+            npcRadioSpeaker = null;
+            npcRadioTimer = 0.0f;
+            npcRadioLineTimer = 0.0f;
             ownerPackage = null;
             registered = false;
         }
@@ -477,12 +517,17 @@ namespace Barotrauma.ElysianRealm
             PruneExpiredPendingSuperShots();
 
             Character character = self as Character;
+            float deltaTime = GetFloatArg(args, "deltaTime", 1.0f / 60.0f);
+            if (ReferenceEquals(character, GetControlledCharacter()))
+            {
+                UpdateNpcRadioConversations(deltaTime);
+            }
+
             if (!IsUsableCharacter(character))
             {
                 return null;
             }
 
-            float deltaTime = GetFloatArg(args, "deltaTime", 1.0f / 60.0f);
             UpdateBowCharge(character, deltaTime);
             return null;
         }
@@ -752,6 +797,412 @@ namespace Barotrauma.ElysianRealm
         private static Character GetControlledCharacter()
         {
             return GetStaticMemberValue(typeof(Character), "Controlled") as Character;
+        }
+
+        private static void LoadNpcRadioConversations()
+        {
+            if (npcRadioConversationsLoaded || npcRadioConversationLoadFailed)
+            {
+                return;
+            }
+
+            string packageDir = ownerPackage == null ? null : ownerPackage.Dir;
+            if (string.IsNullOrEmpty(packageDir))
+            {
+                npcRadioConversationLoadFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] NPC radio conversation package path is unresolved.");
+                return;
+            }
+
+            string path = Path.Combine(packageDir, NpcRadioConversationRelativePath.Replace('/', Path.DirectorySeparatorChar));
+            if (!File.Exists(path))
+            {
+                npcRadioConversationLoadFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] NPC radio conversation file not found: " + path);
+                return;
+            }
+
+            try
+            {
+                XmlDocument document = new XmlDocument();
+                document.Load(path);
+
+                XmlNodeList roots = document.SelectNodes("/Conversations/Conversation");
+                if (roots != null)
+                {
+                    foreach (XmlNode node in roots)
+                    {
+                        XmlElement element = node as XmlElement;
+                        if (element == null || !ConversationAllowsRealme(element))
+                        {
+                            continue;
+                        }
+
+                        RadioConversationNode conversation = ParseRadioConversationNode(element);
+                        if (conversation != null)
+                        {
+                            NpcRadioConversations.Add(conversation);
+                        }
+                    }
+                }
+
+                npcRadioConversationsLoaded = true;
+                LuaCsLogger.LogMessage("[ElysianRealm] NPC radio conversations loaded. count=" + NpcRadioConversations.Count);
+            }
+            catch (Exception ex)
+            {
+                npcRadioConversationLoadFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] NPC radio conversation load failed: " + ex.GetType().Name);
+                LuaCsLogger.HandleException(ex, LuaCsMessageOrigin.LuaMod);
+            }
+        }
+
+        private static bool ConversationAllowsRealme(XmlElement element)
+        {
+            string allowedJobs = element.GetAttribute("allowedjobs");
+            if (string.IsNullOrWhiteSpace(allowedJobs))
+            {
+                return true;
+            }
+
+            string[] parts = allowedJobs.Split(',');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (string.Equals(parts[i].Trim(), RealmeJobIdentifier, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static RadioConversationNode ParseRadioConversationNode(XmlElement element)
+        {
+            string line = element.GetAttribute("line");
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                return null;
+            }
+
+            int speaker = 0;
+            int.TryParse(element.GetAttribute("speaker"), out speaker);
+            RadioConversationNode node = new RadioConversationNode(line.Trim(), speaker);
+
+            foreach (XmlNode child in element.ChildNodes)
+            {
+                XmlElement childElement = child as XmlElement;
+                if (childElement == null || !string.Equals(childElement.Name, "Conversation", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                RadioConversationNode childNode = ParseRadioConversationNode(childElement);
+                if (childNode != null)
+                {
+                    node.Children.Add(childNode);
+                }
+            }
+
+            return node;
+        }
+
+        private static void UpdateNpcRadioConversations(float deltaTime)
+        {
+            if (!npcRadioConversationsLoaded && !npcRadioConversationLoadFailed)
+            {
+                LoadNpcRadioConversations();
+            }
+
+            if (!npcRadioConversationsLoaded || NpcRadioConversations.Count == 0)
+            {
+                return;
+            }
+
+            deltaTime = Math.Max(0.0f, deltaTime);
+            if (NpcRadioPendingLines.Count > 0)
+            {
+                npcRadioLineTimer -= deltaTime;
+                if (npcRadioLineTimer <= 0.0f)
+                {
+                    SendNextNpcRadioLine();
+                }
+
+                return;
+            }
+
+            npcRadioTimer -= deltaTime;
+            if (npcRadioTimer > 0.0f)
+            {
+                return;
+            }
+
+            Character speaker = ChooseNpcRadioSpeaker();
+            if (speaker == null)
+            {
+                npcRadioTimer = NpcRadioNoSpeakerRetryInterval;
+                return;
+            }
+
+            RadioConversationNode conversation = NpcRadioConversations[NpcRadioRandom.Next(NpcRadioConversations.Count)];
+            List<string> lines = new List<string>();
+            CollectRandomNpcRadioPath(conversation, lines);
+            if (lines.Count == 0)
+            {
+                ResetNpcRadioTimer(NpcRadioMinInterval, NpcRadioMaxInterval);
+                return;
+            }
+
+            npcRadioSpeaker = speaker;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                NpcRadioPendingLines.Enqueue(lines[i]);
+            }
+
+            SendNextNpcRadioLine();
+            ResetNpcRadioTimer(NpcRadioMinInterval, NpcRadioMaxInterval);
+        }
+
+        private static Character ChooseNpcRadioSpeaker()
+        {
+            Character controlled = GetControlledCharacter();
+            List<Character> candidates = new List<Character>();
+
+            foreach (Character character in Character.CharacterList)
+            {
+                if (!IsAiControlledRealme(character))
+                {
+                    continue;
+                }
+
+                if (controlled != null && !IsFriendly(controlled, character))
+                {
+                    continue;
+                }
+
+                candidates.Add(character);
+            }
+
+            return candidates.Count == 0 ? null : candidates[NpcRadioRandom.Next(candidates.Count)];
+        }
+
+        private static bool IsAiControlledRealme(Character character)
+        {
+            if (!IsUsableCharacter(character))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(character, GetControlledCharacter()))
+            {
+                return false;
+            }
+
+            object aiController = GetMemberValue(character, "AIController");
+            if (aiController == null)
+            {
+                return false;
+            }
+
+            return HasJobIdentifier(character, RealmeJobIdentifier);
+        }
+
+        private static bool HasJobIdentifier(Character character, string identifier)
+        {
+            object info = GetMemberValue(character, "Info");
+            object job = GetMemberValue(info, "Job");
+            object prefab = GetMemberValue(job, "Prefab");
+            object jobIdentifier = GetMemberValue(prefab, "Identifier");
+            return jobIdentifier != null && string.Equals(jobIdentifier.ToString(), identifier, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static void CollectRandomNpcRadioPath(RadioConversationNode node, List<string> lines)
+        {
+            if (node == null)
+            {
+                return;
+            }
+
+            if (node.Speaker == 0 && !string.IsNullOrWhiteSpace(node.Line))
+            {
+                lines.Add(node.Line);
+            }
+
+            if (node.Children.Count == 0)
+            {
+                return;
+            }
+
+            CollectRandomNpcRadioPath(node.Children[NpcRadioRandom.Next(node.Children.Count)], lines);
+        }
+
+        private static void SendNextNpcRadioLine()
+        {
+            if (NpcRadioPendingLines.Count == 0)
+            {
+                npcRadioSpeaker = null;
+                return;
+            }
+
+            Character speaker = IsAiControlledRealme(npcRadioSpeaker) ? npcRadioSpeaker : ChooseNpcRadioSpeaker();
+            if (speaker == null)
+            {
+                NpcRadioPendingLines.Clear();
+                npcRadioSpeaker = null;
+                npcRadioTimer = NpcRadioNoSpeakerRetryInterval;
+                return;
+            }
+
+            string line = NpcRadioPendingLines.Dequeue();
+            if (!TrySpeakRadioLine(speaker, line) && !npcRadioSpeakFailed)
+            {
+                npcRadioSpeakFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] NPC radio message failed; Character.Speak signature may have changed.");
+            }
+
+            npcRadioSpeaker = speaker;
+            npcRadioLineTimer = NpcRadioLineInterval;
+        }
+
+        private static void ResetNpcRadioTimer(float minInterval, float maxInterval)
+        {
+            float min = Math.Max(0.0f, minInterval);
+            float max = Math.Max(min, maxInterval);
+            npcRadioTimer = min + (float)NpcRadioRandom.NextDouble() * (max - min);
+        }
+
+        private static bool TrySpeakRadioLine(Character speaker, string line)
+        {
+            if (!IsUsableCharacter(speaker) || string.IsNullOrWhiteSpace(line))
+            {
+                return false;
+            }
+
+            object radioType = GetRadioChatMessageType();
+            foreach (MethodInfo method in GetCharacterSpeakMethods())
+            {
+                ParameterInfo[] parameters = method.GetParameters();
+                object[] values;
+                if (!TryBuildSpeakArguments(parameters, speaker, line, radioType, out values))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    method.Invoke(speaker, values);
+                    return true;
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
+        }
+
+        private static List<MethodInfo> GetCharacterSpeakMethods()
+        {
+            if (characterSpeakMethods != null || characterSpeakLookupFailed)
+            {
+                return characterSpeakMethods ?? new List<MethodInfo>();
+            }
+
+            characterSpeakMethods = typeof(Character).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(m => string.Equals(m.Name, "Speak", StringComparison.Ordinal))
+                .OrderByDescending(m => m.GetParameters().Any(p => p.ParameterType.IsEnum && string.Equals(p.ParameterType.Name, "ChatMessageType", StringComparison.Ordinal)))
+                .ToList();
+
+            if (characterSpeakMethods.Count == 0)
+            {
+                characterSpeakLookupFailed = true;
+                LuaCsLogger.LogError("[ElysianRealm] Character.Speak was not found; NPC radio disabled.");
+            }
+
+            return characterSpeakMethods;
+        }
+
+        private static object GetRadioChatMessageType()
+        {
+            if (radioChatMessageType != null || chatMessageTypeLookupFailed)
+            {
+                return radioChatMessageType;
+            }
+
+            chatMessageType = FindTypeByName("ChatMessageType");
+            if (chatMessageType == null || !chatMessageType.IsEnum)
+            {
+                chatMessageTypeLookupFailed = true;
+                return null;
+            }
+
+            foreach (string name in new[] { "Radio", "Default" })
+            {
+                try
+                {
+                    radioChatMessageType = Enum.Parse(chatMessageType, name, true);
+                    return radioChatMessageType;
+                }
+                catch
+                {
+                }
+            }
+
+            chatMessageTypeLookupFailed = true;
+            return null;
+        }
+
+        private static bool TryBuildSpeakArguments(ParameterInfo[] parameters, Character speaker, string line, object radioType, out object[] values)
+        {
+            values = new object[parameters.Length];
+            bool lineAssigned = false;
+            bool chatTypeRequired = false;
+            bool chatTypeAssigned = false;
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                Type type = parameters[i].ParameterType;
+                string name = parameters[i].Name ?? string.Empty;
+
+                if (!lineAssigned && type == typeof(string))
+                {
+                    values[i] = line;
+                    lineAssigned = true;
+                }
+                else if (type.IsEnum && string.Equals(type.Name, "ChatMessageType", StringComparison.Ordinal))
+                {
+                    chatTypeRequired = true;
+                    if (radioType == null || !type.IsInstanceOfType(radioType))
+                    {
+                        return false;
+                    }
+
+                    values[i] = radioType;
+                    chatTypeAssigned = true;
+                }
+                else if (type == typeof(float))
+                {
+                    values[i] = name.IndexOf("range", StringComparison.OrdinalIgnoreCase) >= 0 ? NpcRadioRange : GetParameterDefault(parameters[i]);
+                }
+                else if (type == typeof(string))
+                {
+                    values[i] = name.IndexOf("identifier", StringComparison.OrdinalIgnoreCase) >= 0 ? NpcRadioMessageIdentifier : string.Empty;
+                }
+                else if (type == typeof(Character))
+                {
+                    values[i] = speaker;
+                }
+                else if (string.Equals(type.Name, "Identifier", StringComparison.Ordinal))
+                {
+                    values[i] = CreateIdentifier(NpcRadioMessageIdentifier);
+                }
+                else
+                {
+                    values[i] = GetParameterDefault(parameters[i]);
+                }
+            }
+
+            return lineAssigned && (!chatTypeRequired || chatTypeAssigned);
         }
 
         private static bool HasNightVisionAffliction(Character character)
@@ -3923,6 +4374,19 @@ namespace Barotrauma.ElysianRealm
             if (LoggedOnce.Add(key))
             {
                 LuaCsLogger.LogMessage(message);
+            }
+        }
+
+        private sealed class RadioConversationNode
+        {
+            public readonly string Line;
+            public readonly int Speaker;
+            public readonly List<RadioConversationNode> Children = new List<RadioConversationNode>();
+
+            public RadioConversationNode(string line, int speaker)
+            {
+                Line = line;
+                Speaker = speaker;
             }
         }
 

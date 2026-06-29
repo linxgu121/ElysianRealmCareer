@@ -6,6 +6,7 @@
   <Other file="%ModDir%/CSharp/Client/ElysianGameplayPlugin.cs" />
   <Other file="%ModDir%/CSharp/Client/ElysianPortraitPlugin.cs" />
   <Other file="%ModDir%/Config/ElysianBuffRules.xml" />
+  <Other file="%ModDir%/Config/NpcRadioConversations.xml" />
   <Text file="%ModDir%/Localization/SimplifiedChinese.xml" />
   <Jobs file="%ModDir%/Content/Jobs/Jobs.xml" />
   <TalentTrees file="%ModDir%/Content/Talents/TalentTrees.xml" />
