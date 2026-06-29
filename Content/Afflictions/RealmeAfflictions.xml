@@ -208,60 +208,64 @@
   <!--爱莉希雅(上)-->
   <Affliction identifier="elysiastigmata_top_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
     <Effect minstrength="0" maxstrength="100">
-      <StatValue stattype="SwimmingSpeed" value="0.5" />
+      <StatValue stattype="SwimmingSpeed" value="1.0" />
     </Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--爱莉希雅 · 无瑕之人(上)-->
   <Affliction identifier="elysiastigmata_top_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
-    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
-      <StatusEffect target="Character" disabledeltatime="true">
-        <ReduceAffliction identifier="pressure" strength="1000" />
-      </StatusEffect>
-    </PeriodicEffect>
+    <Effect minstrength="0" maxstrength="100"></Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--爱莉希雅(中)-->
   <Affliction identifier="elysiastigmata_mid_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
-    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
-      <StatusEffect target="Character" disabledeltatime="true">
-        <ReduceAffliction identifier="oxygenlow" strength="100" />
-      </StatusEffect>
-    </PeriodicEffect>
+    <Effect minstrength="0" maxstrength="100" resistancefor="oxygenlow" minresistance="1.0" maxresistance="1.0">
+      <StatusEffect target="Character" usehulloxygen="false" setvalue="true"/>
+    </Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--爱莉希雅 · 无瑕之人(中)-->
   <Affliction identifier="elysiastigmata_mid_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
-    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
-      <StatusEffect target="Character" disabledeltatime="true">
-        <ReduceAffliction identifier="stun" strength="0.5" />
-      </StatusEffect>
-    </PeriodicEffect>
+    <Effect minstrength="0" maxstrength="100">
+        <StatusEffect target="Character">
+            <!-- 眩晕获取量 ×0.5，50%抵抗眩晕 -->
+            <CharacterAbilityModifyResistance resistanceid="stun" multiplier="0.5" />
+        </StatusEffect>
+    </Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--爱莉希雅(下)-->
   <Affliction identifier="elysiastigmata_bottom_human_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
-    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
-      <StatusEffect target="Character" disabledeltatime="true">
-        <ReduceAffliction identifier="pressure" strength="1000" />
-      </StatusEffect>
-    </PeriodicEffect>
+    <Effect minstrength="0" maxstrength="100"></Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
   <!--爱莉希雅 · 无瑕之人(下)-->
   <Affliction identifier="elysiastigmata_bottom_origin_effect" type="geneticmaterialbuff" isbuff="true" limbspecific="false" hideiconafterdelay="false" showiconthreshold="1" maxstrength="100" showbarinhealthmenu="true" treatmentthreshold="1000" iconcolors="255,86,217">
-    <PeriodicEffect mininterval="0.5" maxinterval="0.5">
-      <StatusEffect target="Character" disabledeltatime="true">
-        <ReduceAffliction identifier="bleeding" strength="1" />
-        <ReduceAffliction identifier="bloodloss" strength="1" />
-        <ReduceAffliction identifier="burn" strength="1" />
-        <ReduceAffliction identifier="internaldamage" strength="1" />
-        <ReduceAffliction identifier="lacerations" strength="1" />
-        <ReduceAffliction identifier="blunttrauma" strength="1" />
-        <ReduceAffliction identifier="bitewounds" strength="1" />
-        <ReduceAffliction identifier="gunshotwound" strength="1" />
+    <Effect minstrength="0" maxstrength="100" resistancefor="huskinfection" minresistance="0.99" maxresistance="0.99">
+      <StatusEffect target="Character">
+        <!-- 负面效果回复 -->
+        <ReduceAffliction type="damage" amount="0.85" />
+        <ReduceAffliction identifier="damage" strength="0.85" />
+        <ReduceAffliction identifier="bloodloss" strength="2.0" />
+        <ReduceAffliction identifier="bleeding" strength="1.25" />
+        <ReduceAffliction identifier="burn" strength="0.85" />
+        <ReduceAffliction identifier="poison" amostrengthunt="0.85" />
+        <ReduceAffliction identifier="reaperstax" strength="0.85" />
+        <ReduceAffliction identifier="morbusinepoisoning" strength="0.85" />
+        <ReduceAffliction identifier="cyanidepoisoning" strength="0.85" />
+        <ReduceAffliction identifier="sufforinpoisoning" strength="0.85" />
+        <ReduceAffliction identifier="deliriuminepoisoning" strength="0.85" />
+        <ReduceAffliction identifier="paralysis" strength="0.85" />
+        <ReduceAffliction identifier="psychosis" strength="0.85" />
+        <ReduceAffliction identifier="radiationsickness" strength="0.85" />
+        <ReduceAffliction identifier="opiatewithdrawal" strength="0.85" />
+        <ReduceAffliction identifier="opiateaddiction" strength="0.85" />
+        <ReduceAffliction identifier="opiateoverdose" strength="0.85" />
+        <ReduceAffliction identifier="oxygenlow" strength="0.85" />
+        <ReduceAffliction identifier="nausea" strength="0.85" />
+        <ReduceAffliction identifier="huskinfection" strength="0.85" />
       </StatusEffect>
-    </PeriodicEffect>
+    </Effect>
     <Icon texture="Content/UI/TalentsIcons2.png" sheetindex="6,7" sheetelementsize="128,128" color="255,86,217,255" origin="0,0" />
   </Affliction>
 

@@ -213,15 +213,15 @@
   <entityname.stigmataslot>圣痕槽位</entityname.stigmataslot>
   <entitydescription.stigmataslot>可放入三枚圣痕或遗传物质的特殊槽位。</entitydescription.stigmataslot>
   <entityname.elysiastigmata_top_human>爱莉希雅(上)</entityname.elysiastigmata_top_human>
-  <entitydescription.elysiastigmata_top_human>圣痕。游泳速度+50%。</entitydescription.elysiastigmata_top_human>
+  <entitydescription.elysiastigmata_top_human>圣痕。游泳速度‖color:gui.green‖+100%‖end‖。</entitydescription.elysiastigmata_top_human>
   <entityname.elysiastigmata_top_origin>爱莉希雅 · 无瑕之人(上)</entityname.elysiastigmata_top_origin>
-  <entitydescription.elysiastigmata_top_origin>圣痕。持续清除水压伤害。</entitydescription.elysiastigmata_top_origin>
+  <entitydescription.elysiastigmata_top_origin>圣痕。无视水压。</entitydescription.elysiastigmata_top_origin>
   <entityname.elysiastigmata_mid_human>爱莉希雅(中)</entityname.elysiastigmata_mid_human>
-  <entitydescription.elysiastigmata_mid_human>圣痕。夜视，并持续清除缺氧。</entitydescription.elysiastigmata_mid_human>
+  <entitydescription.elysiastigmata_mid_human>圣痕。不消耗氧气。</entitydescription.elysiastigmata_mid_human>
   <entityname.elysiastigmata_mid_origin>爱莉希雅 · 无瑕之人(中)</entityname.elysiastigmata_mid_origin>
-  <entitydescription.elysiastigmata_mid_origin>圣痕。持续削减眩晕。</entitydescription.elysiastigmata_mid_origin>
+  <entitydescription.elysiastigmata_mid_origin>圣痕。眩晕抗性‖color:gui.green‖+50%‖end‖。</entitydescription.elysiastigmata_mid_origin>
   <entityname.elysiastigmata_bottom_human>爱莉希雅(下)</entityname.elysiastigmata_bottom_human>
-  <entitydescription.elysiastigmata_bottom_human>圣痕。持续清除水压伤害。</entitydescription.elysiastigmata_bottom_human>
+  <entitydescription.elysiastigmata_bottom_human>圣痕。无视水压。</entitydescription.elysiastigmata_bottom_human>
   <entityname.elysiastigmata_bottom_origin>爱莉希雅 · 无瑕之人(下)</entityname.elysiastigmata_bottom_origin>
   <entitydescription.elysiastigmata_bottom_origin>圣痕。轻微治疗自身负面伤害。</entitydescription.elysiastigmata_bottom_origin>
   <entityname.Elysia_coalitionmedal>‖color:255,86,217,255‖爱莉的奖章‖end‖</entityname.Elysia_coalitionmedal>
