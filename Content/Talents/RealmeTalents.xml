@@ -134,12 +134,12 @@
     <Description tag="talentdescription.BlessingofZenith"></Description>
     <AbilityGroupInterval interval="60">
       <Abilities>
-        <CharacterAbilityGiveItemStatToTags tags="engine" stattype="EngineSpeed" value="1.1" />
+        <CharacterAbilityGiveItemStatToTags tags="engine" stattype="EngineSpeed" stackable="false" value="3.0" />
       </Abilities>
     </AbilityGroupInterval>
-    <AbilityGroupEffect>
+    <AbilityGroupEffect abilityeffecttype="None">
       <Abilities>
-        <CharacterAbilityGiveItemStatToTags tags="engine" stattype="EngineSpeed" value="2.9" />
+        <CharacterAbilityGiveItemStatToTags tags="engine" stattype="EngineSpeed" stackable="false" value="3.0" />
       </Abilities>
     </AbilityGroupEffect>
   </Talent>
