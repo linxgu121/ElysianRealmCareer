@@ -41,8 +41,8 @@ namespace Barotrauma.ElysianRealm
         private const float BowChargeVisualStartSeconds = 0.5f;
         private const float BowSuperImpulseMultiplier = 10.0f;
         private const float PastflowerBeamVisualSeconds = 0.34f;
-        private const float PastflowerExplosionVisualSeconds = 0.85f;
-        private const float PastflowerExplosionVisualScale = 2.0f;
+        private const float PastflowerExplosionVisualSeconds = 3.0f;
+        private const float PastflowerExplosionVisualScale = 5.0f;
         private const float PastflowerExplosionRange = 500.0f;
         private const float PastflowerExplosionInternalDamage = 500.0f;
         private const float PastflowerExplosionStructureDamage = 300.0f;
