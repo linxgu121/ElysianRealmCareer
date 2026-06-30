@@ -46,7 +46,6 @@ namespace Barotrauma.ElysianRealm
         private const float PastflowerExplosionRange = 500.0f;
         private const float PastflowerExplosionInternalDamage = 500.0f;
         private const float PastflowerExplosionStructureDamage = 300.0f;
-        private const float PastflowerArrowTipOffset = 82.0f;
         private const float LoveSpearInternalDamage = 75.0f;
         private const float LoveSpearLacerationDamage = 200.0f;
         private const float LoveSpearBleedingDamage = 90.0f;
@@ -74,7 +73,6 @@ namespace Barotrauma.ElysianRealm
         private static readonly Dictionary<Character, int> BowNoAmmoHintTicks = new Dictionary<Character, int>();
         private static readonly Dictionary<object, WeaponOverride> WeaponOverrides = new Dictionary<object, WeaponOverride>();
         private static readonly Dictionary<Item, SuperShotData> SuperProjectiles = new Dictionary<Item, SuperShotData>();
-        private static readonly Dictionary<Item, ProjectileFlightTrace> ProjectileFlightTraces = new Dictionary<Item, ProjectileFlightTrace>();
         private static readonly HashSet<Item> RemovedVolleyAmmo = new HashSet<Item>();
         private static readonly HashSet<string> LoggedOnce = new HashSet<string>();
         private static readonly List<PendingSuperShot> PendingSuperShots = new List<PendingSuperShot>();
@@ -205,7 +203,6 @@ namespace Barotrauma.ElysianRealm
             BowNoAmmoHintTicks.Clear();
             WeaponOverrides.Clear();
             SuperProjectiles.Clear();
-            ProjectileFlightTraces.Clear();
             RemovedVolleyAmmo.Clear();
             PendingSuperShots.Clear();
             BeamVisuals.Clear();
@@ -720,7 +717,6 @@ namespace Barotrauma.ElysianRealm
             SuperShotData existingData;
             if (SuperProjectiles.TryGetValue(projectileItem, out existingData))
             {
-                RememberProjectileFlightTrace(projectileItem);
                 RemovePendingSuperShotForProjectile(projectileItem, existingData.Attacker);
                 return null;
             }
@@ -729,7 +725,6 @@ namespace Barotrauma.ElysianRealm
             if (TryClaimPendingSuperShot(projectileItem, GetCharacterArg(args), out data))
             {
                 SuperProjectiles[projectileItem] = data;
-                RememberProjectileFlightTrace(projectileItem);
                 LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile bound on shoot. arrows=" + data.ArrowCount);
             }
 
@@ -755,7 +750,6 @@ namespace Barotrauma.ElysianRealm
             ApplyPastflowerSuperDirectDamage(data.Attacker, explosionPosition, data.ArrowCount);
             AddPastflowerExplosionVisual(explosionPosition);
             ScheduleDelayedItemRemoval(projectileItem, PastflowerExplosionVisualSeconds);
-            ProjectileFlightTraces.Remove(projectileItem);
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super impact explosion applied. arrows=" + data.ArrowCount + ", position=" + FormatVector(explosionPosition));
             LuaCsLogger.LogMessage("[ElysianRealm] Pastflower super projectile removal scheduled.");
             return null;
@@ -2375,28 +2369,6 @@ namespace Barotrauma.ElysianRealm
             }
         }
 
-        private static void RememberProjectileFlightTrace(Item projectileItem)
-        {
-            if (projectileItem == null)
-            {
-                return;
-            }
-
-            Vector2 position;
-            if (!TryGetWorldPosition(projectileItem, out position))
-            {
-                return;
-            }
-
-            Vector2 direction;
-            if (!TryGetProjectileForwardDirection(projectileItem, out direction))
-            {
-                direction = Vector2.UnitX;
-            }
-
-            ProjectileFlightTraces[projectileItem] = new ProjectileFlightTrace(position, direction);
-        }
-
         private static bool TryReplaceLoadedArrowWithSuperProjectile(Character character, Item bow, Item loadedArrow, out Item superArrow)
         {
             superArrow = null;
@@ -3889,31 +3861,6 @@ namespace Barotrauma.ElysianRealm
             Vector2 explosionPosition;
             if (TryGetProjectileImpactWorldPosition(args, projectileItem, out explosionPosition))
             {
-                if (IsNearProjectileCenter(explosionPosition, projectileItem))
-                {
-                    Vector2 contactPosition;
-                    if (TryGetProjectileBodyContactWorldPosition(projectileItem, out contactPosition))
-                    {
-                        return contactPosition;
-                    }
-
-                    Vector2 tipPosition;
-                    if (TryGetProjectileTipWorldPosition(projectileItem, out tipPosition))
-                    {
-                        return tipPosition;
-                    }
-                }
-
-                return explosionPosition;
-            }
-
-            if (TryGetProjectileBodyContactWorldPosition(projectileItem, out explosionPosition))
-            {
-                return explosionPosition;
-            }
-
-            if (TryGetProjectileTipWorldPosition(projectileItem, out explosionPosition))
-            {
                 return explosionPosition;
             }
 
@@ -3923,118 +3870,6 @@ namespace Barotrauma.ElysianRealm
             }
 
             return attacker == null ? Vector2.Zero : attacker.WorldPosition;
-        }
-
-        private static bool IsNearProjectileCenter(Vector2 position, Item projectileItem)
-        {
-            Vector2 projectilePosition;
-            if (!TryGetWorldPosition(projectileItem, out projectilePosition))
-            {
-                return false;
-            }
-
-            return Vector2.DistanceSquared(position, projectilePosition) <= 9.0f;
-        }
-
-        private static bool TryGetProjectileBodyContactWorldPosition(Item projectileItem, out Vector2 position)
-        {
-            object body = GetMemberValue(projectileItem, "body") ?? GetMemberValue(projectileItem, "Body");
-            if (body == null)
-            {
-                position = Vector2.Zero;
-                return false;
-            }
-
-            List<Vector2> candidates = new List<Vector2>();
-            foreach (string memberName in new[] { "ContactList", "ContactListHead", "Contacts", "ContactEdgeList" })
-            {
-                object contactList = GetMemberValue(body, memberName);
-                if (contactList != null)
-                {
-                    CollectImpactVectorCandidates(contactList, candidates, new HashSet<object>(), 0);
-                }
-            }
-
-            return TryChooseImpactPosition(candidates, projectileItem, true, out position);
-        }
-
-        private static bool TryGetProjectileTipWorldPosition(Item projectileItem, out Vector2 position)
-        {
-            Vector2 center;
-            if (!TryGetWorldPosition(projectileItem, out center))
-            {
-                position = Vector2.Zero;
-                return false;
-            }
-
-            Vector2 direction;
-            ProjectileFlightTrace trace;
-            if (ProjectileFlightTraces.TryGetValue(projectileItem, out trace))
-            {
-                direction = center - trace.Position;
-                if (direction.LengthSquared() > 0.0001f)
-                {
-                    direction.Normalize();
-                }
-                else
-                {
-                    direction = trace.Direction;
-                }
-            }
-            else if (!TryGetProjectileForwardDirection(projectileItem, out direction))
-            {
-                position = Vector2.Zero;
-                return false;
-            }
-
-            position = center + direction * PastflowerArrowTipOffset;
-            return true;
-        }
-
-        private static bool TryGetProjectileForwardDirection(Item projectileItem, out Vector2 direction)
-        {
-            object body = GetMemberValue(projectileItem, "body") ?? GetMemberValue(projectileItem, "Body");
-            if (TryGetVectorDirection(projectileItem, "LinearVelocity", out direction) ||
-                TryGetVectorDirection(projectileItem, "Velocity", out direction) ||
-                TryGetVectorDirection(body, "LinearVelocity", out direction) ||
-                TryGetVectorDirection(body, "Velocity", out direction))
-            {
-                return true;
-            }
-
-            float rotation;
-            if (TryGetFloatMember(projectileItem, "Rotation", out rotation) ||
-                TryGetFloatMember(projectileItem, "rotation", out rotation) ||
-                TryGetFloatMember(body, "Rotation", out rotation) ||
-                TryGetFloatMember(body, "rotation", out rotation))
-            {
-                direction = new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation));
-                if (direction.LengthSquared() > 0.0001f)
-                {
-                    direction.Normalize();
-                    return true;
-                }
-            }
-
-            direction = Vector2.Zero;
-            return false;
-        }
-
-        private static bool TryGetVectorDirection(object instance, string memberName, out Vector2 direction)
-        {
-            object value = GetMemberValue(instance, memberName);
-            if (value is Vector2)
-            {
-                direction = (Vector2)value;
-                if (direction.LengthSquared() > 0.0001f)
-                {
-                    direction.Normalize();
-                    return true;
-                }
-            }
-
-            direction = Vector2.Zero;
-            return false;
         }
 
         private static string FormatVector(Vector2 value)
@@ -4226,14 +4061,6 @@ namespace Barotrauma.ElysianRealm
                 "ContactPoint",
                 "Point",
                 "Position",
-                "Contact",
-                "WorldManifold",
-                "Manifold",
-                "FixtureA",
-                "FixtureB",
-                "Body",
-                "body",
-                "Next",
                 "Value0",
                 "Value1"
             })
@@ -4710,18 +4537,6 @@ namespace Barotrauma.ElysianRealm
                 LoadedArrow = loadedArrow;
                 ArrowCount = Math.Max(1, arrowCount);
                 CreatedTicks = createdTicks;
-            }
-        }
-
-        private sealed class ProjectileFlightTrace
-        {
-            public readonly Vector2 Position;
-            public readonly Vector2 Direction;
-
-            public ProjectileFlightTrace(Vector2 position, Vector2 direction)
-            {
-                Position = position;
-                Direction = direction.LengthSquared() <= 0.0001f ? Vector2.UnitX : Vector2.Normalize(direction);
             }
         }
 
